@@ -1,0 +1,73 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Modelo de usuarios
+model User {
+  id    Int    @id @default(autoincrement())
+  name  String
+  email String @unique
+  password String@default("temporal123")
+
+}
+
+model Clientes {
+  idCliente   Int      @id @default(autoincrement())
+  cedula      Int      @unique
+  nombre      String
+  apellidos   String
+  telefono    String?
+  direccion   String?
+  cotizaciones Cotizaciones[]
+  deudores     Deudores[]
+}
+
+model Tipo_producto {
+  idTipo_producto Int @id @default(autoincrement())
+  nombre_tp       String
+  cotizaciones    Cotizaciones[]
+}
+
+model Cotizaciones {
+  idCotizacion    Int @id @default(autoincrement())
+  idCliente       Int
+  idTipo_producto Int
+  ancho           Decimal
+  alto            Decimal
+  mando           String?
+  valor_total     Decimal
+  fecha           DateTime
+
+  cliente Clientes       @relation(fields: [idCliente], references: [idCliente])
+  tipoProducto Tipo_producto @relation(fields: [idTipo_producto], references: [idTipo_producto])
+  ventas Ventas[]
+}
+
+model Ventas {
+  idVenta      Int @id @default(autoincrement())
+  fecha_venta  DateTime
+  idCotizacion Int
+
+  cotizacion Cotizaciones @relation(fields: [idCotizacion], references: [idCotizacion])
+}
+
+model Deudores {
+  idDeudor   Int      @id @default(autoincrement())
+  idCliente  Int
+  valor_venta Decimal
+  abono       Decimal
+  fecha_abono DateTime
+
+  cliente Clientes @relation(fields: [idCliente], references: [idCliente])
+}
