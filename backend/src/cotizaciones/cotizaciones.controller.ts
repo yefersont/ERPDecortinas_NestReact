@@ -38,10 +38,13 @@ export class CotizacionesController {
   }
 
   @Patch(':id')
-  async update(@Param('id') id: string, @Body() updateCotizacioneDto: UpdateCotizacioneDto) {
+  async update(
+    @Param('id') id: string,
+    @Body() updateCotizacioneDto: UpdateCotizacioneDto
+  ) {
     const cotizacion = await this.cotizacionesService.update(+id, updateCotizacioneDto);
     return {
-      status: HttpStatus.OK,
+      status: 200,
       message: 'Cotización actualizada exitosamente',
       data: cotizacion,
     };
@@ -49,10 +52,11 @@ export class CotizacionesController {
 
   @Delete(':id')
   async remove(@Param('id') id: string) {
-    await this.cotizacionesService.remove(+id);
+    const cotizacion = await this.cotizacionesService.remove(+id);
     return {
       status: HttpStatus.OK,
       message: 'Cotización eliminada exitosamente',
+      data: cotizacion,
     };
   }
 }

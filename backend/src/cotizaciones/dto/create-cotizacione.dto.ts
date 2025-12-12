@@ -1,4 +1,4 @@
-import { IsInt, IsNumber, IsOptional, IsString, IsDateString } from 'class-validator';
+import { IsNotEmpty, IsInt, IsNumber, IsString, IsDateString } from 'class-validator';
 
 export class CreateCotizacioneDto {
   @IsInt()
@@ -8,18 +8,22 @@ export class CreateCotizacioneDto {
   idTipo_producto: number;
 
   @IsNumber()
+  @IsNotEmpty()
   ancho: number;
 
   @IsNumber()
+  @IsNotEmpty()
   alto: number;
 
   @IsString()
-  @IsOptional()
+  @IsNotEmpty()
   mando?: string;
 
   @IsNumber()
+  @IsNotEmpty()
   valor_total: number;
 
   @IsDateString()
+  @IsNotEmpty()
   fecha: string; // o Date si quieres manejarlo como objeto Date
 }

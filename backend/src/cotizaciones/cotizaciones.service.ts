@@ -34,7 +34,6 @@ export class CotizacionesService {
   }
 
   // Crear una cotización
-
   async create(data: CreateCotizacioneDto) {
     return prisma.cotizaciones.create({
       data: {
@@ -49,11 +48,23 @@ export class CotizacionesService {
     });
   }
 
+  // Actualizar ua cotizacion
   update(id: number, updateCotizacioneDto: UpdateCotizacioneDto) {
-    return `This action updates a #${id} cotizacione`;
+    return prisma.cotizaciones.update({
+      where: {
+        idCotizacion: id,
+      },
+      data: updateCotizacioneDto,
+    });
   }
 
+
+  // Eliminar una cotizacion
   remove(id: number) {
-    return `This action removes a #${id} cotizacione`;
+    return prisma.cotizaciones.delete({
+      where: {
+        idCotizacion: id,
+      },
+    });
   }
 }
