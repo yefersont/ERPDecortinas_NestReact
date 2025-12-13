@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -15,56 +9,63 @@ datasource db {
 
 // Modelo de usuarios
 model User {
-  id    Int    @id @default(autoincrement())
-  name  String
-  email String @unique
-  password String@default("temporal123")
-
+  id       Int    @id @default(autoincrement())
+  name     String
+  email    String @unique
+  password String @default("temporal123")
 }
 
 model Clientes {
-  idCliente   Int      @id @default(autoincrement())
-  cedula      Int      @unique
-  nombre      String
-  apellidos   String
-  telefono    String?
-  direccion   String?
-  cotizaciones Cotizaciones[]
+  idCliente    Int            @id @default(autoincrement())
+  cedula       Int            @unique
+  nombre       String
+  apellidos    String
+  telefono     String?
+  direccion    String?
+  cotizaciones Cotizaciones[] @relation("ClienteCotizaciones")
   deudores     Deudores[]
 }
 
 model Tipo_producto {
-  idTipo_producto Int @id @default(autoincrement())
+  idTipo_producto Int                 @id @default(autoincrement())
   nombre_tp       String
-  cotizaciones    Cotizaciones[]
+  cotizaciones    DetalleCotizacion[] @relation("TipoProductoDetalles")
 }
 
 model Cotizaciones {
-  idCotizacion    Int @id @default(autoincrement())
-  idCliente       Int
+  idCotizacion Int      @id @default(autoincrement())
+  idCliente    Int
+  valor_total  Decimal
+  fecha        DateTime
+
+  cliente  Clientes            @relation("ClienteCotizaciones", fields: [idCliente], references: [idCliente])
+  detalles DetalleCotizacion[] @relation("CotizacionDetalles")
+  ventas   Ventas[]            @relation("CotizacionVentas")
+}
+
+model DetalleCotizacion {
+  idDetalle       Int     @id @default(autoincrement())
+  idCotizacion    Int
   idTipo_producto Int
   ancho           Decimal
   alto            Decimal
-  mando           String?
-  valor_total     Decimal
-  fecha           DateTime
+  precio          Decimal
 
-  cliente Clientes       @relation(fields: [idCliente], references: [idCliente])
-  tipoProducto Tipo_producto @relation(fields: [idTipo_producto], references: [idTipo_producto])
-  ventas Ventas[]
+  cotizacion   Cotizaciones  @relation("CotizacionDetalles", fields: [idCotizacion], references: [idCotizacion])
+  tipoProducto Tipo_producto @relation("TipoProductoDetalles", fields: [idTipo_producto], references: [idTipo_producto])
 }
 
 model Ventas {
-  idVenta      Int @id @default(autoincrement())
+  idVenta      Int      @id @default(autoincrement())
   fecha_venta  DateTime
   idCotizacion Int
 
-  cotizacion Cotizaciones @relation(fields: [idCotizacion], references: [idCotizacion])
+  cotizacion Cotizaciones @relation("CotizacionVentas", fields: [idCotizacion], references: [idCotizacion])
 }
 
 model Deudores {
-  idDeudor   Int      @id @default(autoincrement())
-  idCliente  Int
+  idDeudor    Int      @id @default(autoincrement())
+  idCliente   Int
   valor_venta Decimal
   abono       Decimal
   fecha_abono DateTime

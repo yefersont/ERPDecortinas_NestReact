@@ -1,23 +1,14 @@
-import { IsNotEmpty, IsInt, IsNumber, IsString, IsDateString } from 'class-validator';
+import {
+  IsNotEmpty,
+  IsInt,
+  IsNumber,
+  IsDateString,
+} from 'class-validator';
 
 export class CreateCotizacioneDto {
   @IsInt()
+  @IsNotEmpty()
   idCliente: number;
-
-  @IsInt()
-  idTipo_producto: number;
-
-  @IsNumber()
-  @IsNotEmpty()
-  ancho: number;
-
-  @IsNumber()
-  @IsNotEmpty()
-  alto: number;
-
-  @IsString()
-  @IsNotEmpty()
-  mando?: string;
 
   @IsNumber()
   @IsNotEmpty()
@@ -25,5 +16,5 @@ export class CreateCotizacioneDto {
 
   @IsDateString()
   @IsNotEmpty()
-  fecha: string; // o Date si quieres manejarlo como objeto Date
+  fecha: string;
 }

@@ -22,14 +22,22 @@ CREATE TABLE "Tipo_producto" (
 CREATE TABLE "Cotizaciones" (
     "idCotizacion" SERIAL NOT NULL,
     "idCliente" INTEGER NOT NULL,
-    "idTipo_producto" INTEGER NOT NULL,
-    "ancho" DECIMAL(65,30) NOT NULL,
-    "alto" DECIMAL(65,30) NOT NULL,
-    "mando" TEXT,
     "valor_total" DECIMAL(65,30) NOT NULL,
     "fecha" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "Cotizaciones_pkey" PRIMARY KEY ("idCotizacion")
+);
+
+-- CreateTable
+CREATE TABLE "DetalleCotizacion" (
+    "idDetalle" SERIAL NOT NULL,
+    "idCotizacion" INTEGER NOT NULL,
+    "idTipo_producto" INTEGER NOT NULL,
+    "ancho" DECIMAL(65,30) NOT NULL,
+    "alto" DECIMAL(65,30) NOT NULL,
+    "precio" DECIMAL(65,30) NOT NULL,
+
+    CONSTRAINT "DetalleCotizacion_pkey" PRIMARY KEY ("idDetalle")
 );
 
 -- CreateTable
@@ -59,7 +67,10 @@ CREATE UNIQUE INDEX "Clientes_cedula_key" ON "Clientes"("cedula");
 ALTER TABLE "Cotizaciones" ADD CONSTRAINT "Cotizaciones_idCliente_fkey" FOREIGN KEY ("idCliente") REFERENCES "Clientes"("idCliente") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Cotizaciones" ADD CONSTRAINT "Cotizaciones_idTipo_producto_fkey" FOREIGN KEY ("idTipo_producto") REFERENCES "Tipo_producto"("idTipo_producto") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "DetalleCotizacion" ADD CONSTRAINT "DetalleCotizacion_idCotizacion_fkey" FOREIGN KEY ("idCotizacion") REFERENCES "Cotizaciones"("idCotizacion") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "DetalleCotizacion" ADD CONSTRAINT "DetalleCotizacion_idTipo_producto_fkey" FOREIGN KEY ("idTipo_producto") REFERENCES "Tipo_producto"("idTipo_producto") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Ventas" ADD CONSTRAINT "Ventas_idCotizacion_fkey" FOREIGN KEY ("idCotizacion") REFERENCES "Cotizaciones"("idCotizacion") ON DELETE RESTRICT ON UPDATE CASCADE;
