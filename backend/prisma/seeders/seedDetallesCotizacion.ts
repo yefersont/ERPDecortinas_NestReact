@@ -2,7 +2,7 @@ import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
-async function main() {
+export async function seedDetallesCotizacion() {
   console.log("Insertando detalles de cotizaciones...");
 
   await prisma.detalleCotizacion.createMany({
@@ -40,12 +40,3 @@ async function main() {
 
   console.log("Detalles de cotizaciones insertados correctamente.");
 }
-
-main()
-  .catch(e => {
-    console.error(e);
-    process.exit(1);
-  })
-  .finally(async () => {
-    await prisma.$disconnect();
-  });

@@ -52,8 +52,7 @@ CREATE TABLE "Ventas" (
 -- CreateTable
 CREATE TABLE "Deudores" (
     "idDeudor" SERIAL NOT NULL,
-    "idCliente" INTEGER NOT NULL,
-    "valor_venta" DECIMAL(65,30) NOT NULL,
+    "idVenta" INTEGER NOT NULL,
     "abono" DECIMAL(65,30) NOT NULL,
     "fecha_abono" TIMESTAMP(3) NOT NULL,
 
@@ -76,4 +75,4 @@ ALTER TABLE "DetalleCotizacion" ADD CONSTRAINT "DetalleCotizacion_idTipo_product
 ALTER TABLE "Ventas" ADD CONSTRAINT "Ventas_idCotizacion_fkey" FOREIGN KEY ("idCotizacion") REFERENCES "Cotizaciones"("idCotizacion") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Deudores" ADD CONSTRAINT "Deudores_idCliente_fkey" FOREIGN KEY ("idCliente") REFERENCES "Clientes"("idCliente") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "Deudores" ADD CONSTRAINT "Deudores_idVenta_fkey" FOREIGN KEY ("idVenta") REFERENCES "Ventas"("idVenta") ON DELETE RESTRICT ON UPDATE CASCADE;

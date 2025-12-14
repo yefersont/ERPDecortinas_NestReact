@@ -23,7 +23,6 @@ model Clientes {
   telefono     String?
   direccion    String?
   cotizaciones Cotizaciones[] @relation("ClienteCotizaciones")
-  deudores     Deudores[]
 }
 
 model Tipo_producto {
@@ -56,19 +55,28 @@ model DetalleCotizacion {
 }
 
 model Ventas {
-  idVenta      Int      @id @default(autoincrement())
-  fecha_venta  DateTime
-  idCotizacion Int
+  idVenta        Int      @id @default(autoincrement())
+  fecha_venta    DateTime
+  idCotizacion   Int
+  total          Decimal
+  saldo_pendiente Decimal
+  estado_pago    EstadoPago @default(PENDIENTE)
 
   cotizacion Cotizaciones @relation("CotizacionVentas", fields: [idCotizacion], references: [idCotizacion])
+  abonos     Deudores[]
 }
+
+enum EstadoPago {
+  PENDIENTE
+  PAGADO
+}
+
 
 model Deudores {
   idDeudor    Int      @id @default(autoincrement())
-  idCliente   Int
-  valor_venta Decimal
+  idVenta     Int
   abono       Decimal
   fecha_abono DateTime
 
-  cliente Clientes @relation(fields: [idCliente], references: [idCliente])
+  venta Ventas @relation(fields: [idVenta], references: [idVenta])
 }

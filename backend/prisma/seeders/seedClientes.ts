@@ -1,7 +1,7 @@
 import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 
-async function main() {
+export async function seedClientes() {
 
   // Limpia la tabla
   await prisma.clientes.deleteMany();
@@ -37,6 +37,3 @@ async function main() {
   console.log("Clientes seeded correctamente");
 }
 
-main()
-  .catch((e) => console.error(e))
-  .finally(() => prisma.$disconnect());

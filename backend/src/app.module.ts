@@ -8,6 +8,7 @@ import { CotizacionesModule } from './cotizaciones/cotizaciones.module';
 import { DetallecotizacionModule } from './detallecotizacion/detallecotizacion.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { VentasModule } from './ventas/ventas.module';
+import { DeudoresModule } from './deudores/deudores.module';
 
 @Module({
   imports: [
@@ -17,7 +18,8 @@ import { VentasModule } from './ventas/ventas.module';
     CotizacionesModule,
     DetallecotizacionModule,
     PrismaModule,
-    VentasModule
+    VentasModule,
+    DeudoresModule
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -3,7 +3,7 @@ import * as bcrypt from 'bcrypt';
 
 const prisma = new PrismaClient();
 
-async function main() {
+export async function seedUsers() {
 
     await prisma.user.deleteMany(); 
 
@@ -23,7 +23,3 @@ async function main() {
     console.log('Users seeded Creados con contraseñas hasheadas'); 
     
 }
-
-main()
-.catch((e) =>console.error(e))
-.finally(() => prisma.$disconnect());

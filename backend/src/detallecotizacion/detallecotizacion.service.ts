@@ -9,7 +9,7 @@ export class DetallecotizacionService {
 
   // CREATE
   async create(data: CreateDetallecotizacionDto) {
-    return await this.prisma.detalleCotizacion.create({
+    const detalle = await this.prisma.detalleCotizacion.create({
       data: {
         idCotizacion: data.idCotizacion,
         idTipo_producto: data.idTipo_producto,
@@ -18,15 +18,25 @@ export class DetallecotizacionService {
         precio: data.precio,
       },
     });
+
+    return {
+      message: 'Detalle de cotización creado correctamente',
+      data: detalle,
+    };
   }
 
   // FIND ALL
   async findAll() {
-    return await this.prisma.detalleCotizacion.findMany({
+    const detalles = await this.prisma.detalleCotizacion.findMany({
       include: {
         tipoProducto: true,
       },
     });
+
+    return {
+      message: 'Listado de detalles de cotización',
+      data: detalles,
+    };
   }
 
   // FIND ONE
@@ -42,7 +52,10 @@ export class DetallecotizacionService {
       throw new NotFoundException(`DetalleCotización con ID ${id} no existe`);
     }
 
-    return detalle;
+    return {
+      message: 'Detalle de cotización encontrado',
+      data: detalle,
+    };
   }
 
   // UPDATE
@@ -55,10 +68,15 @@ export class DetallecotizacionService {
       throw new NotFoundException(`DetalleCotización con ID ${id} no existe`);
     }
 
-    return await this.prisma.detalleCotizacion.update({
+    const updated = await this.prisma.detalleCotizacion.update({
       where: { idDetalle: id },
       data: { ...data },
     });
+
+    return {
+      message: 'Detalle de cotización actualizado correctamente',
+      data: updated,
+    };
   }
 
   // DELETE
@@ -71,11 +89,13 @@ export class DetallecotizacionService {
       throw new NotFoundException(`DetalleCotización con ID ${id} no existe`);
     }
 
-    return await this.prisma.detalleCotizacion.delete({
+    const deleted = await this.prisma.detalleCotizacion.delete({
       where: { idDetalle: id },
     });
-  }
 
-  
-  
+    return {
+      message: 'Detalle de cotización eliminado correctamente',
+      data: deleted,
+    };
+  }
 }
