@@ -1,29 +1,77 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { CreateMultipleDetallecotizacionDto } from './dto/create-multiple-detallecotizacion.dto';
 import { CreateDetallecotizacionDto } from './dto/create-detallecotizacion.dto';
 import { UpdateDetallecotizacionDto } from './dto/update-detallecotizacion.dto';
+
 
 @Injectable()
 export class DetallecotizacionService {
   constructor(private prisma: PrismaService) {}
 
-  // CREATE
-  async create(data: CreateDetallecotizacionDto) {
-    const detalle = await this.prisma.detalleCotizacion.create({
+  // create para varios detalles
+  async createMultiple(dto: CreateMultipleDetallecotizacionDto) {
+    const created = await Promise.all(
+      dto.detalles.map((detalle) =>
+        this.prisma.detalleCotizacion.create({
+          data: {
+            idCotizacion: detalle.idCotizacion,
+            idTipo_producto: detalle.idTipo_producto,
+            ancho: detalle.ancho,
+            alto: detalle.alto,
+            precio: detalle.precio,
+          },
+        }),
+      ),
+    );
+
+    // Asumiendo que todos los detalles pertenecen a la misma cotización
+    if (dto.detalles.length > 0) {
+      const idCotizacion = dto.detalles[0].idCotizacion;
+      await this.actualizarValorTotalCotizacion(idCotizacion);
+    }
+
+    return {
+      message: `${created.length} detalles creados correctamente`,
+      data: created,
+    };
+  }
+
+  // create para un solo detalle
+  async create(detalle: CreateDetallecotizacionDto) {
+    const created = await this.prisma.detalleCotizacion.create({
       data: {
-        idCotizacion: data.idCotizacion,
-        idTipo_producto: data.idTipo_producto,
-        ancho: data.ancho,
-        alto: data.alto,
-        precio: data.precio,
+        idCotizacion: detalle.idCotizacion,
+        idTipo_producto: detalle.idTipo_producto,
+        ancho: detalle.ancho,
+        alto: detalle.alto,
+        precio: detalle.precio,
       },
     });
 
+    // Actualizar el valor total de la cotización
+    await this.actualizarValorTotalCotizacion(detalle.idCotizacion);
+
     return {
-      message: 'Detalle de cotización creado correctamente',
-      data: detalle,
+      message: 'Detalle creado correctamente',
+      data: created,
     };
   }
+
+  // nuevo método en el mismo service
+  async actualizarValorTotalCotizacion(idCotizacion: number) {
+    const detalles = await this.prisma.detalleCotizacion.findMany({
+      where: { idCotizacion },
+    });
+
+    const valorTotal = detalles.reduce((acc, d) => acc + Number(d.precio), 0);
+
+    return this.prisma.cotizaciones.update({
+      where: { idCotizacion },
+      data: { valor_total: valorTotal },
+    });
+  }
+
 
   // FIND ALL
   async findAll() {

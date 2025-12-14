@@ -8,37 +8,63 @@ export class DeudoresService {
   constructor(private prisma: PrismaService) {}
 
   // CREATE
-async create(data: CreateDeudoreDto) {
-  const venta = await this.prisma.ventas.findUnique({
-    where: { idVenta: data.idVenta },
-  });
 
-  if (!venta) {
-    throw new NotFoundException(
-      `La venta con ID ${data.idVenta} no existe`,
-    );
-  }
 
-  if (data.abono <= 0) {
-    throw new Error('El abono debe ser mayor a 0');
-  }
+  async create(data: CreateDeudoreDto) {
+    // Buscar la venta asociada
+    const venta = await this.prisma.ventas.findUnique({
+      where: { idVenta: data.idVenta },
+    });
 
-  const deudor = await this.prisma.deudores.create({
-    data: {
-      abono: data.abono,
-      fecha_abono: data.fecha_abono,
-      venta: {
-        connect: { idVenta: data.idVenta },
+    if (!venta) {
+      throw new NotFoundException(
+        `La venta con ID ${data.idVenta} no existe`,
+      );
+    }
+
+    // Validaciones
+    if (data.abono <= 0) {
+      throw new Error('El abono debe ser mayor a 0');
+    }
+
+    // Convertir Decimal a number para comparación
+    const saldoPendiente = Number(venta.saldo_pendiente);
+
+    if (data.abono > saldoPendiente) {
+      throw new BadRequestException(
+        `El abono no puede ser mayor al saldo pendiente (${saldoPendiente})`,
+      );
+    }
+
+    // Crear registro de deudor (abono)
+    const deudor = await this.prisma.deudores.create({
+      data: {
+        abono: data.abono,
+        fecha_abono: data.fecha_abono,
+        venta: {
+          connect: { idVenta: data.idVenta },
+        },
       },
-    },
-  });
+    });
 
-  return {
-    message: 'Abono registrado correctamente',
-    data: deudor,
-  };
-}
+    // Actualizar saldo pendiente y estado de la venta
+    const nuevoSaldo = saldoPendiente - data.abono;
+    await this.prisma.ventas.update({
+      where: { idVenta: data.idVenta },
+      data: {
+        saldo_pendiente: nuevoSaldo,
+        estado_pago: nuevoSaldo === 0 ? 'PAGADO' : 'PENDIENTE',
+      },
+    });
 
+    return {
+      message:
+        nuevoSaldo === 0
+          ? 'Abono registrado correctamente. La venta está totalmente pagada.'
+          : `Abono registrado correctamente. Saldo pendiente: ${nuevoSaldo}`,
+      data: deudor,
+    };
+  }
 
 
   // FIND ALL

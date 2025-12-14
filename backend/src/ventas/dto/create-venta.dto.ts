@@ -1,11 +1,16 @@
-import { IsNotEmpty, IsInt, IsDateString } from 'class-validator';
+import { IsNotEmpty, IsInt, IsDateString, IsOptional, IsNumber } from 'class-validator';
 
 export class CreateVentaDto {
   @IsNotEmpty()
   @IsDateString()
-  fecha_venta: string; // formato ISO: '2025-12-12T00:00:00Z'
+  fecha_venta: string;
 
   @IsNotEmpty()
   @IsInt()
   idCotizacion: number;
+
+  // opcional: si no lo mandan, se toma el 50 %
+  @IsOptional()
+  @IsNumber()
+  abono_inicial?: number;
 }
