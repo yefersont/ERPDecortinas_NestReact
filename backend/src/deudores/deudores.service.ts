@@ -24,14 +24,14 @@ export class DeudoresService {
 
     // Validaciones
     if (data.abono <= 0) {
-      throw new Error('El abono debe ser mayor a 0');
+      throw new BadRequestException('El abono debe ser mayor a 0');
     }
 
     // Convertir Decimal a number para comparación
     const saldoPendiente = Number(venta.saldo_pendiente);
 
     if (data.abono > saldoPendiente) {
-      throw new BadRequestException(
+      throw new BadRequestException (
         `El abono no puede ser mayor al saldo pendiente (${saldoPendiente})`,
       );
     }
@@ -91,7 +91,7 @@ export class DeudoresService {
     });
 
     if (!deudor) {
-      throw new NotFoundException(`Deudor con ID ${id} no existe`);
+      throw new BadRequestException(`Deudor con ID ${id} no existe`);
     }
 
     return {
