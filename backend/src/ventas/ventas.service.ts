@@ -33,7 +33,7 @@ async create(data: CreateVentaDto) {
 
 
   // 4. Lógica de negocio: abono inicial (50%)
-  const total = cotizacion.valor_total;
+  const total = Number(cotizacion.valor_total);
   const abonoInicial = total / 2;
   const saldoPendiente = total - abonoInicial;
 
