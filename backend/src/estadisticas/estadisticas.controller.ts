@@ -37,4 +37,46 @@ export class EstadisticasController {
       data: await this.estadisticasService.resumen()
     }
   }
+  @Get('ventasPorMes')
+  async ventasPorMes() {
+    return{
+      message: 'Ventas por mes',
+      data: await this.estadisticasService.ventasPorMes()
+    }
+  }
+
+  @Get('productosMasVendidos')
+  async productosMasVendidos() {
+    return{
+      message: 'Productos mas vendidos',
+      data: await this.estadisticasService.productosMasVendidos()
+    }
+  }
+
+  @Get('clientesConMayorDeuda')
+  async clientesConMayorDeuda() {
+    return{
+      message: 'Clientes con mayor deuda',
+      data: await this.estadisticasService.clientesConMayorDeuda()
+    }
+  }
+
+  @Get('clientesConMasCompras')
+  async clientesConMasCompras() {
+    return{
+      message: 'Clientes con mas compras',
+      data: await this.estadisticasService.clientesConMasCompras()
+    }
+  }
+
+  @Get('tiempoPromedioCierre')
+  async tiempoPromedioCierre() {
+    return{
+      message: 'Tiempo promedio',
+      data: await this.estadisticasService.tiempoPromedioCierre()
+    }
+  }
+  
 }
+
+
