@@ -10,6 +10,7 @@ import { PrismaModule } from './prisma/prisma.module';
 import { VentasModule } from './ventas/ventas.module';
 import { DeudoresModule } from './deudores/deudores.module';
 import { EstadisticasModule } from './estadisticas/estadisticas.module';
+import { ThrottlerModule } from '@nestjs/throttler';
 
 @Module({
   imports: [
@@ -21,7 +22,15 @@ import { EstadisticasModule } from './estadisticas/estadisticas.module';
     PrismaModule,
     VentasModule,
     DeudoresModule,
-    EstadisticasModule
+    EstadisticasModule,
+    ThrottlerModule.forRoot({
+      throttlers:[
+        {
+          ttl: 60,
+          limit: 10,
+        },
+      ]
+    }),
   ],
   controllers: [AppController],
   providers: [AppService],
