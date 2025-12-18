@@ -7,19 +7,25 @@ import {
   Param,
   Delete,
   HttpStatus,
+  UseGuards,
 } from '@nestjs/common';
 import { DetallecotizacionService } from './detallecotizacion.service';
 import { CreateDetallecotizacionDto } from './dto/create-detallecotizacion.dto';
 import { UpdateDetallecotizacionDto } from './dto/update-detallecotizacion.dto';
 import { CreateMultipleDetallecotizacionDto } from './dto/create-multiple-detallecotizacion.dto';
+import { Roles } from '../auth/roles.decorator';
+import { RolesGuard } from '../auth/roles.guard';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 
 
+@UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('cotizacion/detallecotizacion')
 export class DetallecotizacionController {
   constructor(private readonly detalleService: DetallecotizacionService) {}
 
   // CREATE (un solo detalle)
   @Post('single')
+  @Roles('ADMIN')
   async create(@Body() dto: CreateDetallecotizacionDto) {
     const detalle = await this.detalleService.create(dto);
 
@@ -38,6 +44,7 @@ export class DetallecotizacionController {
 
   // CREATE (varios detalles)
   @Post('multiple')
+  @Roles('ADMIN')
   async createMultiple(@Body() dto: CreateMultipleDetallecotizacionDto) {
     const detalles = await this.detalleService.createMultiple(dto);
 
@@ -57,6 +64,7 @@ export class DetallecotizacionController {
 
   // FIND ALL
   @Get()
+  @Roles('ADMIN', 'USER')
   async findAll() {
     const detalles = await this.detalleService.findAll();
 
@@ -69,6 +77,7 @@ export class DetallecotizacionController {
 
   // FIND ONE
   @Get(':id')
+  @Roles('ADMIN', 'USER')
   async findOne(@Param('id') id: string) {
     const detalle = await this.detalleService.findOne(+id);
 
@@ -81,6 +90,7 @@ export class DetallecotizacionController {
 
   // UPDATE
   @Patch(':id')
+  @Roles('ADMIN')
   async update(
     @Param('id') id: string,
     @Body() dto: UpdateDetallecotizacionDto,
@@ -96,6 +106,7 @@ export class DetallecotizacionController {
 
   // DELETE
   @Delete(':id')
+  @Roles('ADMIN')
   async remove(@Param('id') id: string) {
     const detalle = await this.detalleService.remove(+id);
 

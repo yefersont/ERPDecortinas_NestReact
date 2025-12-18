@@ -22,6 +22,7 @@ export class AuthService {
     const payload = {
       sub: user.id,
       email: user.email,
+      rol: user.rol,
     };
 
     const token = await this.jwtService.signAsync(payload);
@@ -29,7 +30,7 @@ export class AuthService {
     return {
       message: 'Login exitoso',
       token,
-      expiresIn: 3600, // 1 hora
+      expiresIn: 21600, // 1 hora
     };
   }
 }

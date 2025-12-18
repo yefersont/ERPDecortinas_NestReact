@@ -1,5 +1,5 @@
 import { PrismaClient } from '@prisma/client';
-
+import { seedUsers } from './seedUsers';
 import { seedTipoProducto } from './seedTipoProducto';
 import { seedClientes } from './seedClientes';
 import { seedCotizaciones } from './seedCotizaciones';
@@ -9,7 +9,8 @@ import { seedDeudores } from './seedDeudores';
 
 const prisma = new PrismaClient();
 
-async function main() {
+async function main() { 
+  await seedUsers();
   await seedTipoProducto();       // independiente
   await seedClientes();           // base
   await seedCotizaciones();       // depende de clientes

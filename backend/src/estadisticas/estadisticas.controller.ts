@@ -1,6 +1,10 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, UseGuards } from '@nestjs/common';
 import { EstadisticasService } from './estadisticas.service';
+import { Roles } from '../auth/roles.decorator';
+import { RolesGuard } from '../auth/roles.guard';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 
+@UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('estadisticas')
 export class EstadisticasController {
   constructor(private readonly estadisticasService: EstadisticasService) {}
@@ -30,6 +34,7 @@ export class EstadisticasController {
   //   return this.estadisticasService.remove(+id);
   // }
 
+  @Roles('ADMIN', 'USER')
   @Get('resumen')
   async resumen() {
     return{ 
@@ -37,7 +42,10 @@ export class EstadisticasController {
       data: await this.estadisticasService.resumen()
     }
   }
+
+
   @Get('ventasPorMes')
+  @Roles('ADMIN', 'USER')
   async ventasPorMes() {
     return{
       message: 'Ventas por mes',
@@ -46,6 +54,7 @@ export class EstadisticasController {
   }
 
   @Get('productosMasVendidos')
+  @Roles('ADMIN', 'USER')
   async productosMasVendidos() {
     return{
       message: 'Productos mas vendidos',
@@ -54,6 +63,7 @@ export class EstadisticasController {
   }
 
   @Get('clientesConMayorDeuda')
+  @Roles('ADMIN', 'USER')
   async clientesConMayorDeuda() {
     return{
       message: 'Clientes con mayor deuda',
@@ -62,6 +72,7 @@ export class EstadisticasController {
   }
 
   @Get('clientesConMasCompras')
+  @Roles('ADMIN', 'USER')
   async clientesConMasCompras() {
     return{
       message: 'Clientes con mas compras',
@@ -70,6 +81,7 @@ export class EstadisticasController {
   }
 
   @Get('tiempoPromedioCierre')
+  @Roles('ADMIN', 'USER')
   async tiempoPromedioCierre() {
     return{
       message: 'Tiempo promedio',
