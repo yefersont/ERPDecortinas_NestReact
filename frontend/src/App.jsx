@@ -1,35 +1,49 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import React from 'react';
+import { Routes, Route } from 'react-router-dom'; 
+import { useTheme } from './context/ThemeContext';
+
+// Componentes
+import Navbar from './components/Navbar'; 
+
+// Páginas
+import ClientesPage from './pages/Clientes/ClientesPage';
+import VentasPage from './pages/Ventas/VentasPage';
+import CotizacionesPage from './pages/Cotizaciones/CotizacionesPage';
+import DashboardPage from './pages/Dashboard/DashboardPage';
+import DeudoresPage from './pages/deudores/DeudoresPage';
 
 function App() {
-  const [count, setCount] = useState(0)
+  const { isDarkMode } = useTheme();
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    <div className={`flex h-screen overflow-hidden ${isDarkMode ? 'bg-gray-900' : 'bg-gray-50'}`}>
+      
+      <Navbar />
+
+      <main className={`flex-1 overflow-auto transition-colors duration-300 ${isDarkMode ? 'bg-gray-900' : 'bg-gray-50'}`}>
+        <Routes>
+          <Route path="/" element={<DashboardPage />} />
+          <Route path="/clientes" element={<ClientesPage />} />
+          <Route path="/ventas" element={<VentasPage />} />
+          <Route path="/cotizaciones" element={<CotizacionesPage />} />
+          <Route path="/dashboard" element={<DashboardPage />} />
+          <Route path="/deudores" element={<DeudoresPage />} />
+          <Route 
+            path="*" 
+            element={
+              <div className="flex items-center justify-center h-full">
+                <div className="text-center">
+                  <h1 className={`text-6xl font-bold mb-4 ${isDarkMode ? 'text-red-400' : 'text-red-600'}`}>404</h1>
+                  <p className={`text-xl ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Página no encontrada</p>
+                </div>
+              </div>
+            } 
+          />
+        </Routes>
+      </main> 
+      
+    </div>
+  );
 }
 
-export default App
+export default App;
