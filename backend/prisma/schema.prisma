@@ -22,14 +22,21 @@ enum Rol {
 }
 
 model Clientes {
-  idCliente    Int            @id @default(autoincrement())
-  cedula       Int            @unique
-  nombre       String
-  apellidos    String
-  telefono     String?
-  direccion    String?
-  cotizaciones Cotizaciones[] @relation("ClienteCotizaciones")
+  idCliente     Int    @id @default(autoincrement())
+
+  // Cédula protegida (ISO 27001)
+  cedula_hash   String @unique
+  cedula_enc    Json
+
+  nombre        String
+  apellidos     String
+
+  telefono_enc  Json?
+  direccion_enc Json?
+
+  cotizaciones  Cotizaciones[] @relation("ClienteCotizaciones")
 }
+
 
 model Tipo_producto {
   idTipo_producto Int                 @id @default(autoincrement())

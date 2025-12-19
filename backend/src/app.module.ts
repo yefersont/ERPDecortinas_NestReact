@@ -11,6 +11,7 @@ import { VentasModule } from './ventas/ventas.module';
 import { DeudoresModule } from './deudores/deudores.module';
 import { EstadisticasModule } from './estadisticas/estadisticas.module';
 import { ThrottlerModule } from '@nestjs/throttler';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
   imports: [
@@ -30,6 +31,9 @@ import { ThrottlerModule } from '@nestjs/throttler';
           limit: 10,
         },
       ]
+    }),
+    ConfigModule.forRoot({
+      isGlobal: true,
     }),
   ],
   controllers: [AppController],

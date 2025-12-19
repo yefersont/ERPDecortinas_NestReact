@@ -1,6 +1,7 @@
-import {IsNotEmpty, IsInt, IsOptional, IsString } from 'class-validator';
+import { IsNotEmpty, IsInt, IsOptional, IsString } from 'class-validator';
 
 export class CreateClienteDto {
+
   @IsInt()
   cedula: number;
 
@@ -12,11 +13,11 @@ export class CreateClienteDto {
   @IsNotEmpty()
   apellidos: string;
 
+  @IsOptional()
   @IsString()
-  @IsNotEmpty()
   telefono?: string;
 
+  @IsOptional()
   @IsString()
-  @IsNotEmpty()
   direccion?: string;
 }
