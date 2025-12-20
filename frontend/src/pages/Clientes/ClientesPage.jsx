@@ -3,6 +3,7 @@ import { getClientes } from "../../api/ClientesApi";
 import TablaConPaginacion from "../../components/TablaConPaginacion";
 import { useTheme } from "../../context/ThemeContext";
 import { Users, UserPlus, Download, Upload } from "lucide-react";
+import Loader from "../../components/Loader";
 
 const ClientesPage = () => {
   const [clientes, setClientes] = useState([]);
@@ -17,7 +18,7 @@ const ClientesPage = () => {
     } catch (error) {
       console.error(error);
     } finally {
-      setLoading(false);
+      setLoading(false  );
     }
   };
 
@@ -33,7 +34,10 @@ const ClientesPage = () => {
     { key: "direccion", label: "Dirección" },
   ];
 
-  return (
+
+  return loading ? (
+    <Loader text="Cargando clientes..." />
+  ) : (
     <div className={`min-h-screen p-4 sm:p-6 lg:p-8 ${isDarkMode ? "bg-gray-950" : "bg-gray-50"}`}>
       <div className="max-w-7xl mx-auto space-y-6">
         {/* Header Section */}

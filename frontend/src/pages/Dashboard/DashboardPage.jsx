@@ -32,6 +32,7 @@ import {
   Package
 } from 'lucide-react';
 import { useTheme } from '../../context/ThemeContext';
+import Loader from '../../components/Loader';
 
 const DashboardPage = () => {
     const { isDarkMode } = useTheme();
@@ -135,39 +136,13 @@ const DashboardPage = () => {
         </div>
     );
 
-    // Loading state
-    if (loading) {
-        return (
-            <div className={`flex items-center justify-center h-screen ${isDarkMode ? 'bg-gray-900' : 'bg-gray-50'}`}>
-                <div className="text-center">
-                    <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-500 mx-auto mb-4"></div>
-                    <p className={`${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Cargando estadísticas...</p>
-                </div>
-            </div>
-        );
-    }
 
     // Error state - si no hay datos
-    if (!estadisticas) {
-        return (
-            <div className={`flex items-center justify-center h-screen ${isDarkMode ? 'bg-gray-900' : 'bg-gray-50'}`}>
-                <div className="text-center">
-                    <AlertCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
-                    <p className={`text-xl ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                        Error al cargar los datos
-                    </p>
-                    <button 
-                        onClick={cargarDatos}
-                        className="mt-4 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
-                    >
-                        Reintentar
-                    </button>
-                </div>
-            </div>
-        );
-    }
 
-    return (
+
+    return loading ? (
+        <Loader text="Cargando estadísticas..." />
+    ) : (
         <div className={`min-h-screen p-8 ${isDarkMode ? 'bg-gray-900' : 'bg-gray-50'}`}>
             <div className="max-w-7xl mx-auto">
                 {/* Header */}
@@ -396,6 +371,7 @@ const DashboardPage = () => {
             </div>
         </div>
     );
+    
 };
 
 export default DashboardPage;   
