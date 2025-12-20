@@ -43,7 +43,7 @@ const CotizacionesPage = () => {
     }).format(valor);
   };
 
-  // Obtener badge de estado
+  // Obtener badge de estado (si se vendió o no la cotización)
   const getEstadoBadge = (cotizacion) => {
     const tieneVenta = cotizacion.ventas && cotizacion.ventas.length > 0;
     
@@ -60,43 +60,25 @@ const CotizacionesPage = () => {
           `}
         >
           <Clock size={12} />
-          Pendiente
+          Sin Vender
         </span>
       );
     }
 
-    const venta = cotizacion.ventas[0];
-    if (venta.estado_pago === "PAGADO") {
-      return (
-        <span
-          className={`
-            inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium
-            ${
-              isDarkMode
-                ? "bg-green-900/30 text-green-400"
-                : "bg-green-100 text-green-700"
-            }
-          `}
-        >
-          <CheckCircle size={12} />
-          Pagado
-        </span>
-      );
-    }
-
+    // Si tiene venta, la cotización fue vendida
     return (
       <span
         className={`
           inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium
           ${
             isDarkMode
-              ? "bg-yellow-900/30 text-yellow-400"
-              : "bg-yellow-100 text-yellow-700"
+              ? "bg-green-900/30 text-green-400"
+              : "bg-green-100 text-green-700"
           }
         `}
       >
-        <Clock size={12} />
-        Pendiente
+        <CheckCircle size={12} />
+        Vendida
       </span>
     );
   };
@@ -424,9 +406,7 @@ const CotizacionesPage = () => {
                     ${isDarkMode ? "bg-purple-600/20" : "bg-purple-500/10"}
                   `}
                 >
-                    <span className="text-xl">
-                        <CircleDollarSign className={isDarkMode ? "text-purple-600" : "text-purple-600"} size={20} />
-                    </span>
+                  <span className="text-xl">                        <CircleDollarSign className={isDarkMode ? "text-purple-600" : "text-purple-600"} size={20} /></span>
                 </div>
               </div>
             </div>
@@ -446,3 +426,4 @@ const CotizacionesPage = () => {
 };
 
 export default CotizacionesPage;
+
