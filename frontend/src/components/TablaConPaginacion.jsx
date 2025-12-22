@@ -242,8 +242,8 @@ export default function TablaConPaginacion({
                           }
                         `}
                       >
-                        {row[col.key]}
-                      </td>
+                      {col.render ? col.render(row) : row[col.key]}                      
+                    </td>
                     ))}
                   </tr>
                 ))

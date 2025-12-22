@@ -1,7 +1,6 @@
 import React from 'react';
 import { Routes, Route } from 'react-router-dom'; 
 import { useTheme } from './context/ThemeContext';
-
 // Componentes
 import Navbar from './components/Navbar'; 
 
