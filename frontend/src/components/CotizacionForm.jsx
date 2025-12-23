@@ -3,7 +3,7 @@ import { X, Save, Calendar, FileText, CreditCard, Package, ArrowUpDown, DollarSi
 import { useTheme } from '../context/ThemeContext';
 import { getTipoProductos } from '../api/TipoProducto';
 
-const CotizacionesForm = ({ onCancel, onSubmit }) => {
+const CotizacionesForm = ({ cliente, onCancel, onSubmit }) => {
 
     const { isDarkMode } = useTheme();
     const [tiposProducto, setTiposProducto] = useState([]);
@@ -124,6 +124,8 @@ const CotizacionesForm = ({ onCancel, onSubmit }) => {
     
     try {
       const dataToSubmit = {
+        idCliente: cliente.idCliente,
+        fecha: formData.fechaCotizacion,
         detalles: formData.productos.map(p => ({
           idTipo_producto: Number(p.tipoProducto),
           ancho: Number(p.ancho),

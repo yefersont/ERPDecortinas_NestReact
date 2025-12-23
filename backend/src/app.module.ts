@@ -12,6 +12,7 @@ import { DeudoresModule } from './deudores/deudores.module';
 import { EstadisticasModule } from './estadisticas/estadisticas.module';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { ConfigModule } from '@nestjs/config';
+import { TipoProductoModule } from './tipo-producto/tipo-producto.module';
 
 @Module({
   imports: [
@@ -35,6 +36,7 @@ import { ConfigModule } from '@nestjs/config';
     ConfigModule.forRoot({
       isGlobal: true,
     }),
+    TipoProductoModule,
   ],
   controllers: [AppController],
   providers: [AppService],

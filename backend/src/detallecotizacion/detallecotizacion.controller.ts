@@ -24,31 +24,31 @@ export class DetallecotizacionController {
   constructor(private readonly detalleService: DetallecotizacionService) {}
 
   // CREATE (un solo detalle)
-  @Post('single')
-    async create(@Body() dto: CreateMultipleDetallecotizacionDto) {
-      if (dto.detalles.length !== 1) {
-        throw new Error('El endpoint single solo acepta un detalle');
-      }
+  // @Post('single')
+  //   async create(@Body() dto: CreateMultipleDetallecotizacionDto) {
+  //     if (dto.detalles.length !== 1) {
+  //       throw new Error('El endpoint single solo acepta un detalle');
+  //     }
 
-      const detalleCreado = await this.detalleService.create(dto);
+  //     const detalleCreado = await this.detalleService.create(dto);
 
-      const cotizacionActualizada =
-        await this.detalleService.actualizarValorTotalCotizacion(
-          dto.detalles[0].idCotizacion,
-        );
+  //     const cotizacionActualizada =
+  //       await this.detalleService.actualizarValorTotalCotizacion(
+  //         dto.detalles[0].idCotizacion,
+  //       );
 
-      return {
-        status: HttpStatus.CREATED,
-        message: 'Detalle de cotización creado exitosamente',
-        data: {
-          detalle: detalleCreado.data,
-          valor_total: cotizacionActualizada.valor_total,
-        },
-      };
-    }
+  //     return {
+  //       status: HttpStatus.CREATED,
+  //       message: 'Detalle de cotización creado exitosamente',
+  //       data: {
+  //         detalle: detalleCreado.data,
+  //         valor_total: cotizacionActualizada.valor_total,
+  //       },
+  //     };
+  //   }
 
   // CREATE (varios detalles)
-  @Post('multiple')
+  @Post()
     async createMultiple(@Body() dto: CreateMultipleDetallecotizacionDto) {
       const detallesCreados = await this.detalleService.createMultiple(dto);
 

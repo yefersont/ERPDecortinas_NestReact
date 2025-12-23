@@ -16,37 +16,37 @@ import { RolesGuard } from '../auth/roles.guard';
 import { Roles } from '../auth/roles.decorator';
 
 
-@UseGuards(JwtAuthGuard, RolesGuard)
+// @UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('ventas')
 export class VentasController {
   constructor(private readonly ventasService: VentasService) {}
 
   @Post()
-  @Roles('ADMIN')
+  // @Roles('ADMIN')
   create(@Body() dto: CreateVentaDto) {
     return this.ventasService.create(dto);
   }
 
   @Get()
-  @Roles('ADMIN', 'USER')
+  // @Roles('ADMIN', 'USER')
   findAll() {
     return this.ventasService.findAll();
   }
 
   @Get(':id')
-  @Roles('ADMIN', 'USER')
+  // @Roles('ADMIN', 'USER')
   findOne(@Param('id') id: string) {
     return this.ventasService.findOne(+id);
   }
 
   @Patch(':id')
-  @Roles('ADMIN')
+  // @Roles('ADMIN')
   update(@Param('id') id: string, @Body() dto: UpdateVentaDto) {
     return this.ventasService.update(+id, dto);
   }
 
   @Delete(':id')
-  @Roles('ADMIN')
+  // @Roles('ADMIN')
   remove(@Param('id') id: string) {
     return this.ventasService.remove(+id);
   }

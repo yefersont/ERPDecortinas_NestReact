@@ -37,31 +37,31 @@ export class DetallecotizacionService {
     };
   }
 
-  // create para un solo detalle
-  async create(dto: CreateMultipleDetallecotizacionDto) {
-    if (!dto.detalles || dto.detalles.length !== 1) {
-      throw new Error('Debe enviar exactamente un detalle');
-    }
+  // // create para un solo detalle
+  // async create(dto: CreateMultipleDetallecotizacionDto) {
+  //   if (!dto.detalles || dto.detalles.length !== 1) {
+  //     throw new Error('Debe enviar exactamente un detalle');
+  //   }
 
-    const detalle = dto.detalles[0];
+  //   const detalle = dto.detalles[0];
 
-    const created = await this.prisma.detalleCotizacion.create({
-      data: {
-        idCotizacion: detalle.idCotizacion,
-        idTipo_producto: detalle.idTipo_producto,
-        ancho: detalle.ancho,
-        alto: detalle.alto,
-        precio: detalle.precio,
-      },
-    });
+  //   const created = await this.prisma.detalleCotizacion.create({
+  //     data: {
+  //       idCotizacion: detalle.idCotizacion,
+  //       idTipo_producto: detalle.idTipo_producto,
+  //       ancho: detalle.ancho,
+  //       alto: detalle.alto,
+  //       precio: detalle.precio,
+  //     },
+  //   });
 
-    await this.actualizarValorTotalCotizacion(detalle.idCotizacion);
+  //   await this.actualizarValorTotalCotizacion(detalle.idCotizacion);
 
-    return {
-      message: 'Detalle creado correctamente',
-      data: created,
-    };
-  }
+  //   return {
+  //     message: 'Detalle creado correctamente',
+  //     data: created,
+  //   };
+  // }
 
   // nuevo método en el mismo service
   async actualizarValorTotalCotizacion(idCotizacion: number) {

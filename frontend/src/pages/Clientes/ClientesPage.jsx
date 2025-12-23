@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { getClientes, createCliente, updateCliente, deleteCliente } from "../../api/ClientesApi";
+import { createCotizacionWithDetails } from "../../api/CotizacionesApi";
 import TablaConPaginacion from "../../components/TablaConPaginacion";
 import { useTheme } from "../../context/ThemeContext";
 import { Users, UserPlus, Download, Upload, Edit2, Trash2, SquarePen  } from "lucide-react";
@@ -34,12 +35,14 @@ const ClientesPage = () => {
 
   const handleSubmitCotizacion = async (cotizacion) => {
     try {
-      console.log(cotizacion);
-      showToast("Cotizacion creada exitosamente", "success");
-      await cargarClientes();
+      const response = await createCotizacionWithDetails(cotizacion);
+      console.log('Cotización creada:', response.data);
+      showToast("Cotización creada exitosamente", "success");
+      setIsOpenCotizacion(false);
+      setClienteSeleccionado(null);
     } catch (error) {
       console.error(error);
-      showToast("Error al crear cotizacion", "error");
+      showToast(error.response?.data?.message || "Error al crear cotización", "error");
     }
   };
   const handleOpenNuevoCliente = () => {
@@ -105,8 +108,6 @@ const ClientesPage = () => {
       console.error(error);
     }
   };
-
-
 
   useEffect(() => {
     cargarClientes();
@@ -505,6 +506,9 @@ const ClientesPage = () => {
           )}
         </div>
       </div>
+      {/* Modal para nuevo cliente */}
+
+
       <Modal
         isOpen={isOpenNuevoCliente}
         onClose={() => {
@@ -520,6 +524,7 @@ const ClientesPage = () => {
         /> 
       </Modal>
 
+      {/* Modal para nueva cotizacion */}
       <Modal 
         isOpen={isOpenCotizacion} 
         onClose={() => setIsOpenCotizacion(false)} 
@@ -532,6 +537,7 @@ const ClientesPage = () => {
           onCancel={() => setIsOpenCotizacion(false)}
         /> 
       </Modal>
+
     </>
   );
 };

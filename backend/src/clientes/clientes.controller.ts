@@ -18,14 +18,14 @@ import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { RolesGuard } from '../auth/roles.guard';
 import { Roles } from '../auth/roles.decorator';
 
-@UseGuards(JwtAuthGuard, RolesGuard)
+// @UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('clientes')
 export class ClientesController {
   constructor(private readonly clientesService: ClientesService) {}
 
   
   @Get()
-  @Roles('ADMIN', 'USER')
+  // @Roles('ADMIN', 'USER')
   async findAll() {
     const clientes = await this.clientesService.findAll();
     return {
@@ -36,7 +36,7 @@ export class ClientesController {
   }
 
   @Get(':id')
-  @Roles('ADMIN', 'USER')
+  // @Roles('ADMIN', 'USER')
   async getCliente(@Param('id') id: number) {
     const cliente = await this.clientesService.findOne(Number(id));
     if (!cliente) {
@@ -46,7 +46,7 @@ export class ClientesController {
   }
 
   @Post()
-  @Roles('ADMIN')
+  // @Roles('ADMIN')
   @HttpCode(HttpStatus.CREATED)
   async create(@Body() data: CreateClienteDto) {
     const cliente = await this.clientesService.create(data);
@@ -58,7 +58,7 @@ export class ClientesController {
   }
 
   @Patch(':id')
-  @Roles('ADMIN')
+  // @Roles('ADMIN')
   @HttpCode(HttpStatus.OK)
   async update(
     @Param('id') id: string,
@@ -73,7 +73,7 @@ export class ClientesController {
   }
 
   @Delete(':id')
-  @Roles('ADMIN')
+  // @Roles('ADMIN')
   @HttpCode(HttpStatus.OK)
   async remove(@Param('id') id: string) {
     const cliente = await this.clientesService.remove(+id);
