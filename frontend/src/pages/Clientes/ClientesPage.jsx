@@ -2,10 +2,11 @@ import React, { useState, useEffect } from "react";
 import { getClientes, createCliente, updateCliente, deleteCliente } from "../../api/ClientesApi";
 import TablaConPaginacion from "../../components/TablaConPaginacion";
 import { useTheme } from "../../context/ThemeContext";
-import { Users, UserPlus, Download, Upload, Edit2, Trash2 } from "lucide-react";
+import { Users, UserPlus, Download, Upload, Edit2, Trash2, SquarePen  } from "lucide-react";
 import Loader from "../../components/Loader";
 import Modal from "../../components/Modal";
 import ClienteForm from "../../components/ClienteForm";
+import CotizacionForm from "../../components/CotizacionForm";
 import { useToast } from "../../context/ToastContext";
 import {useDialog} from "../../context/DialogContext";
 
@@ -15,6 +16,7 @@ const ClientesPage = () => {
   const [clienteSeleccionado, setClienteSeleccionado] = useState(null);
   const { isDarkMode } = useTheme();
   const [isOpenNuevoCliente, setIsOpenNuevoCliente] = useState(false);
+  const [isOpenCotizacion, setIsOpenCotizacion] = useState(false);
   const { showToast } = useToast();
   const { showDialog } = useDialog();
   
@@ -30,10 +32,25 @@ const ClientesPage = () => {
     }
   };
 
+  const handleSubmitCotizacion = async (cotizacion) => {
+    try {
+      console.log(cotizacion);
+      showToast("Cotizacion creada exitosamente", "success");
+      await cargarClientes();
+    } catch (error) {
+      console.error(error);
+      showToast("Error al crear cotizacion", "error");
+    }
+  };
   const handleOpenNuevoCliente = () => {
     setIsOpenNuevoCliente(true);
   };
 
+  const handleOpenNuevaCotizacion = (cliente) => {
+    setIsOpenCotizacion(true);
+    setClienteSeleccionado(cliente);
+    console.log(cliente);
+  };
 
   const handleDeleteCliente = async (cliente) => {
     try {
@@ -89,6 +106,8 @@ const ClientesPage = () => {
     }
   };
 
+
+
   useEffect(() => {
     cargarClientes();
   }, []);
@@ -104,6 +123,21 @@ const ClientesPage = () => {
     label: "Acciones",
     render: (row) => (
       <div className="flex items-center justify-center gap-2">
+        <button
+          onClick={() => handleOpenNuevaCotizacion(row)}
+          className={`
+            p-2 rounded-lg transition-all duration-200
+            ${
+              isDarkMode
+                ? "hover:bg-green-600/20 text-green-400 hover:text-green-300"
+                : "hover:bg-green-50 text-green-600 hover:text-green-700"
+            }
+          `}
+          title="Agregar cotizacion"
+        >
+          <SquarePen size={18} />
+        </button>
+
         <button
           onClick={() => handleEditCliente(row)}
           className={`
@@ -472,17 +506,30 @@ const ClientesPage = () => {
         </div>
       </div>
       <Modal
-      isOpen={isOpenNuevoCliente}
-      onClose={() => {
-        setIsOpenNuevoCliente(false);
-        setClienteSeleccionado(null);
-      }}
-      title={clienteSeleccionado ? "Editar Cliente" : "Nuevo Cliente"}
+        isOpen={isOpenNuevoCliente}
+        onClose={() => {
+          setIsOpenNuevoCliente(false);
+          setClienteSeleccionado(null);
+        }}
+        title={clienteSeleccionado ? "Editar Cliente" : "Nuevo Cliente"}
       >
         <ClienteForm
           cliente={clienteSeleccionado}
           onSubmit={handleSubmit}
           onCancel={handleCancel}
+        /> 
+      </Modal>
+
+      <Modal 
+        isOpen={isOpenCotizacion} 
+        onClose={() => setIsOpenCotizacion(false)} 
+        title={"Nueva cotizacion " + clienteSeleccionado?.nombre + " " + clienteSeleccionado?.apellidos}
+        size="xl"
+      > 
+        <CotizacionForm
+          cliente={clienteSeleccionado}
+          onSubmit={handleSubmitCotizacion}
+          onCancel={() => setIsOpenCotizacion(false)}
         /> 
       </Modal>
     </>

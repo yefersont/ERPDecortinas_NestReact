@@ -7,7 +7,7 @@ const Modal = ({
   onClose, 
   title, 
   children, 
-  size = 'md', // 'sm', 'md', 'lg', 'xl', 'full'
+  size = 'md', // 'sm', 'md', 'lg' 'xl': 'full',
   showCloseButton = true,
   closeOnOverlayClick = true,
   footer = null,
@@ -78,8 +78,8 @@ const Modal = ({
             relative rounded-2xl shadow-2xl
             ${
               isDarkMode
-                ? 'bg-gradient-to-br from-gray-900 via-gray-900 to-gray-800 border border-gray-800'
-                : 'bg-gradient-to-br from-white via-gray-50 to-gray-100 border border-gray-200'
+                ? 'bg-gray-900 border border-gray-800'
+                : 'bg-white border border-gray-200'
             }
           `}
           style={{
@@ -88,16 +88,6 @@ const Modal = ({
               : '0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(0, 0, 0, 0.05)',
           }}
         >
-          {/* Efecto de brillo en la parte superior */}
-          <div
-            className="absolute top-0 left-0 right-0 h-px"
-            style={{
-              background: isDarkMode
-                ? 'linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent)'
-                : 'linear-gradient(90deg, transparent, rgba(255,255,255,0.8), transparent)',
-            }}
-          />
-
           {/* Header */}
           {title && (
             <div
@@ -150,8 +140,8 @@ const Modal = ({
                 px-6 py-4 border-t
                 ${
                   isDarkMode
-                    ? 'border-gray-800 bg-gray-900/50'
-                    : 'border-gray-200 bg-gray-50/50'
+                    ? 'border-gray-800 bg-gray-900'
+                    : 'border-gray-200 bg-white'
                 }
               `}
             >
