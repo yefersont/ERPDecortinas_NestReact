@@ -38,7 +38,13 @@ export class DetallecotizacionService {
   }
 
   // create para un solo detalle
-  async create(detalle: CreateDetallecotizacionDto) {
+  async create(dto: CreateMultipleDetallecotizacionDto) {
+    if (!dto.detalles || dto.detalles.length !== 1) {
+      throw new Error('Debe enviar exactamente un detalle');
+    }
+
+    const detalle = dto.detalles[0];
+
     const created = await this.prisma.detalleCotizacion.create({
       data: {
         idCotizacion: detalle.idCotizacion,
@@ -49,7 +55,6 @@ export class DetallecotizacionService {
       },
     });
 
-    // Actualizar el valor total de la cotización
     await this.actualizarValorTotalCotizacion(detalle.idCotizacion);
 
     return {
