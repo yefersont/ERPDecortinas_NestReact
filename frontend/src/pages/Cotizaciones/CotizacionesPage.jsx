@@ -1,14 +1,24 @@
+
 import React, { useState, useEffect } from "react";
 import Loader from "../../components/Loader";
 import { useTheme } from "../../context/ThemeContext";
-import { getCotizaciones } from "../../api/CotizacionesApi";
+import { getCotizaciones, updateCotizacion, deleteCotizacion } from "../../api/CotizacionesApi";
+import { createVenta } from "../../api/VentasApi";
 import TablaConPaginacion from "../../components/TablaConPaginacion";
-import { FileText, Plus, Download, Upload, CheckCircle, Clock, XCircle, CircleDollarSign } from "lucide-react";
+import { FileText, Plus, Download, Upload, CheckCircle, Clock, XCircle, CircleDollarSign, Edit2, Trash2, Receipt } from "lucide-react";
+import { useToast } from "../../context/ToastContext";
+import { useDialog } from "../../context/DialogContext";
+import Modal from "../../components/Modal";
+import VentaForm from "../../components/VentaForm";
 
 const CotizacionesPage = () => {
   const [cotizaciones, setCotizaciones] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [isOpenRegistrarVenta, setIsOpenRegistrarVenta] = useState(false);
+  const [cotizacionSeleccionada, setCotizacionSeleccionada] = useState(null);
   const { isDarkMode } = useTheme();
+  const { showToast } = useToast();
+  const { showDialog } = useDialog();
 
   const getcotizaciones = async () => {
     try {
@@ -83,6 +93,61 @@ const CotizacionesPage = () => {
     );
   };
 
+  // Handler para eliminar cotización
+  const handleDeleteCotizacion = async (cotizacion) => {
+    try {
+      showDialog({
+        title: "Eliminar cotización",
+        message: "¿Estás seguro de eliminar esta cotización? Esta acción no se puede deshacer",
+        variant: "error",
+        onConfirm: async () => {
+          const response = await deleteCotizacion(cotizacion.id);
+          console.log(response);
+          showToast("Cotización eliminada exitosamente", "success");
+          await getcotizaciones();
+        },
+        onCancel: () => {
+          console.log("Cancelado");
+        },
+      });
+    } catch (error) {
+      console.error(error);
+      showToast("Error al eliminar cotización", "error");
+    }
+  };
+
+  // Handler para editar cotización
+  const handleEditCotizacion = (cotizacion) => {
+    // TODO: Implementar modal de edición
+    console.log("Editar cotización:", cotizacion);
+    showToast("Función de edición en desarrollo", "info");
+  };
+
+  // Handler para registrar como venta
+  const handleRegistrarVenta = (cotizacion) => {
+    setCotizacionSeleccionada(cotizacion.id);
+    setIsOpenRegistrarVenta(true);
+  };
+
+  const handleSaveVenta = async (formData) => {
+    try {
+      // Combinar los datos del formulario con el idCotizacion
+      const ventaData = {
+        idCotizacion: cotizacionSeleccionada,
+        ...formData
+      };
+      
+      const response = await createVenta(ventaData);
+      console.log(response);
+      showToast("Venta registrada exitosamente", "success");
+      await getcotizaciones();
+      setIsOpenRegistrarVenta(false);
+      setCotizacionSeleccionada(null);
+    } catch (error) {
+      console.error(error);
+      showToast(error.response?.data?.message || "Error al registrar venta", "error");
+    }
+  };
   // Preparar datos para la tabla
   const tableData = cotizaciones.map((cotizacion) => ({
     id: cotizacion.idCotizacion,
@@ -91,6 +156,7 @@ const CotizacionesPage = () => {
     valor: formatMoneda(cotizacion.valor_total),
     estado: getEstadoBadge(cotizacion),
     productos: cotizacion.detalles.length,
+    cotizacionCompleta: cotizacion,
   }));
 
   const columns = [
@@ -100,6 +166,65 @@ const CotizacionesPage = () => {
     { key: "valor", label: "Valor Total" },
     { key: "productos", label: "Productos" },
     { key: "estado", label: "Estado" },
+    {
+      key: "acciones",
+      label: "Acciones",
+      render: (row) => {
+        const esVendida = row.cotizacionCompleta?.ventas && row.cotizacionCompleta.ventas.length > 0;
+        
+        return (
+          <div className="flex items-center justify-center gap-2">
+            {/* Botón Registrar Venta - solo si no está vendida */}
+            {!esVendida && (
+              <button
+                onClick={() => handleRegistrarVenta(row)}
+                className={`
+                  p-2 rounded-lg transition-all duration-200
+                  ${
+                    isDarkMode
+                      ? "hover:bg-green-600/20 text-green-400 hover:text-green-300"
+                      : "hover:bg-green-50 text-green-600 hover:text-green-700"
+                  }
+                `}
+                title="Registrar como venta"
+              >
+                <Receipt size={18} />
+              </button>
+            )}
+            
+            <button
+              onClick={() => handleEditCotizacion(row)}
+              className={`
+                p-2 rounded-lg transition-all duration-200
+                ${
+                  isDarkMode
+                    ? "hover:bg-yellow-600/20 text-yellow-400 hover:text-yellow-300"
+                    : "hover:bg-yellow-50 text-yellow-600 hover:text-yellow-700"
+                }
+              `}
+              title="Editar cotización"
+            >
+              <Edit2 size={18} />
+            </button>
+            
+            <button
+              onClick={() => handleDeleteCotizacion(row)}
+              className={`
+                p-2 rounded-lg transition-all duration-200
+                ${
+                  isDarkMode
+                    ? "hover:bg-red-600/20 text-red-400 hover:text-red-300"
+                    : "hover:bg-red-50 text-red-600 hover:text-red-700"
+                }
+              `}
+              title="Eliminar cotización"
+            >
+              <Trash2 size={18} />
+            </button>
+          </div>
+        );
+      }
+    },
   ];
 
   // Calcular estadísticas
@@ -118,6 +243,7 @@ const CotizacionesPage = () => {
   return loading ? (
     <Loader text="Cargando cotizaciones..." />
   ) : (
+    <>
     <div
       className={`min-h-screen p-4 sm:p-6 lg:p-8 ${
         isDarkMode ? "bg-gray-950" : "bg-gray-50"
@@ -417,13 +543,33 @@ const CotizacionesPage = () => {
         <TablaConPaginacion
           columns={columns}
           data={tableData}
-          pageSize={10}
+          pageSize={5}
           isDarkMode={isDarkMode}
         />
       </div>
     </div>
+
+    {/* Modal para registrar venta */}
+    <Modal
+      isOpen={isOpenRegistrarVenta}
+      onClose={() => {
+        setIsOpenRegistrarVenta(false);
+        setCotizacionSeleccionada(null);
+      }}
+      title="Registrar Venta"
+    >
+    <VentaForm
+      venta={cotizacionSeleccionada}
+      onSubmit={handleSaveVenta}
+      onCancel={() => {
+        setIsOpenRegistrarVenta(false);
+        setCotizacionSeleccionada(null);
+      }}
+      isDarkMode={isDarkMode}
+    />
+    </Modal>
+    </>
   );
 };
 
 export default CotizacionesPage;
-

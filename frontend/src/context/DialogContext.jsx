@@ -1,5 +1,6 @@
 import React, { useState, createContext, useContext } from 'react';
 import { X, AlertTriangle, Info, CheckCircle, HelpCircle } from 'lucide-react';
+import { useTheme } from './ThemeContext';
 
 // Context para manejar los diálogos
 const DialogContext = createContext();
@@ -244,7 +245,7 @@ const Dialog = ({ dialog, onClose, isDarkMode }) => {
 
 // Contenedor de diálogos
 const DialogContainer = ({ dialogs, onClose }) => {
-  const [isDarkMode] = useState(true);
+  const { isDarkMode } = useTheme();
 
   return (
     <>

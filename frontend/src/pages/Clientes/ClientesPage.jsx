@@ -61,6 +61,7 @@ const ClientesPage = () => {
       showDialog({
         title: "Eliminar cliente",
         message: "¿Estás seguro de eliminar este cliente? Se perderan todos los datos asociados",
+        variant: "error",
         onConfirm: async () => {
           const response = await deleteCliente(cliente.idCliente);
           console.log(response);
@@ -507,7 +508,6 @@ const ClientesPage = () => {
         </div>
       </div>
       {/* Modal para nuevo cliente */}
-
 
       <Modal
         isOpen={isOpenNuevoCliente}
