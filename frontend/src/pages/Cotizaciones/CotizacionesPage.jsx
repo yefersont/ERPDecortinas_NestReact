@@ -150,7 +150,6 @@ const CotizacionesPage = () => {
   };
   // Preparar datos para la tabla
   const tableData = cotizaciones.map((cotizacion) => ({
-    id: cotizacion.idCotizacion,
     fecha: formatFecha(cotizacion.fecha),
     cliente: `${cotizacion.cliente.nombre} ${cotizacion.cliente.apellidos}`,
     valor: formatMoneda(cotizacion.valor_total),
@@ -160,7 +159,6 @@ const CotizacionesPage = () => {
   }));
 
   const columns = [
-    { key: "id", label: "ID" },
     { key: "fecha", label: "Fecha" },
     { key: "cliente", label: "Cliente" },
     { key: "valor", label: "Valor Total" },
@@ -174,53 +172,68 @@ const CotizacionesPage = () => {
         
         return (
           <div className="flex items-center justify-center gap-2">
-            {/* Botón Registrar Venta - solo si no está vendida */}
-            {!esVendida && (
-              <button
-                onClick={() => handleRegistrarVenta(row)}
+            {esVendida ? (
+              <span
                 className={`
-                  p-2 rounded-lg transition-all duration-200
+                  text-xs font-medium px-3 py-1 rounded-lg
                   ${
                     isDarkMode
-                      ? "hover:bg-green-600/20 text-green-400 hover:text-green-300"
-                      : "hover:bg-green-50 text-green-600 hover:text-green-700"
+                      ? "text-gray-500 bg-gray-800"
+                      : "text-gray-600 bg-gray-100"
                   }
                 `}
-                title="Registrar como venta"
               >
-                <Receipt size={18} />
-              </button>
+                Cotización vendida
+              </span>
+            ) : (
+              <>
+                {/* Botón Registrar Venta */}
+                <button
+                  onClick={() => handleRegistrarVenta(row)}
+                  className={`
+                    p-2 rounded-lg transition-all duration-200
+                    ${
+                      isDarkMode
+                        ? "hover:bg-green-600/20 text-green-400 hover:text-green-300"
+                        : "hover:bg-green-50 text-green-600 hover:text-green-700"
+                    }
+                  `}
+                  title="Registrar como venta"
+                >
+                  <Receipt size={18} />
+                </button>
+              
+                <button
+                  onClick={() => handleEditCotizacion(row)}
+                  className={`
+                    p-2 rounded-lg transition-all duration-200
+                    ${
+                      isDarkMode
+                        ? "hover:bg-yellow-600/20 text-yellow-400 hover:text-yellow-300"
+                        : "hover:bg-yellow-50 text-yellow-600 hover:text-yellow-700"
+                    }
+                  `}
+                  title="Editar cotización"
+                >
+                  <Edit2 size={18} />
+                </button>
+              
+                <button
+                  onClick={() => handleDeleteCotizacion(row.cotizacionCompleta)}
+                  className={`
+                    p-2 rounded-lg transition-all duration-200
+                    ${
+                      isDarkMode
+                        ? "hover:bg-red-600/20 text-red-400 hover:text-red-300"
+                        : "hover:bg-red-50 text-red-600 hover:text-red-700"
+                    }
+                  `}
+                  title="Eliminar cotización"
+                >
+                  <Trash2 size={18} />
+                </button>
+              </>
             )}
-            
-            <button
-              onClick={() => handleEditCotizacion(row)}
-              className={`
-                p-2 rounded-lg transition-all duration-200
-                ${
-                  isDarkMode
-                    ? "hover:bg-yellow-600/20 text-yellow-400 hover:text-yellow-300"
-                    : "hover:bg-yellow-50 text-yellow-600 hover:text-yellow-700"
-                }
-              `}
-              title="Editar cotización"
-            >
-              <Edit2 size={18} />
-            </button>
-            
-            <button
-              onClick={() => handleDeleteCotizacion(row)}
-              className={`
-                p-2 rounded-lg transition-all duration-200
-                ${
-                  isDarkMode
-                    ? "hover:bg-red-600/20 text-red-400 hover:text-red-300"
-                    : "hover:bg-red-50 text-red-600 hover:text-red-700"
-                }
-              `}
-              title="Eliminar cotización"
-            >
-              <Trash2 size={18} />
-            </button>
           </div>
         );
       }
