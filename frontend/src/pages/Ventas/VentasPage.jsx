@@ -90,10 +90,11 @@ const VentasPage = () => {
     // Preparar datos para la tabla
     const tableData = ventas.map((venta) => {
         const porcentajePagado = calcularPorcentajePagado(venta.total, venta.saldo_pendiente);
+        const clienteNombre = `${venta.cotizacion.cliente.nombre} ${venta.cotizacion.cliente.apellidos}`;
         
         return {
-            id: venta.idVenta,
             fecha: formatFecha(venta.fecha_venta),
+            cliente: clienteNombre,
             cotizacion: `#${venta.idCotizacion}`,
             total: formatMoneda(venta.total),
             pagado: formatMoneda(parseFloat(venta.total) - parseFloat(venta.saldo_pendiente)),
@@ -121,8 +122,8 @@ const VentasPage = () => {
     });
 
     const columns = [
-        { key: "id", label: "ID" },
         { key: "fecha", label: "Fecha" },
+        { key: "cliente", label: "Cliente" },
         { key: "cotizacion", label: "Cotización" },
         { key: "total", label: "Total" },
         { key: "pagado", label: "Pagado" },
