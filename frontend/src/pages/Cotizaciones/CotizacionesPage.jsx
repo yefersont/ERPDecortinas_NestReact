@@ -150,6 +150,7 @@ const CotizacionesPage = () => {
   };
   // Preparar datos para la tabla
   const tableData = cotizaciones.map((cotizacion) => ({
+    id: cotizacion.idCotizacion,
     fecha: formatFecha(cotizacion.fecha),
     cliente: `${cotizacion.cliente.nombre} ${cotizacion.cliente.apellidos}`,
     valor: formatMoneda(cotizacion.valor_total),
