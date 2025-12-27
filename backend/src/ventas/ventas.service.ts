@@ -78,6 +78,9 @@ export class VentasService {
   // FIND ALL
   async findAll() {
     const ventas = await this.prisma.ventas.findMany({
+      orderBy: {
+        fecha_venta: "desc",
+      },
       include: {
         cotizacion: {
           include: {
