@@ -71,7 +71,15 @@ export class DeudoresService {
         fecha_abono: 'desc',
       },
       include: {
-        venta: true,
+        venta: {
+          include: {
+            cotizacion: {
+              include: {
+                cliente: true,
+              },
+            },
+          },
+        },
       },
     });
 
@@ -86,7 +94,15 @@ export class DeudoresService {
     const deudor = await this.prisma.deudores.findUnique({
       where: { idDeudor: id },
       include: {
-        venta: true,
+        venta: {
+          include: {
+            cotizacion: {
+              include: {
+                cliente: true,
+              },
+            },
+          },
+        },
       },
     });
 
