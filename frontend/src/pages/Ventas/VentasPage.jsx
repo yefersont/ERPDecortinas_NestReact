@@ -1,14 +1,21 @@
 import React, { useEffect, useState } from 'react';
 import Loader from '../../components/Loader';
 import { getVentas } from '../../api/VentasApi';
+import { createDeudor } from '../../api/DeudoresApi';
 import TablaConPaginacion from '../../components/TablaConPaginacion';
 import { useTheme } from '../../context/ThemeContext';
-import { CreditCard, Plus, Download, Upload, CheckCircle, Clock, DollarSign, TrendingUp } from 'lucide-react';
+import { useToast } from '../../context/ToastContext';
+import { CreditCard, Plus, Download, Upload, CheckCircle, Clock, DollarSign, TrendingUp, HandCoins } from 'lucide-react';
+import Modal from '../../components/Modal';
+import AbonoForm from '../../components/AbonoForm';
 
 const VentasPage = () => {
     const [loading, setLoading] = useState(true);
     const [ventas, setVentas] = useState([]);
+    const [isOpenAbonar, setIsOpenAbonar] = useState(false);
+    const [ventaSeleccionada, setVentaSeleccionada] = useState(null);
     const { isDarkMode } = useTheme();
+    const { showToast } = useToast();
 
     const cargarVentas = async () => {
         try {
@@ -24,6 +31,32 @@ const VentasPage = () => {
     useEffect(() => {
         cargarVentas();
     }, []);
+
+    // Handler para abonar
+    const handleAbonar = (venta) => {
+        setVentaSeleccionada(venta);
+        setIsOpenAbonar(true);
+    };
+
+    const handleSaveAbono = async (dataToSubmit) => {
+        try {
+            // Preparar datos para la API de deudores
+            const deudorData = {
+                idVenta: ventaSeleccionada.idVenta,
+                ...dataToSubmit
+            };
+            
+            const response = await createDeudor(deudorData);
+            console.log('Abono registrado:', response);
+            showToast("Abono registrado exitosamente", "success");
+            await cargarVentas();
+            setIsOpenAbonar(false);
+            setVentaSeleccionada(null);
+        } catch (error) {
+            console.error(error);
+            showToast(error.response?.data?.message || "Error al registrar abono", "error");
+        }
+    };
 
     // Formatear fecha
     const formatFecha = (fecha) => {
@@ -118,19 +151,62 @@ const VentasPage = () => {
             ),
             estado: getEstadoBadge(venta.estado_pago),
             abonos: venta.abonos.length,
+            ventaCompleta: venta,
         };
     });
 
     const columns = [
         { key: "fecha", label: "Fecha" },
         { key: "cliente", label: "Cliente" },
-        { key: "cotizacion", label: "Cotización" },
         { key: "total", label: "Total" },
         { key: "pagado", label: "Pagado" },
         { key: "saldo", label: "Saldo" },
         { key: "progreso", label: "Progreso" },
         { key: "abonos", label: "Abonos" },
         { key: "estado", label: "Estado" },
+        {
+            key: "acciones",
+            label: "Acciones",
+            render: (row) => {
+                const tieneSaldoPendiente = parseFloat(row.ventaCompleta.saldo_pendiente) > 0;
+                
+                if (!tieneSaldoPendiente) {
+                    return (
+                        <span
+                            className={`
+                                text-xs font-medium px-3 py-1 rounded-lg
+                                ${
+                                    isDarkMode
+                                        ? "text-gray-500 bg-gray-800"
+                                        : "text-gray-600 bg-gray-100"
+                                }
+                            `}
+                        >
+                            Venta pagada
+                        </span>
+                    );
+                }
+                
+                return (
+                    <div className="flex items-center justify-center gap-2">
+                        <button
+                            onClick={() => handleAbonar(row.ventaCompleta)}
+                            className={`
+                                p-2 rounded-lg transition-all duration-200
+                                ${
+                                    isDarkMode
+                                        ? "hover:bg-green-600/20 text-green-400 hover:text-green-300"
+                                        : "hover:bg-green-50 text-green-600 hover:text-green-700"
+                                }
+                            `}
+                            title="Registrar abono"
+                        >
+                            <HandCoins size={18} />
+                        </button>
+                    </div>
+                );
+            }
+        },
     ];
 
     // Calcular estadísticas
@@ -458,6 +534,30 @@ const VentasPage = () => {
                     isDarkMode={isDarkMode}
                 />
             </div>
+
+            {/* Modal para registrar abono */}
+            <Modal
+                isOpen={isOpenAbonar}
+                onClose={() => {
+                    setIsOpenAbonar(false);
+                    setVentaSeleccionada(null);
+                }}
+                title="Registrar Abono"
+                size="lg"
+            >
+                {ventaSeleccionada && (
+                    <AbonoForm
+                        venta={ventaSeleccionada}
+                        onSubmit={handleSaveAbono}
+                        onCancel={() => {
+                            setIsOpenAbonar(false);
+                            setVentaSeleccionada(null);
+                        }}
+                        isDarkMode={isDarkMode}
+                        showToast={showToast}
+                    />
+                )}
+            </Modal>
         </div>
     );
 };

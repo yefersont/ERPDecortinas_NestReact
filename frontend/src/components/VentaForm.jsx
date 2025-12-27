@@ -247,7 +247,7 @@ const VentaForm = ({ venta = null, onSubmit, onCancel, isDarkMode = false }) => 
             ) : (
               <>
                 <Save size={16} />
-                {venta ? 'Actualizar' : 'Guardar'}
+                {venta ? 'Vender' : 'Guardar'}
               </>
             )}
           </button>
