@@ -19,7 +19,7 @@ export class ClientesService {
   async findAll() {
     const clientes = await prisma.clientes.findMany({
       orderBy: {
-        idCliente: 'asc',
+        idCliente: 'desc',
       },
     });
     return clientes.map(cliente => this.decryptClienteData(cliente));
