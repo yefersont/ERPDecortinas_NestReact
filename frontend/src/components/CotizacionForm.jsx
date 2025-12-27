@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, Save, Calendar, FileText, CreditCard, Package, ArrowUpDown, DollarSign } from 'lucide-react';
+import { X, Save, Calendar, FileText, CreditCard, Package, ArrowUpDown, DollarSign, Copy } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
 import { getTipoProductos } from '../api/TipoProducto';
 
@@ -94,6 +94,40 @@ const CotizacionesForm = ({ cliente, onCancel, onSubmit }) => {
     const newProductos = [...formData.productos];
     newProductos[index] = { ...newProductos[index], [field]: value };
     setFormData({ ...formData, productos: newProductos });
+  };
+
+  const isProductComplete = (producto) => {
+    return producto.alto && producto.alto !== '0' && 
+           producto.ancho && producto.ancho !== '0' && 
+           producto.tipoProducto && 
+           producto.valor && producto.valor !== '$0' && producto.valor !== '0';
+  };
+
+  const handleDuplicateRow = (index) => {
+    const productToDuplicate = formData.productos[index];
+    
+    // Validar que todos los campos estén completos
+    if (!isProductComplete(productToDuplicate)) {
+      alert('Complete todos los campos antes de duplicar la fila');
+      return;
+    }
+    
+    if (formData.productos.length >= MAX_PRODUCTS) {
+      alert(`No se pueden agregar más de ${MAX_PRODUCTS} productos`);
+      return;
+    }
+    
+    const newProductos = [
+      ...formData.productos.slice(0, index + 1),
+      { ...productToDuplicate },
+      ...formData.productos.slice(index + 1)
+    ];
+    
+    setFormData({ 
+      ...formData, 
+      numeroProductos: newProductos.length,
+      productos: newProductos 
+    });
   };
 
   const validate = () => {
@@ -236,7 +270,7 @@ const CotizacionesForm = ({ cliente, onCancel, onSubmit }) => {
             {/* Productos */}
             <div className="space-y-3">
               {/* Primer producto */}
-              <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+              <div className="grid grid-cols-2 md:grid-cols-6 gap-3">
                 <div>
                   <label className={`block text-xs font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
                     <ArrowUpDown size={14} className="inline mr-1" />
@@ -329,11 +363,41 @@ const CotizacionesForm = ({ cliente, onCancel, onSubmit }) => {
                     `}
                   />
                 </div>
+
+                <div>
+                  <label className={`block text-xs font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                    Acciones
+                  </label>
+                  <div className="flex items-center h-[42px]">
+                    <a
+                      onClick={() => isProductComplete(formData.productos[0]) && handleDuplicateRow(0)}
+                      className={`
+                        flex items-center gap-1 text-sm font-medium underline transition-all duration-200
+                        ${
+                          isProductComplete(formData.productos[0])
+                            ? `cursor-pointer ${
+                                isDarkMode
+                                  ? 'text-gray-400 hover:text-gray-300'
+                                  : 'text-gray-600 hover:text-gray-700'
+                              }`
+                            : `cursor-not-allowed ${
+                                isDarkMode
+                                  ? 'text-gray-600'
+                                  : 'text-gray-400'
+                              }`
+                        }
+                      `}
+                    >
+                      <Copy size={14} />
+                      Duplicar
+                    </a>
+                  </div>
+                </div>
               </div>
 
               {/* Productos adicionales */}
               {formData.productos.slice(1).map((producto, index) => (
-                <div key={index + 1} className="grid grid-cols-2 md:grid-cols-5 gap-3">
+                <div key={index + 1} className="grid grid-cols-2 md:grid-cols-6 gap-3">
                   <div>
                     <input
                       type="text"
@@ -414,6 +478,31 @@ const CotizacionesForm = ({ cliente, onCancel, onSubmit }) => {
                         }
                       `}
                     />
+                  </div>
+
+                  <div className="flex items-center">
+                    <a
+                      onClick={() => isProductComplete(formData.productos[index + 1]) && handleDuplicateRow(index + 1)}
+                      className={`
+                        flex items-center gap-1 text-sm font-medium underline transition-all duration-200
+                        ${
+                          isProductComplete(formData.productos[index + 1])
+                            ? `cursor-pointer ${
+                                isDarkMode
+                                  ? 'text-gray-400 hover:text-gray-300'
+                                  : 'text-gray-600 hover:text-gray-700'
+                              }`
+                            : `cursor-not-allowed ${
+                                isDarkMode
+                                  ? 'text-gray-600'
+                                  : 'text-gray-400'
+                              }`
+                        }
+                      `}
+                    >
+                      <Copy size={14} />
+                      Duplicar
+                    </a>
                   </div>
                 </div>
               ))}
