@@ -126,6 +126,65 @@ export class CotizacionesService {
     });
   }
 
+  // Actualizar cotización con detalles en una transacción
+  async updateWithDetails(id: number, data: CreateCotizacionWithDetailsDto) {
+    return this.prisma.$transaction(async (tx) => {
+      // 1. Verificar que la cotización existe
+      const exists = await tx.cotizaciones.findUnique({
+        where: { idCotizacion: id },
+      });
+
+      if (!exists) {
+        throw new NotFoundException(`Cotización con ID ${id} no existe`);
+      }
+
+      // 2. Eliminar todos los detalles anteriores
+      await tx.detalleCotizacion.deleteMany({
+        where: { idCotizacion: id },
+      });
+
+      // 3. Crear los nuevos detalles
+      const detallesCreados = await Promise.all(
+        data.detalles.map((detalle) =>
+          tx.detalleCotizacion.create({
+            data: {
+              idCotizacion: id,
+              idTipo_producto: detalle.idTipo_producto,
+              ancho: detalle.ancho,
+              alto: detalle.alto,
+              precio: detalle.precio,
+            },
+          }),
+        ),
+      );
+
+      // 4. Calcular el nuevo valor total
+      const valorTotal = detallesCreados.reduce(
+        (acc, detalle) => acc + Number(detalle.precio),
+        0,
+      );
+
+      // 5. Actualizar la cotización con la fecha y valor total
+      const cotizacionActualizada = await tx.cotizaciones.update({
+        where: { idCotizacion: id },
+        data: {
+          fecha: new Date(data.fecha),
+          valor_total: valorTotal,
+        },
+        include: {
+          cliente: true,
+          detalles: {
+            include: {
+              tipoProducto: true,
+            },
+          },
+        },
+      });
+
+      return cotizacionActualizada;
+    });
+  }
+
   // Eliminar una cotización
   async remove(id: number) {
     const exists = await this.prisma.cotizaciones.findUnique({

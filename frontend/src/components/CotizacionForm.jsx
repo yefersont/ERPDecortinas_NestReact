@@ -3,7 +3,7 @@ import { X, Save, Calendar, FileText, CreditCard, Package, ArrowUpDown, DollarSi
 import { useTheme } from '../context/ThemeContext';
 import { getTipoProductos } from '../api/TipoProducto';
 
-const CotizacionesForm = ({ cliente, onCancel, onSubmit }) => {
+const CotizacionesForm = ({ cliente, cotizacion, onCancel, onSubmit }) => {
 
     const { isDarkMode } = useTheme();
     const [tiposProducto, setTiposProducto] = useState([]);
@@ -36,6 +36,25 @@ const CotizacionesForm = ({ cliente, onCancel, onSubmit }) => {
   useEffect(() => {
     Productos();
   }, []);
+
+  // Cargar datos de la cotización si existe (modo edición)
+  useEffect(() => {
+    if (cotizacion && cotizacion.detalles) {
+      const productosFormateados = cotizacion.detalles.map(detalle => ({
+        alto: detalle.alto.toString(),
+        ancho: detalle.ancho.toString(),
+        tipoProducto: detalle.idTipo_producto.toString(),
+        valor: formatCurrency(detalle.precio.toString())
+      }));
+
+      setFormData({
+        cedulaCliente: cliente?.cedula || '',
+        fechaCotizacion: cotizacion.fecha ? new Date(cotizacion.fecha).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
+        numeroProductos: productosFormateados.length,
+        productos: productosFormateados
+      });
+    }
+  }, [cotizacion]);
 
   const MAX_PRODUCTS = 7;
 

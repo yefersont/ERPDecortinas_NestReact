@@ -72,6 +72,21 @@ export class CotizacionesController {
     };
   }
 
+  // Actualizar cotización con detalles (TRANSACCIONAL)
+  @Patch('with-details/:id')
+  // @Roles('ADMIN')
+  async updateWithDetails(
+    @Param('id') id: string,
+    @Body() updateDto: CreateCotizacionWithDetailsDto
+  ) {
+    const cotizacion = await this.cotizacionesService.updateWithDetails(+id, updateDto);
+    return {
+      status: HttpStatus.OK,
+      message: 'Cotización con detalles actualizada exitosamente',
+      data: cotizacion,
+    };
+  }
+
   @Delete(':id')
   // @Roles('ADMIN')
   async remove(@Param('id') id: string) {

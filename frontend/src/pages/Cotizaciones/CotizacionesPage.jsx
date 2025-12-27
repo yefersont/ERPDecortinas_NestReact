@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from "react";
 import Loader from "../../components/Loader";
 import { useTheme } from "../../context/ThemeContext";
-import { getCotizaciones, updateCotizacion, deleteCotizacion } from "../../api/CotizacionesApi";
+import { getCotizaciones, updateCotizacionWithDetails, deleteCotizacion } from "../../api/CotizacionesApi";
 import { createVenta } from "../../api/VentasApi";
 import TablaConPaginacion from "../../components/TablaConPaginacion";
 import { FileText, Plus, Download, Upload, CheckCircle, Clock, XCircle, CircleDollarSign, Edit2, Trash2, Receipt } from "lucide-react";
@@ -10,11 +10,13 @@ import { useToast } from "../../context/ToastContext";
 import { useDialog } from "../../context/DialogContext";
 import Modal from "../../components/Modal";
 import VentaForm from "../../components/VentaForm";
+import CotizacionForm from "../../components/CotizacionForm";
 
 const CotizacionesPage = () => {
   const [cotizaciones, setCotizaciones] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isOpenRegistrarVenta, setIsOpenRegistrarVenta] = useState(false);
+  const [isOpenEditarCotizacion, setIsOpenEditarCotizacion] = useState(false);
   const [cotizacionSeleccionada, setCotizacionSeleccionada] = useState(null);
   const { isDarkMode } = useTheme();
   const { showToast } = useToast();
@@ -117,10 +119,25 @@ const CotizacionesPage = () => {
   };
 
   // Handler para editar cotización
-  const handleEditCotizacion = (cotizacion) => {
-    // TODO: Implementar modal de edición
-    console.log("Editar cotización:", cotizacion);
-    showToast("Función de edición en desarrollo", "info");
+  const handleEditCotizacion = (row) => {
+    const cotizacion = row.cotizacionCompleta;
+    setCotizacionSeleccionada(cotizacion);
+    setIsOpenEditarCotizacion(true);
+  };
+
+  const handleUpdateCotizacion = async (dataToSubmit) => {
+    try {
+      // Llamar a la API para actualizar la cotización con detalles
+      const response = await updateCotizacionWithDetails(cotizacionSeleccionada.idCotizacion, dataToSubmit);
+      console.log('Cotización actualizada:', response);
+      showToast("Cotización actualizada exitosamente", "success");
+      await getcotizaciones();
+      setIsOpenEditarCotizacion(false);
+      setCotizacionSeleccionada(null);
+    } catch (error) {
+      console.error(error);
+      showToast(error.response?.data?.message || "Error al actualizar cotización", "error");
+    }
   };
 
   // Handler para registrar como venta
@@ -581,6 +598,29 @@ const CotizacionesPage = () => {
       }}
       isDarkMode={isDarkMode}
     />
+    </Modal>
+
+    {/* Modal para editar cotización */}
+    <Modal
+      isOpen={isOpenEditarCotizacion}
+      onClose={() => {
+        setIsOpenEditarCotizacion(false);
+        setCotizacionSeleccionada(null);
+      }}
+      title="Editar Cotización"
+      size="xl"
+    >
+      {cotizacionSeleccionada && (
+        <CotizacionForm
+          cliente={cotizacionSeleccionada.cliente}
+          cotizacion={cotizacionSeleccionada}
+          onSubmit={handleUpdateCotizacion}
+          onCancel={() => {
+            setIsOpenEditarCotizacion(false);
+            setCotizacionSeleccionada(null);
+          }}
+        />
+      )}
     </Modal>
     </>
   );
