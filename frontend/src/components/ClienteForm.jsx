@@ -15,20 +15,39 @@ const ClienteForm = ({ cliente = null, onSubmit, onCancel }) => {
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
+const handleChange = (e) => {
+  const { name, value } = e.target;
+  
+  // Validaciones en tiempo real según el campo
+  if (name === 'cedula' && value && !/^\d*$/.test(value)) {
+    return; // Solo permitir números
+  }
+  
+  if (name === 'nombre' && value && !/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]*$/.test(value)) {
+    return; // Solo permitir letras y espacios (con acentos)
+  }
+  
+  if (name === 'apellidos' && value && !/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]*$/.test(value)) {
+    return; // Solo permitir letras y espacios (con acentos)
+  }
+  
+  if (name === 'telefono' && value && !/^\d*$/.test(value)) {
+    return; // Solo permitir números
+  }
+  
+  setFormData(prev => ({
+    ...prev,
+    [name]: value
+  }));
+  
+  // Limpiar error del campo cuando el usuario empieza a escribir
+  if (errors[name]) {
+    setErrors(prev => ({
       ...prev,
-      [name]: value
+      [name]: ''
     }));
-    // Limpiar error del campo cuando el usuario empieza a escribir
-    if (errors[name]) {
-      setErrors(prev => ({
-        ...prev,
-        [name]: ''
-      }));
-    }
-  };
+  }
+};
 
   const validate = () => {
     const newErrors = {};
