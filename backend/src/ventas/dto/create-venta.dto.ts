@@ -10,7 +10,7 @@ export class CreateVentaDto {
   idCotizacion: number;
 
   // opcional: si no lo mandan, se toma el 50 %
-  @IsOptional()
+  @IsNotEmpty()
   @IsNumber()
   abono_inicial?: number;
 }

@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateVentaDto } from './dto/create-venta.dto';
 import { UpdateVentaDto } from './dto/update-venta.dto';
@@ -9,59 +9,69 @@ export class VentasService {
   constructor(private prisma: PrismaService) {}
 
   // CREATE
-async create(data: CreateVentaDto) {
-  // 1. Buscar cotización con sus detalles
-  const cotizacion = await this.prisma.cotizaciones.findUnique({
-    where: { idCotizacion: data.idCotizacion },
-    include: {
-      detalles: true,
-    },
-  });
+  async create(data: CreateVentaDto) {
+    return await this.prisma.$transaction(async (tx) => {
+      const cotizacion = await tx.cotizaciones.findUnique({
+        where: { idCotizacion: data.idCotizacion },
+        include: { detalles: true },
+      });
 
-  if (!cotizacion) {
-    throw new NotFoundException(
-      `La cotización con ID ${data.idCotizacion} no existe`,
-    );
+      if (!cotizacion) {
+        throw new NotFoundException(
+          `La cotización con ID ${data.idCotizacion} no existe`,
+        );
+      }
+
+      if (cotizacion.detalles.length === 0) {
+        throw new Error(
+          'No se puede registrar la venta porque la cotización no tiene detalles',
+        );
+      }
+
+      const total = Number(cotizacion.valor_total);
+      const abono = Number(data.abono_inicial);
+
+      // 🔎 Validaciones de negocio
+      if (isNaN(abono) || abono <= 0) {
+        throw new BadRequestException('El abono inicial debe ser mayor a 0');
+      }
+
+      if (abono > total) {
+        throw new BadRequestException(
+          `El abono inicial no puede ser mayor al total (${total})`,
+        );
+      }
+
+      const saldoPendiente = total - abono;
+
+      const venta = await tx.ventas.create({
+        data: {
+          fecha_venta: new Date(data.fecha_venta),
+          idCotizacion: data.idCotizacion,
+          total,
+          saldo_pendiente: saldoPendiente,
+          estado_pago: saldoPendiente === 0 ? 'PAGADO' : 'PENDIENTE',
+        },
+      });
+
+      await tx.deudores.create({
+        data: {
+          idVenta: venta.idVenta,
+          abono,
+          fecha_abono: new Date(),
+        },
+      });
+
+      return {
+        message: 'Venta registrada correctamente',
+        data: {
+          ...venta,
+          abono_inicial: abono,
+          saldo_pendiente: saldoPendiente,
+        },
+      };
+    });
   }
-
-  // 2. Validar que tenga detalles
-  if (cotizacion.detalles.length === 0) {
-    throw new Error(
-      'No se puede registrar la venta porque la cotización no tiene detalles',
-    );
-  }
-
-
-  // 4. Lógica de negocio: abono inicial (50%)
-  const total = Number(cotizacion.valor_total);
-  const abonoInicial = total / 2;
-  const saldoPendiente = total - abonoInicial;
-
-  // 5. Crear venta
-  const venta = await this.prisma.ventas.create({
-    data: {
-      fecha_venta: new Date(data.fecha_venta),
-      idCotizacion: data.idCotizacion,
-      total,
-      saldo_pendiente: saldoPendiente,
-      estado_pago: saldoPendiente === 0 ? 'PAGADO' : 'PENDIENTE',
-    },
-  });
-
-  // 6. Registrar abono inicial automáticamente
-  await this.prisma.deudores.create({
-    data: {
-      idVenta: venta.idVenta,
-      abono: abonoInicial,
-      fecha_abono: new Date(),
-    },
-  });
-
-  return {
-    message: 'Venta registrada correctamente',
-    data: venta,
-  };
-}
 
 
   
