@@ -8,8 +8,6 @@ export class DeudoresService {
   constructor(private prisma: PrismaService) {}
 
   // CREATE
-
-
   async create(data: CreateDeudoreDto) {
     // Buscar la venta asociada
     const venta = await this.prisma.ventas.findUnique({
@@ -66,10 +64,12 @@ export class DeudoresService {
     };
   }
 
-
   // FIND ALL
   async findAll() {
     const deudores = await this.prisma.deudores.findMany({
+      orderBy: {
+        fecha_abono: 'desc',
+      },
       include: {
         venta: true,
       },
