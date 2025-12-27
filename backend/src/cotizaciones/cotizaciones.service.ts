@@ -62,6 +62,9 @@ export class CotizacionesService {
   // Buscar todas las cotizaciones
   async findAll() {
     return this.prisma.cotizaciones.findMany({
+      orderBy: {
+        fecha: "desc",
+      },
       include: {
         cliente: true,
         detalles: {

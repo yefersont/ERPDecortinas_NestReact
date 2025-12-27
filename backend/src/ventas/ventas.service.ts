@@ -79,7 +79,11 @@ export class VentasService {
   async findAll() {
     const ventas = await this.prisma.ventas.findMany({
       include: {
-        cotizacion: true,
+        cotizacion: {
+          include: {
+            cliente: true,
+          },
+        },
         abonos: true,
       },
     });
