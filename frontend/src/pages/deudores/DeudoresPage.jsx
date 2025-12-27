@@ -83,22 +83,25 @@ const DeudoresPage = () => {
     };
 
     // Preparar datos para la tabla
-    const tableData = deudores.map((deudor) => ({
-        id: deudor.idDeudor,
-        fecha: formatFecha(deudor.fecha_abono),
-        venta: `#${deudor.idVenta}`,
-        cotizacion: `#${deudor.venta.idCotizacion}`,
-        abono: formatMoneda(deudor.abono),
-        totalVenta: formatMoneda(deudor.venta.total),
-        saldoPendiente: formatMoneda(deudor.venta.saldo_pendiente),
-        estado: getEstadoPagoBadge(deudor.venta.estado_pago),
-    }));
+    const tableData = deudores.map((deudor) => {
+        const clienteNombre = `${deudor.venta.cotizacion.cliente.nombre} ${deudor.venta.cotizacion.cliente.apellidos}`;
+        
+        return {
+            id: deudor.idDeudor,
+            fecha: formatFecha(deudor.fecha_abono),
+            cliente: clienteNombre,
+            venta: `#${deudor.idVenta}`,
+            abono: formatMoneda(deudor.abono),
+            totalVenta: formatMoneda(deudor.venta.total),
+            saldoPendiente: formatMoneda(deudor.venta.saldo_pendiente),
+            estado: getEstadoPagoBadge(deudor.venta.estado_pago),
+        };
+    });
 
     const columns = [
-        { key: "id", label: "ID" },
         { key: "fecha", label: "Fecha Abono" },
+        { key: "cliente", label: "Cliente" },
         { key: "venta", label: "Venta" },
-        { key: "cotizacion", label: "Cotización" },
         { key: "abono", label: "Monto Abono" },
         { key: "totalVenta", label: "Total Venta" },
         { key: "saldoPendiente", label: "Saldo" },
@@ -442,7 +445,7 @@ const DeudoresPage = () => {
                 <TablaConPaginacion
                     columns={columns}
                     data={tableData}
-                    pageSize={10}
+                    pageSize={5}
                     isDarkMode={isDarkMode}
                 />
             </div>

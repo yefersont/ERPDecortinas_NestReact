@@ -454,7 +454,7 @@ const VentasPage = () => {
                 <TablaConPaginacion
                     columns={columns}
                     data={tableData}
-                    pageSize={5}
+                    pageSize={4}
                     isDarkMode={isDarkMode}
                 />
             </div>
