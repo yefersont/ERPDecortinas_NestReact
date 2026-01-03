@@ -2,10 +2,11 @@
 import React, { useState, useEffect } from "react";
 import Loader from "../../components/Loader";
 import { useTheme } from "../../context/ThemeContext";
-import { getCotizaciones, updateCotizacionWithDetails, deleteCotizacion } from "../../api/CotizacionesApi";
+import { getClientes } from "../../api/ClientesApi";
+import { getCotizaciones, updateCotizacionWithDetails, deleteCotizacion, createCotizacionWithDetails } from "../../api/CotizacionesApi";
 import { createVenta } from "../../api/VentasApi";
 import TablaConPaginacion from "../../components/TablaConPaginacion";
-import { FileText, Plus, Download, Upload, CheckCircle, Clock, XCircle, CircleDollarSign, Edit2, Trash2, Receipt } from "lucide-react";
+import { FileText, Plus, Download, Upload, CheckCircle, Clock, XCircle, CircleDollarSign, Edit2, Trash2, Receipt, SquarePen } from "lucide-react";
 import { useToast } from "../../context/ToastContext";
 import { useDialog } from "../../context/DialogContext";
 import Modal from "../../components/Modal";
@@ -15,14 +16,54 @@ import CotizacionDetalleVista from "../../components/CotizacionDetalleVista";
 
 const CotizacionesPage = () => {
   const [cotizaciones, setCotizaciones] = useState([]);
+  const [clientes, setClientes] = useState([]); 
   const [loading, setLoading] = useState(true);
+
+  const [isOpenViewClientes, setIsOpenViewClientes] = useState(false);
   const [isOpenRegistrarVenta, setIsOpenRegistrarVenta] = useState(false);
   const [isOpenEditarCotizacion, setIsOpenEditarCotizacion] = useState(false);
   const [isOpenDetalles, setIsOpenDetalles] = useState(false);
+
   const [cotizacionSeleccionada, setCotizacionSeleccionada] = useState(null);
   const { isDarkMode } = useTheme();
   const { showToast } = useToast();
   const { showDialog } = useDialog();
+
+
+  useEffect(() => {
+    getcotizaciones();
+  }, []);
+
+  const fetchClientes = async () => {
+    try {
+      setLoading(true);
+      const response = await getClientes();
+      const clientesData = Array.isArray(response.data) ? response.data : response.data.data || [];
+      setClientes(clientesData);
+    } catch (error) {
+      console.log(error);
+      showToast("Error al cargar los clientes", "error");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleOpenNewCotizacion = async () => {
+    await fetchClientes();
+    setIsOpenViewClientes(true);
+  };
+
+  const handleSelectCliente = (cliente) => {
+    // Preparar cotización vacía con el cliente seleccionado
+    const nuevaCotizacion = {
+      cliente: cliente,
+      detalles: [],
+      valor_total: 0
+    };
+    setCotizacionSeleccionada(nuevaCotizacion);
+    setIsOpenViewClientes(false);
+    setIsOpenEditarCotizacion(true); // Reutilizamos el modal de editar/crear
+  };
 
   const getcotizaciones = async () => {
     try {
@@ -34,11 +75,6 @@ const CotizacionesPage = () => {
       setLoading(false);
     }
   };
-
-  useEffect(() => {
-    getcotizaciones();
-  }, []);
-
   // Formatear fecha
   const formatFecha = (fecha) => {
     return new Date(fecha).toLocaleDateString("es-ES", {
@@ -127,18 +163,26 @@ const CotizacionesPage = () => {
     setIsOpenEditarCotizacion(true);
   };
 
-  const handleUpdateCotizacion = async (dataToSubmit) => {
+  const handleSubmitCotizacion = async (dataToSubmit) => {
     try {
-      // Llamar a la API para actualizar la cotización con detalles
-      const response = await updateCotizacionWithDetails(cotizacionSeleccionada.idCotizacion, dataToSubmit);
-      console.log('Cotización actualizada:', response);
-      showToast("Cotización actualizada exitosamente", "success");
+      if (cotizacionSeleccionada?.idCotizacion) {
+        // Actualizar cotización existente
+        const response = await updateCotizacionWithDetails(cotizacionSeleccionada.idCotizacion, dataToSubmit);
+        console.log('Cotización actualizada:', response);
+        showToast("Cotización actualizada exitosamente", "success");
+      } else {
+        // Crear nueva cotización
+        const response = await createCotizacionWithDetails(dataToSubmit);
+        console.log('Cotización creada:', response);
+        showToast("Cotización creada exitosamente", "success");
+      }
+
       await getcotizaciones();
       setIsOpenEditarCotizacion(false);
       setCotizacionSeleccionada(null);
     } catch (error) {
       console.error(error);
-      showToast(error.response?.data?.message || "Error al actualizar cotización", "error");
+      showToast(error.response?.data?.message || "Error al guardar cotización", "error");
     }
   };
 
@@ -370,14 +414,6 @@ const CotizacionesPage = () => {
                 >
                   Cotizaciones
                 </h1>
-                <p
-                  className={`
-                    text-sm mt-1
-                    ${isDarkMode ? "text-gray-400" : "text-gray-600"}
-                  `}
-                >
-                  Gestiona tus {totalCotizaciones} cotizaciones registradas
-                </p>
               </div>
             </div>
 
@@ -423,6 +459,7 @@ const CotizacionesPage = () => {
                       : "bg-blue-500 hover:bg-blue-600 text-white shadow-lg shadow-blue-500/30"
                   }
                 `}
+                onClick={handleOpenNewCotizacion}
               >
                 <Plus size={16} />
                 Nueva Cotización
@@ -674,7 +711,7 @@ const CotizacionesPage = () => {
         <CotizacionForm
           cliente={cotizacionSeleccionada.cliente}
           cotizacion={cotizacionSeleccionada}
-          onSubmit={handleUpdateCotizacion}
+          onSubmit={handleSubmitCotizacion}
           onCancel={() => {
             setIsOpenEditarCotizacion(false);
             setCotizacionSeleccionada(null);
@@ -703,6 +740,60 @@ const CotizacionesPage = () => {
           isDarkMode={false}
         />
       )}
+    </Modal>
+
+    {/* Modal para nueva cotizacon - Muestra clientes */}
+    <Modal
+      isOpen={isOpenViewClientes}
+      onClose={() => {
+        setIsOpenViewClientes(false);
+        setCotizacionSeleccionada(null);
+      }}
+      title="Seleccionar Cliente"
+      size="xl"
+    >
+      <div className="p-4">
+        {loading ? (
+          <Loader text="Cargando clientes..." />
+        ) : (
+          <TablaConPaginacion
+            columns={[
+              { key: "documento", label: "Documento", render: (c) => `${c.cedula}` },
+              { key: "nombre", label: "Nombre", render: (c) => `${c.nombre} ${c.apellidos}` },
+              { key: "celular", label: "Celular", render: (c) => `${c.telefono}`},
+              {
+                key: "acciones",
+                label: "Acciones",
+                render: (row) => (
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      console.log("Cliente ID:", row.idCliente);
+                      handleSelectCliente(row);
+                    }}
+                    className={`
+                      flex items-center gap-2 p-2 rounded-lg transition-all duration-200
+                      ${
+                        isDarkMode
+                          ? "hover:bg-green-600/20 text-green-400 hover:text-green-300"
+                          : "hover:bg-green-50 text-green-600 hover:text-green-700"
+                      }
+                    `}
+                    title="Seleccionar cliente"
+                  >
+                    <SquarePen size={18} />
+                    <span>Crear cotización</span>
+                  </button>
+                )
+              }
+            ]}
+            data={clientes}
+            pageSize={5}
+            isDarkMode={isDarkMode}
+            onRowClick={handleSelectCliente}
+          />
+        )}
+      </div>
     </Modal>
     </>
   );

@@ -116,6 +116,7 @@ const CotizacionesForm = ({ cliente, cotizacion, onCancel, onSubmit }) => {
   };
 
   const isProductComplete = (producto) => {
+    if (!producto) return false;
     return producto.alto && producto.alto !== '0' && 
            producto.ancho && producto.ancho !== '0' && 
            producto.tipoProducto && 

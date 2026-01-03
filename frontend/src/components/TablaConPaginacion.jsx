@@ -10,9 +10,11 @@ export default function TablaConPaginacion({
 }) {
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
+  
+  const safeData = Array.isArray(data) ? data : [];
 
   // Filtrar datos por búsqueda
-  const filteredData = data.filter(row =>
+  const filteredData = safeData.filter(row =>
     columns.some(col =>
       String(row[col.key]).toLowerCase().includes(searchTerm.toLowerCase())
     )
