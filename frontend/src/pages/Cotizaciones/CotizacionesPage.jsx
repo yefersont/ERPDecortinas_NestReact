@@ -13,6 +13,8 @@ import Modal from "../../components/Modal";
 import VentaForm from "../../components/VentaForm";
 import CotizacionForm from "../../components/CotizacionForm";
 import CotizacionDetalleVista from "../../components/CotizacionDetalleVista";
+import { createCliente } from "../../api/ClientesApi";
+import ClienteForm from "../../components/ClienteForm";
 
 const CotizacionesPage = () => {
   const [cotizaciones, setCotizaciones] = useState([]);
@@ -23,6 +25,7 @@ const CotizacionesPage = () => {
   const [isOpenRegistrarVenta, setIsOpenRegistrarVenta] = useState(false);
   const [isOpenEditarCotizacion, setIsOpenEditarCotizacion] = useState(false);
   const [isOpenDetalles, setIsOpenDetalles] = useState(false);
+  const [isOpenNuevoCliente, setIsOpenNuevoCliente] = useState(false);
 
   const [cotizacionSeleccionada, setCotizacionSeleccionada] = useState(null);
   const { isDarkMode } = useTheme();
@@ -51,6 +54,27 @@ const CotizacionesPage = () => {
   const handleOpenNewCotizacion = async () => {
     await fetchClientes();
     setIsOpenViewClientes(true);
+  };
+
+  const handleOpenNuevoCliente = () => {
+    setIsOpenViewClientes(false);
+    setIsOpenNuevoCliente(true);
+  };
+
+  const handleSaveNuevoCliente = async (clienteData) => {
+    try {
+      const response = await createCliente(clienteData);
+      console.log('Cliente creado:', response);
+      showToast("Cliente creado exitosamente", "success");
+      
+      // Recargar clientes y volver al selector
+      await fetchClientes();
+      setIsOpenNuevoCliente(false);
+      setIsOpenViewClientes(true);
+    } catch (error) {
+      console.error(error);
+      showToast("Error al crear cliente", "error");
+    }
   };
 
   const handleSelectCliente = (cliente) => {
@@ -802,7 +826,7 @@ const CotizacionesPage = () => {
                       : "bg-blue-500 hover:bg-blue-600 text-white shadow-lg shadow-blue-500/30"
                   }
                 `}
-                onClick={() => console.log("Crear nuevo cliente")}
+                onClick={handleOpenNuevoCliente}
               >
                 <Plus size={16} />
                 Nuevo Cliente
@@ -811,6 +835,25 @@ const CotizacionesPage = () => {
           />
         )}
       </div>
+    </Modal>
+
+    {/* Modal para crear nuevo cliente */}
+    <Modal
+      isOpen={isOpenNuevoCliente}
+      onClose={() => {
+        setIsOpenNuevoCliente(false);
+        setIsOpenViewClientes(true); // Volver al selector si cancela
+      }}
+      title="Nuevo Cliente"
+    >
+      <ClienteForm
+        onSubmit={handleSaveNuevoCliente}
+        onCancel={() => {
+          setIsOpenNuevoCliente(false);
+          setIsOpenViewClientes(true);
+        }}
+        isDarkMode={isDarkMode}
+      />
     </Modal>
     </>
   );
