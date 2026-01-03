@@ -788,9 +788,26 @@ const CotizacionesPage = () => {
               }
             ]}
             data={clientes}
-            pageSize={5}
+            pageSize={4}
             isDarkMode={isDarkMode}
             onRowClick={handleSelectCliente}
+            extraContent={
+              <button
+                className={`
+                  flex items-center gap-2 px-4 py-2.5 rounded-xl
+                  text-sm font-medium transition-all duration-200 shrink-0
+                  ${
+                    isDarkMode
+                      ? "bg-blue-600 hover:bg-blue-700 text-white shadow-lg shadow-blue-600/30"
+                      : "bg-blue-500 hover:bg-blue-600 text-white shadow-lg shadow-blue-500/30"
+                  }
+                `}
+                onClick={() => console.log("Crear nuevo cliente")}
+              >
+                <Plus size={16} />
+                Nuevo Cliente
+              </button>
+            }
           />
         )}
       </div>
