@@ -11,12 +11,14 @@ import { useDialog } from "../../context/DialogContext";
 import Modal from "../../components/Modal";
 import VentaForm from "../../components/VentaForm";
 import CotizacionForm from "../../components/CotizacionForm";
+import CotizacionDetalleVista from "../../components/CotizacionDetalleVista";
 
 const CotizacionesPage = () => {
   const [cotizaciones, setCotizaciones] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isOpenRegistrarVenta, setIsOpenRegistrarVenta] = useState(false);
   const [isOpenEditarCotizacion, setIsOpenEditarCotizacion] = useState(false);
+  const [isOpenDetalles, setIsOpenDetalles] = useState(false);
   const [cotizacionSeleccionada, setCotizacionSeleccionada] = useState(null);
   const { isDarkMode } = useTheme();
   const { showToast } = useToast();
@@ -146,6 +148,12 @@ const CotizacionesPage = () => {
     setIsOpenRegistrarVenta(true);
   };
 
+  // Handler para ver detalles
+  const handleVerDetalles = (cotizacion) => {
+    setCotizacionSeleccionada(cotizacion.cotizacionCompleta);
+    setIsOpenDetalles(true);
+  };
+
   const handleSaveVenta = async (formData) => {
     try {
       // Combinar los datos del formulario con el idCotizacion
@@ -177,11 +185,53 @@ const CotizacionesPage = () => {
   }));
 
   const columns = [
-    { key: "fecha", label: "Fecha" },
-    { key: "cliente", label: "Cliente" },
-    { key: "valor", label: "Valor Total" },
-    { key: "productos", label: "Productos" },
-    { key: "estado", label: "Estado" },
+    { 
+      key: "fecha", 
+      label: "Fecha",
+      render: (row) => (
+        <span>
+          {row.fecha}
+        </span>
+      )
+    },
+    { 
+      key: "cliente", 
+      label: "Cliente",
+      render: (row) => (
+        <span>
+          {row.cliente}
+        </span>
+      )
+    },
+    { 
+      key: "valor", 
+      label: "Valor Total",
+      render: (row) => (
+        <span>
+          {row.valor}
+        </span>
+      )
+    },
+    { 
+      key: "productos", 
+      label: "Productos",
+      render: (row) => (
+        <span>
+          {row.productos}
+        </span>
+      )
+    },
+    { 
+      key: "estado", 
+      label: "Estado",
+      render: (row) => (
+        <span 
+          className="inline-block"
+        >
+          {row.estado}
+        </span>
+      )
+    },
     {
       key: "acciones",
       label: "Acciones",
@@ -207,7 +257,10 @@ const CotizacionesPage = () => {
               <>
                 {/* Botón Registrar Venta */}
                 <button
-                  onClick={() => handleRegistrarVenta(row)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleRegistrarVenta(row);
+                  }}
                   className={`
                     p-2 rounded-lg transition-all duration-200
                     ${
@@ -222,7 +275,10 @@ const CotizacionesPage = () => {
                 </button>
               
                 <button
-                  onClick={() => handleEditCotizacion(row)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleEditCotizacion(row);
+                  }}
                   className={`
                     p-2 rounded-lg transition-all duration-200
                     ${
@@ -237,7 +293,10 @@ const CotizacionesPage = () => {
                 </button>
               
                 <button
-                  onClick={() => handleDeleteCotizacion(row.cotizacionCompleta)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleDeleteCotizacion(row.cotizacionCompleta);
+                  }}
                   className={`
                     p-2 rounded-lg transition-all duration-200
                     ${
@@ -576,6 +635,7 @@ const CotizacionesPage = () => {
           data={tableData}
           pageSize={5}
           isDarkMode={isDarkMode}
+          onRowClick={handleVerDetalles}
         />
       </div>
     </div>
@@ -619,6 +679,28 @@ const CotizacionesPage = () => {
             setIsOpenEditarCotizacion(false);
             setCotizacionSeleccionada(null);
           }}
+        />
+      )}
+    </Modal>
+
+    {/* Modal para ver detalles */}
+    <Modal
+      isOpen={isOpenDetalles}
+      onClose={() => {
+        setIsOpenDetalles(false);
+        setCotizacionSeleccionada(null);
+      }}
+      title="Detalles de la Cotización"
+      size="full"
+    >
+      {cotizacionSeleccionada && (
+        <CotizacionDetalleVista
+          cotizacion={cotizacionSeleccionada}
+          onClose={() => {
+            setIsOpenDetalles(false);
+            setCotizacionSeleccionada(null);
+          }}
+          isDarkMode={false}
         />
       )}
     </Modal>

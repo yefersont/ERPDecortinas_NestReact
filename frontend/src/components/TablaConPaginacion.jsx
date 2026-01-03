@@ -6,6 +6,7 @@ export default function TablaConPaginacion({
   data,
   pageSize = 5,
   isDarkMode = false,
+  onRowClick,
 }) {
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
@@ -219,8 +220,10 @@ export default function TablaConPaginacion({
                 currentData.map((row, index) => (
                   <tr
                     key={index}
+                    onClick={() => onRowClick && onRowClick(row)}
                     className={`
                       group transition-all duration-200
+                      ${onRowClick ? "cursor-pointer" : ""}
                       ${
                         isDarkMode
                           ? "border-b border-gray-800/50 hover:bg-gray-800/40"
