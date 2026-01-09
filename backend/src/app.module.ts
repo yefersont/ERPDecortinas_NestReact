@@ -13,6 +13,7 @@ import { EstadisticasModule } from './estadisticas/estadisticas.module';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { ConfigModule } from '@nestjs/config';
 import { TipoProductoModule } from './tipo-producto/tipo-producto.module';
+import { ExportModule } from './export/export.module';
 
 @Module({
   imports: [
@@ -37,6 +38,7 @@ import { TipoProductoModule } from './tipo-producto/tipo-producto.module';
       isGlobal: true,
     }),
     TipoProductoModule,
+    ExportModule,
   ],
   controllers: [AppController],
   providers: [AppService],
