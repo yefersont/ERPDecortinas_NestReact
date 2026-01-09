@@ -455,10 +455,12 @@ const CotizacionesPage = () => {
                 `}
               >
                 <Download size={16} />
-                <span className="hidden sm:inline">Exportar</span>
+                <span className="hidden sm:inline">Exportar a Excel</span>
               </button>
 
-              <button
+            
+
+              {/* <button
                 className={`
                   flex items-center gap-2 px-4 py-2.5 rounded-xl
                   text-sm font-medium transition-all duration-200
@@ -471,7 +473,7 @@ const CotizacionesPage = () => {
               >
                 <Upload size={16} />
                 <span className="hidden sm:inline">Importar</span>
-              </button>
+              </button> */}
 
               <button
                 className={`
