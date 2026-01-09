@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import Loader from "../../components/Loader";
 import { useTheme } from "../../context/ThemeContext";
 import { getClientes } from "../../api/ClientesApi";
+import { exportCotizacionesToExcel } from "../../api/ExportApi";
 import { getCotizaciones, updateCotizacionWithDetails, deleteCotizacion, createCotizacionWithDetails } from "../../api/CotizacionesApi";
 import { createVenta } from "../../api/VentasApi";
 import TablaConPaginacion from "../../components/TablaConPaginacion";
@@ -46,6 +47,26 @@ const CotizacionesPage = () => {
     } catch (error) {
       console.log(error);
       showToast("Error al cargar los clientes", "error");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleExportCotizacionesToExcel = async () => {
+    try {
+      setLoading(true);
+      const response = await exportCotizacionesToExcel();
+      const blob = new Blob([response.data], { type: response.headers["content-type"] });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = "cotizaciones.xlsx";
+      link.click();
+      window.URL.revokeObjectURL(url);
+      console.log("Descargando cotizaciones");
+    } catch (error) {
+      console.log(error);
+      showToast("Error al exportar cotizaciones", "error");
     } finally {
       setLoading(false);
     }
@@ -453,6 +474,8 @@ const CotizacionesPage = () => {
                       : "bg-white hover:bg-gray-50 text-gray-700 border border-gray-300 shadow-sm"
                   }
                 `}
+
+                  onClick={handleExportCotizacionesToExcel}
               >
                 <Download size={16} />
                 <span className="hidden sm:inline">Exportar a Excel</span>
