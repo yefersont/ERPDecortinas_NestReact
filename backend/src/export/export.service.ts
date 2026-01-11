@@ -1,10 +1,12 @@
 import {Injectable} from '@nestjs/common';
 import * as ExcelJS from 'exceljs';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { CryptoService, EncryptedData } from 'src/common/crypto/crypto.service';
+
 
 @Injectable()
 export class ExportService {
-    constructor(private readonly prisma: PrismaService) {}
+    constructor(private readonly prisma: PrismaService, private readonly cryptoService: CryptoService) {}
 
     async exportCotizacionesToExcel(){
 
@@ -143,17 +145,31 @@ export class ExportService {
         { header: 'Estado Pago', key: 'estadoPago', width: 18 },
         ];
 
+
+        const crypto = this.cryptoService;
+        
         ventas.forEach(v => {
+        const cliente = v.cotizacion?.cliente;
+
+        const documento = crypto.isValidEncryptedData(cliente?.cedula_enc)
+            ? crypto.decrypt(cliente.cedula_enc)
+            : '';
+
+        const telefono = crypto.isValidEncryptedData(cliente?.telefono_enc)
+            ? crypto.decrypt(cliente.telefono_enc)
+            : '';
+
         hoja.addRow({
             idCotizacion: v.cotizacion?.idCotizacion ?? '',
-            cliente: `${v.cotizacion?.cliente?.nombre ?? ''} ${v.cotizacion?.cliente?.apellidos ?? ''}`.trim(),
-            documento: v.cotizacion?.cliente?.cedula_hash ?? '',
-            telefono: v.cotizacion?.cliente?.telefono_enc ?? '',
+            cliente: `${cliente?.nombre ?? ''} ${cliente?.apellidos ?? ''}`.trim(),
+            documento,
+            telefono,
             fecha: v.fecha_venta ? new Date(v.fecha_venta) : '',
             valorTotal: Number(v.total ?? 0),
             estadoPago: v.estado_pago ?? '',
         });
         });
+
 
         // Formatear columnas
         hoja.getRow(1).font = { bold: true };
