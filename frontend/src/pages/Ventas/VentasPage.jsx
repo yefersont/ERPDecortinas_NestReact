@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import Loader from '../../components/Loader';
 import { getVentas } from '../../api/VentasApi';
 import { createDeudor } from '../../api/DeudoresApi';
+import { exportVentasToExcel } from '../../api/ExportApi';
 import TablaConPaginacion from '../../components/TablaConPaginacion';
 import { useTheme } from '../../context/ThemeContext';
 import { useToast } from '../../context/ToastContext';
@@ -37,6 +38,26 @@ const VentasPage = () => {
         setVentaSeleccionada(venta);
         setIsOpenAbonar(true);
     };
+
+    const handleExportVentasToExcel = async () => {
+        try {
+          setLoading(true);
+          const response = await exportVentasToExcel();
+          const blob = new Blob([response.data], { type: response.headers["content-type"] });
+          const url = window.URL.createObjectURL(blob);
+          const link = document.createElement("a");
+          link.href = url;
+          link.download = "ventas.xlsx";
+          link.click();
+          window.URL.revokeObjectURL(url);
+          console.log("Descargando ventas");
+        } catch (error) {
+          console.log(error);
+          showToast("Error al exportar ventas", "error");
+        } finally {
+          setLoading(false);
+        }
+      };
 
     const handleSaveAbono = async (dataToSubmit) => {
         try {
@@ -283,12 +304,13 @@ const VentasPage = () => {
                                             : "bg-white hover:bg-gray-50 text-gray-700 border border-gray-300 shadow-sm"
                                     }
                                 `}
+                                onClick={handleExportVentasToExcel}
                             >
                                 <Download size={16} />
-                                <span className="hidden sm:inline">Exportar</span>
+                                <span className="hidden sm:inline">Exportar a Excel</span>
                             </button>
 
-                            <button
+                            {/* <button
                                 className={`
                                     flex items-center gap-2 px-4 py-2.5 rounded-xl
                                     text-sm font-medium transition-all duration-200
@@ -301,7 +323,7 @@ const VentasPage = () => {
                             >
                                 <Upload size={16} />
                                 <span className="hidden sm:inline">Importar</span>
-                            </button>
+                            </button> */}
 
                             <button
                                 className={`
