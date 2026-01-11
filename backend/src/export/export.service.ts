@@ -66,12 +66,118 @@ export class ExportService {
         });
 
         // Formatear columnas
+
+        // Encabezados en negrita
         hoja.getRow(1).font = { bold: true };
+
+        // Formato monetario
         hoja.getColumn('valorTotal').numFmt = '"$"#,##0';
-        hoja.getColumn('totalVenta').numFmt = '"$"#,##0';
-        hoja.getColumn('saldoPendiente').numFmt = '"$"#,##0';
+
+        // Formato de fecha
         hoja.getColumn('fecha').numFmt = 'dd/mm/yyyy';
+
+        // Alineación
+        hoja.getColumn('idCotizacion').alignment = { horizontal: 'center' };
+        hoja.getColumn('fecha').alignment = { horizontal: 'center' };
+        hoja.getColumn('valorTotal').alignment = { horizontal: 'right' };
+        hoja.getColumn('estadoPago').alignment = { horizontal: 'center' };
+
+        // Congelar encabezado
+        hoja.views = [{ state: 'frozen', ySplit: 1 }];
+
+        // Filtro automático de Excel
+        hoja.autoFilter = {
+        from: 'A1',
+        to: 'G1',
+        };
+
         return libro;
 
+
+    }
+
+    async exportVentasToExcel(){
+
+
+        // Variable para definir el archivo
+        const libro = new ExcelJS.Workbook();
+
+        // Propiedades del archivo
+        libro.creator = 'Decortinas';
+        libro.lastModifiedBy = 'Decortinas';
+        libro.created = new Date();
+        libro.modified = new Date();
+        libro.lastPrinted = new Date();
+
+        // Propiedades descriptivas
+        libro.subject = 'Ventas';
+        libro.description =
+          'Listado de ventas generado desde el sistema ERP Decortinas';
+        libro.keywords = 'ventas, ERP, Decortinas';
+        libro.category = 'Reportes';
+
+        // Hoja de datos
+        const hoja = libro.addWorksheet('Ventas');
+
+        // Buscar ventas
+        const ventas = await this.prisma.ventas.findMany({
+        include: {
+            cotizacion: {
+            include: {
+                cliente: true
+            }
+            },
+            abonos: true
+        }
+        });
+
+        // Definir columnas
+
+        hoja.columns = [
+        { header: 'ID Cotización', key: 'idCotizacion', width: 15 },
+        { header: 'Cliente', key: 'cliente', width: 30 },
+        { header: 'Documento', key: 'documento', width: 20 },
+        { header: 'Teléfono', key: 'telefono', width: 20 },
+        { header: 'Fecha', key: 'fecha', width: 20 },
+        { header: 'Valor Total', key: 'valorTotal', width: 18 },
+        { header: 'Estado Pago', key: 'estadoPago', width: 18 },
+        ];
+
+        ventas.forEach(v => {
+        hoja.addRow({
+            idCotizacion: v.cotizacion?.idCotizacion ?? '',
+            cliente: `${v.cotizacion?.cliente?.nombre ?? ''} ${v.cotizacion?.cliente?.apellidos ?? ''}`.trim(),
+            documento: v.cotizacion?.cliente?.cedula_hash ?? '',
+            telefono: v.cotizacion?.cliente?.telefono_enc ?? '',
+            fecha: v.fecha_venta ? new Date(v.fecha_venta) : '',
+            valorTotal: Number(v.total ?? 0),
+            estadoPago: v.estado_pago ?? '',
+        });
+        });
+
+        // Formatear columnas
+        hoja.getRow(1).font = { bold: true };
+
+        // Formatos
+        hoja.getColumn('valorTotal').numFmt = '"$"#,##0';
+        hoja.getColumn('fecha').numFmt = 'dd/mm/yyyy';
+
+        // Alineación
+        hoja.getColumn('idCotizacion').alignment = { horizontal: 'center' };
+        hoja.getColumn('fecha').alignment = { horizontal: 'center' };
+        hoja.getColumn('valorTotal').alignment = { horizontal: 'right' };
+        hoja.getColumn('estadoPago').alignment = { horizontal: 'center' };
+
+        // Congelar header
+        hoja.views = [{ state: 'frozen', ySplit: 1 }];
+
+        // Filtros de Excel
+        hoja.autoFilter = {
+        from: 'A1',
+        to: 'G1',
+        };
+
+        return libro;
+        
     }
 }

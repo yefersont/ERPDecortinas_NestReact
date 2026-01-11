@@ -15,4 +15,13 @@ export class ExportController {
         await workbook.xlsx.write(res);
         res.end();
     }
+
+    @Get('ventasToExcel')
+    async exportVentasToExcel(@Res() res: Response) {
+        const workbook = await this.exportService.exportVentasToExcel();
+        res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        res.setHeader('Content-Disposition', 'attachment; filename="ventas.xlsx"');
+        await workbook.xlsx.write(res);
+        res.end();
+    }
 }
