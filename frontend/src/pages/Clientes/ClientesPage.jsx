@@ -3,7 +3,7 @@ import { getClientes, createCliente, updateCliente, deleteCliente } from "../../
 import { createCotizacionWithDetails } from "../../api/CotizacionesApi";
 import TablaConPaginacion from "../../components/TablaConPaginacion";
 import { useTheme } from "../../context/ThemeContext";
-import { Users, UserPlus, Download, Upload, Edit2, Trash2, SquarePen  } from "lucide-react";
+import { Users, UserPlus, Download, Upload, Edit2, Trash2, SquarePen, ChartLine, Activity  } from "lucide-react";
 import Loader from "../../components/Loader";
 import Modal from "../../components/Modal";
 import ClienteForm from "../../components/ClienteForm";
@@ -415,7 +415,7 @@ const ClientesPage = () => {
                       ${isDarkMode ? "bg-purple-600/20" : "bg-purple-500/10"}
                     `}
                   >
-                    <div className="w-5 h-5 rounded-full bg-green-500" />
+                    <Activity size={20} className={isDarkMode ? "text-purple-400" : "text-purple-600"} />
                   </div>
                 </div>
               </div>
@@ -461,7 +461,10 @@ const ClientesPage = () => {
                       ${isDarkMode ? "bg-orange-600/20" : "bg-orange-500/10"}
                     `}
                   >
-                    <span className="text-xl">📈</span>
+                      <ChartLine 
+                      size={20}
+                      className={isDarkMode ? "text-orange-400" : "text-orange-600"}
+                      />
                   </div>
                 </div>
               </div>
