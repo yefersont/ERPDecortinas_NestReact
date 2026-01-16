@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Search, X } from "lucide-react";
+import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Search, X, Mailbox } from "lucide-react";
 
 export default function TablaConPaginacion({
   columns,
@@ -212,8 +212,7 @@ export default function TablaConPaginacion({
                         {searchTerm ? (
                           <Search size={24} className={isDarkMode ? "text-gray-600" : "text-gray-400"} />
                         ) : (
-                          <span className="text-2xl">📭</span>
-                        )}
+                            <Mailbox size={24} className={isDarkMode ? "text-gray-600" : "text-gray-400"} />                        )}
                       </div>
                       <p className="font-medium">
                         {searchTerm ? "No se encontraron resultados" : "No hay datos para mostrar"}
