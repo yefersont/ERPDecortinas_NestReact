@@ -18,4 +18,24 @@ export const fileApi = axios.create({
 });
 
 
+// Variable local para almacenar el token
+let accessToken = null;
+
+export const setAuthToken = (token) => {
+  accessToken = token;
+};
+
+// Interceptor para agregar el token a todas las peticiones
+api.interceptors.request.use(
+  (config) => {
+    if (accessToken) {
+      config.headers['Authorization'] = `Bearer ${accessToken}`;
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
+
 export default api;

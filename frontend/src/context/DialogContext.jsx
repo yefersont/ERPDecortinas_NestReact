@@ -110,6 +110,12 @@ const Dialog = ({ dialog, onClose, isDarkMode }) => {
       iconBg: 'bg-purple-500/10',
       accentColor: 'from-purple-500 to-purple-600',
     },
+    destructive: {
+      icon: HelpCircle,
+      iconColor: 'text-red-500',
+      iconBg: 'bg-red-500/10',
+      accentColor: 'from-red-500 to-red-600',
+    },
   };
 
   const variant = variants[dialog.variant] || variants.info;

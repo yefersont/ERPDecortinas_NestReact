@@ -1,10 +1,12 @@
 import React from 'react';
-import { Routes, Route } from 'react-router-dom'; 
+import { Routes, Route, Navigate } from 'react-router-dom'; 
 import { useTheme } from './context/ThemeContext';
 // Componentes
 import Navbar from './components/Navbar'; 
+import PrivateRoute from './components/PrivateRoute';
 
 // Páginas
+import LoginPage from './pages/Login/LoginPage';
 import ClientesPage from './pages/Clientes/ClientesPage';
 import VentasPage from './pages/Ventas/VentasPage';
 import CotizacionesPage from './pages/Cotizaciones/CotizacionesPage';
@@ -12,6 +14,18 @@ import DashboardPage from './pages/Dashboard/DashboardPage';
 import DeudoresPage from './pages/deudores/DeudoresPage';
 
 function App() {
+  return (
+    <Routes>
+      <Route path="/login" element={<LoginPage />} />
+      
+      <Route element={<PrivateRoute />}>
+        <Route path="/*" element={<ProtectedLayout />} />
+      </Route>
+    </Routes>
+  );
+}
+
+function ProtectedLayout() {
   const { isDarkMode } = useTheme();
 
   return (

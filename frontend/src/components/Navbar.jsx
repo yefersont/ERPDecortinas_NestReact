@@ -12,17 +12,37 @@ import {
     Sun,
     LayoutDashboard,
     ChevronRight,
+    LogOut,
 } from 'lucide-react';
 
+import { useAuth } from '../context/AuthContext';
+import { useDialog } from '../context/DialogContext';
 import { useTheme } from '../context/ThemeContext';
 
 const Navbar = () => {
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
     const location = useLocation();
     const { isDarkMode, toggleDarkMode } = useTheme();
+    const { user, logout } = useAuth();
+    const { showDialog } = useDialog();
 
     const toggleSidebar = () => {
         setIsSidebarOpen(!isSidebarOpen);
+    };
+
+    const handleLogout = async () => {
+        const confirmed = await showDialog({
+            title: 'Cerrar Sesión',
+            message: '¿Estás seguro que deseas cerrar sesión?',
+            type: 'confirm',
+            variant: 'destructive',
+            confirmText: 'Sí, cerrar sesión',
+            cancelText: 'Cancelar'
+        });
+
+        if (confirmed) {
+            logout();
+        }
     };
 
     const navItems = [
@@ -148,31 +168,33 @@ const Navbar = () => {
 
                     {/* User Profile */}
                     {isSidebarOpen && (
-                        <div className={`flex items-center gap-3 px-4 py-3 rounded-xl ${isDarkMode ? 'bg-gradient-to-r from-gray-800 to-gray-700 border-gray-600 hover:border-blue-500/50' : 'bg-gradient-to-r from-gray-50 to-gray-100 border-gray-300 hover:border-blue-400/50'} border transition-all duration-300 cursor-pointer group`}>
+                        <div className={`flex items-center gap-3 px-4 py-3 rounded-xl ${isDarkMode ? 'bg-gradient-to-r from-gray-800 to-gray-700 border-gray-600' : 'bg-gradient-to-r from-gray-50 to-gray-100 border-gray-300'} border transition-all duration-300 group`}>
                             <div className="relative">
-                                <img 
-                                    src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop" 
-                                    alt="User" 
-                                    className={`w-10 h-10 rounded-full border-2 ${isDarkMode ? 'border-gray-600 group-hover:border-blue-500' : 'border-gray-400 group-hover:border-blue-500'} transition-all duration-300`}
-                                />
+                                <div className={`w-10 h-10 rounded-full flex items-center justify-center text-lg font-bold border-2 ${isDarkMode ? 'bg-blue-900 text-blue-100 border-gray-600' : 'bg-blue-100 text-blue-600 border-gray-400'} transition-all duration-300`}>
+                                    {user?.name ? user.name.charAt(0).toUpperCase() : 'U'}
+                                </div>
                                 <div className={`absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-green-500 rounded-full border-2 ${isDarkMode ? 'border-gray-800' : 'border-white'}`}></div>
                             </div>
                             <div className="flex-1 min-w-0">
-                                <p className={`${isDarkMode ? 'text-white' : 'text-gray-800'} font-medium text-sm truncate`}>Yeferson Tello</p>
-                                <p className={`${isDarkMode ? 'text-gray-400' : 'text-gray-500'} text-xs truncate`}>ytello37@misena.edu.co</p>
+                                <p className={`${isDarkMode ? 'text-white' : 'text-gray-800'} font-medium text-sm truncate`}>{user?.name || 'Usuario'}</p>
+                                <p className={`${isDarkMode ? 'text-gray-400' : 'text-gray-500'} text-xs truncate`}>{user?.email || 'correo@ejemplo.com'}</p>
                             </div>
-                            <ChevronRight size={18} className={`${isDarkMode ? 'text-gray-400 group-hover:text-blue-400' : 'text-gray-400 group-hover:text-blue-600'} transition-colors`} />
+                            <button
+                                onClick={handleLogout}
+                                className={`p-1.5 rounded-lg transition-colors ${isDarkMode ? 'text-gray-400 hover:text-red-400 hover:bg-red-400/10' : 'text-gray-400 hover:text-red-600 hover:bg-red-100'}`}
+                                title="Cerrar Sessión"
+                            >
+                                <LogOut size={18} />
+                            </button>
                         </div>
                     )}
 
                     {!isSidebarOpen && (
                         <div className="flex justify-center">
                             <div className="relative">
-                                <img 
-                                    src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop" 
-                                    alt="User" 
-                                    className={`w-10 h-10 rounded-full border-2 ${isDarkMode ? 'border-gray-600 hover:border-blue-500' : 'border-gray-400 hover:border-blue-500'} transition-all duration-300 cursor-pointer`}
-                                />
+                                <div className={`w-10 h-10 rounded-full flex items-center justify-center text-lg font-bold border-2 ${isDarkMode ? 'bg-blue-900 text-blue-100 border-gray-600 hover:border-blue-500' : 'bg-blue-100 text-blue-600 border-gray-400 hover:border-blue-500'} transition-all duration-300 cursor-pointer`}>
+                                    {user?.name ? user.name.charAt(0).toUpperCase() : 'U'}
+                                </div>
                                 <div className={`absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-green-500 rounded-full border-2 ${isDarkMode ? 'border-gray-800' : 'border-white'}`}></div>
                             </div>
                         </div>
