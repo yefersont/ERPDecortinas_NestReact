@@ -281,14 +281,6 @@ const VentasPage = () => {
                                 >
                                     Ventas
                                 </h1>
-                                <p
-                                    className={`
-                                        text-sm mt-1
-                                        ${isDarkMode ? "text-gray-400" : "text-gray-600"}
-                                    `}
-                                >
-                                    Gestiona tus {totalVentas} ventas registradas
-                                </p>
                             </div>
                         </div>
 

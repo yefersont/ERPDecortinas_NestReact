@@ -210,16 +210,6 @@ const ClientesPage = () => {
                   >
                     Clientes
                   </h1>
-                  <p
-                    className={`
-                      text-sm mt-1
-                      ${isDarkMode ? "text-gray-400" : "text-gray-600"}
-                    `}
-                  >
-                    {loading
-                      ? "Cargando información..."
-                      : `Gestiona tus ${clientes.length} clientes registrados`}
-                  </p>
                 </div>
               </div>
 

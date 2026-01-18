@@ -57,7 +57,7 @@ const Navbar = () => {
         <aside 
             className={`
                 ${isSidebarOpen ? 'w-72' : 'w-20'} 
-                ${isDarkMode ? 'bg-gradient-to-b from-gray-900 via-gray-800 to-gray-900 border-gray-700' : 'bg-gradient-to-b from-gray-800 via-gray-900 to-black border-gray-700'}
+                ${isDarkMode ? 'bg-gray-900 border-gray-700' : 'bg-gray-900 border-gray-700'}
                 border-r
                 transition-all duration-300 ease-in-out
                 flex flex-col

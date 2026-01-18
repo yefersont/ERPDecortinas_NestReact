@@ -172,14 +172,6 @@ const DeudoresPage = () => {
                                 >
                                     Abonos
                                 </h1>
-                                <p
-                                    className={`
-                                        text-sm mt-1
-                                        ${isDarkMode ? "text-gray-400" : "text-gray-600"}
-                                    `}
-                                >
-                                    Gestiona tus {totalAbonos} abonos registrados
-                                </p>
                             </div>
                         </div>
 
