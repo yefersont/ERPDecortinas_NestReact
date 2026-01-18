@@ -151,15 +151,15 @@ const DeudoresPage = () => {
                             <div
                                 className={`
                                     hidden sm:flex items-center justify-center
-                                    w-14 h-14 rounded-2xl
+                                    p-3 rounded-xl
                                     ${
                                         isDarkMode
-                                            ? "bg-gradient-to-br from-blue-600 to-blue-700 shadow-lg shadow-blue-600/30"
-                                            : "bg-gradient-to-br from-blue-500 to-blue-600 shadow-lg shadow-blue-500/30"
+                                            ? "bg-gray-800 text-white"
+                                            : "bg-gray-100 text-gray-900"
                                     }
                                 `}
                             >
-                                <Wallet size={28} className="text-white" />
+                                <Wallet size={32} />
                             </div>
 
                             {/* Título y descripción */}
@@ -213,8 +213,8 @@ const DeudoresPage = () => {
                                     text-sm font-medium transition-all duration-200
                                     ${
                                         isDarkMode
-                                            ? "bg-blue-600 hover:bg-blue-700 text-white shadow-lg shadow-blue-600/30"
-                                            : "bg-blue-500 hover:bg-blue-600 text-white shadow-lg shadow-blue-500/30"
+                                            ? "bg-blue-600 hover:bg-blue-700 text-white"
+                                            : "bg-blue-500 hover:bg-blue-600 text-white"
                                     }
                                 `}
                             >

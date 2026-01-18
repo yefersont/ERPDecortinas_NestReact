@@ -29,7 +29,8 @@ import {
   ShoppingCart,
   AlertCircle,
   Users,
-  Package
+  Package,
+  LayoutDashboard
 } from 'lucide-react';
 import { useTheme } from '../../context/ThemeContext';
 import Loader from '../../components/Loader';
@@ -146,13 +147,18 @@ const DashboardPage = () => {
         <div className={`min-h-screen p-8 ${isDarkMode ? 'bg-gray-900' : 'bg-gray-50'}`}>
             <div className="max-w-7xl mx-auto">
                 {/* Header */}
-                <div className="mb-8">
-                    <h1 className={`text-3xl font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                        Dashboard
-                    </h1>
-                    <p className={`mt-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                        Resumen general
-                    </p>
+                <div className="mb-8 flex items-center gap-4">
+                    <div className={`p-3 rounded-xl ${isDarkMode ? 'bg-gray-800 text-white' : 'bg-gray-100 text-gray-900'}`}>
+                        <LayoutDashboard size={32} />
+                    </div>
+                    <div>
+                        <h1 className={`text-3xl font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                            Dashboard
+                        </h1>
+                        <p className={`mt-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                            Resumen general del sistema
+                        </p>
+                    </div>
                 </div>
 
                 {/* Stats Cards */}
