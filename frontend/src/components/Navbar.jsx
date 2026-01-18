@@ -57,7 +57,7 @@ const Navbar = () => {
         <aside 
             className={`
                 ${isSidebarOpen ? 'w-72' : 'w-20'} 
-                ${isDarkMode ? 'bg-gradient-to-b from-gray-900 via-gray-800 to-gray-900 border-gray-700' : 'bg-gradient-to-b from-white to-gray-50 border-gray-300'}
+                ${isDarkMode ? 'bg-gradient-to-b from-gray-900 via-gray-800 to-gray-900 border-gray-700' : 'bg-gradient-to-b from-gray-800 via-gray-900 to-black border-gray-700'}
                 border-r
                 transition-all duration-300 ease-in-out
                 flex flex-col
@@ -69,21 +69,21 @@ const Navbar = () => {
                 {/* Toggle Button */}
                 <button
                     onClick={toggleSidebar}
-                    className={`absolute -right-3 top-8 ${isDarkMode ? 'bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 shadow-blue-900/50' : 'bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 shadow-blue-400/50'} text-white rounded-full p-1.5 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110 z-10`}
+                    className={`absolute -right-3 top-8 ${isDarkMode ? 'bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 shadow-blue-900/50' : 'bg-gradient-to-r from-gray-600 to-gray-700 hover:from-gray-700 hover:to-gray-800 shadow-gray-900/50'} text-white rounded-full p-1.5 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110 z-10`}
                 >
                     {isSidebarOpen ? <X size={16} /> : <Menu size={16} />}
                 </button>
 
                 {/* Header */}
-                <div className={`p-6 ${isDarkMode ? 'border-gray-700' : 'border-gray-200'} border-b`}>
+                <div className={`p-6 ${isDarkMode ? 'border-gray-700' : 'border-gray-700'} border-b`}>
                     <div className="flex items-center gap-3">
-                        <div className={`${isDarkMode ? 'bg-gradient-to-br from-blue-600 to-blue-700' : 'bg-gradient-to-br from-blue-500 to-blue-600'} p-2.5 rounded-xl shadow-lg`}>
+                        <div className={`${isDarkMode ? 'bg-gradient-to-br from-blue-600 to-blue-700' : 'bg-gradient-to-br from-gray-700 to-gray-800'} p-2.5 rounded-xl shadow-lg`}>
                             <Cloud size={24} className="text-white" />
                         </div>
                         {isSidebarOpen && (
                             <div className="flex flex-col">
-                                <span className={`${isDarkMode ? 'text-white' : 'text-gray-800'} font-bold text-lg`}>ERP Decortinas</span>
-                                <span className={`${isDarkMode ? 'text-gray-400' : 'text-gray-500'} text-xs`}>Sistema de gestión</span>
+                                <span className="text-white font-bold text-lg">ERP Decortinas</span>
+                                <span className="text-gray-400 text-xs">Sistema de gestión</span>
                             </div>
                         )}
                     </div>
@@ -102,11 +102,11 @@ const Navbar = () => {
                                     transition-all duration-300
                                     ${isActive 
                                         ? isDarkMode 
-                                            ? 'bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg shadow-blue-600/30'
-                                            : 'bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-lg shadow-blue-500/30'
+                                            ? 'bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-md'
+                                            : 'bg-white text-gray-900 shadow-md'
                                         : isDarkMode
                                             ? 'text-gray-400 hover:bg-gray-800 hover:text-white'
-                                            : 'text-gray-600 hover:bg-gray-200 hover:text-gray-900'
+                                            : 'text-gray-400 hover:bg-gray-800 hover:text-white'
                                     }
                                     ${!isSidebarOpen && 'justify-center'}
                                     group
@@ -114,7 +114,7 @@ const Navbar = () => {
                             >
                                 <item.icon 
                                     size={22} 
-                                    className={`${isActive ? 'text-white' : isDarkMode ? 'text-gray-400' : 'text-gray-500'} group-hover:scale-110 transition-transform duration-300`}
+                                    className={`${isActive ? (isDarkMode ? 'text-white' : 'text-gray-900') : 'text-gray-400'} group-hover:scale-110 transition-transform duration-300`}
                                 />
                                 {isSidebarOpen && (
                                     <>
@@ -128,11 +128,11 @@ const Navbar = () => {
                 </nav>
 
                 {/* Bottom Section */}
-                <div className={`p-4 space-y-4 ${isDarkMode ? 'border-gray-700' : 'border-gray-200'} border-t`}>
+                <div className={`p-4 space-y-4 ${isDarkMode ? 'border-gray-700' : 'border-gray-700'} border-t`}>
                     {/* Dark Mode Toggle */}
                     <div className={`
                         flex items-center gap-3 px-4 py-3 rounded-xl
-                        ${isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-gray-100 border-gray-300'}
+                        ${isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-gray-800 border-gray-700'}
                         border
                         ${!isSidebarOpen && 'justify-center'}
                     `}>
@@ -140,11 +140,11 @@ const Navbar = () => {
                             {isDarkMode ? (
                                 <Moon size={20} className="text-blue-400" />
                             ) : (
-                                <Sun size={20} className="text-amber-500" />
+                                <Sun size={20} className="text-gray-400" />
                             )}
                             {isSidebarOpen && (
-                                <span className={`${isDarkMode ? 'text-gray-300' : 'text-gray-700'} text-sm font-medium`}>
-                                    {isDarkMode ? 'Dark Mode' : 'Light Mode'}
+                                <span className="text-gray-300 text-sm font-medium">
+                                    {isDarkMode ? 'Dark Mode' : 'Dark Mode'}
                                 </span>
                             )}
                         </div>
@@ -153,7 +153,7 @@ const Navbar = () => {
                                 onClick={toggleDarkMode}
                                 className={`
                                     w-12 h-6 rounded-full transition-all duration-300
-                                    ${isDarkMode ? 'bg-blue-600' : 'bg-gray-400'}
+                                    ${isDarkMode ? 'bg-blue-600' : 'bg-gray-600'}
                                     relative
                                 `}
                             >
@@ -168,21 +168,21 @@ const Navbar = () => {
 
                     {/* User Profile */}
                     {isSidebarOpen && (
-                        <div className={`flex items-center gap-3 px-4 py-3 rounded-xl ${isDarkMode ? 'bg-gradient-to-r from-gray-800 to-gray-700 border-gray-600' : 'bg-gradient-to-r from-gray-50 to-gray-100 border-gray-300'} border transition-all duration-300 group`}>
+                        <div className={`flex items-center gap-3 px-4 py-3 rounded-xl ${isDarkMode ? 'bg-gradient-to-r from-gray-800 to-gray-700 border-gray-600' : 'bg-gradient-to-r from-gray-800 to-gray-700 border-gray-600'} border transition-all duration-300 group`}>
                             <div className="relative">
-                                <div className={`w-10 h-10 rounded-full flex items-center justify-center text-lg font-bold border-2 ${isDarkMode ? 'bg-blue-900 text-blue-100 border-gray-600' : 'bg-blue-100 text-blue-600 border-gray-400'} transition-all duration-300`}>
+                                <div className={`w-10 h-10 rounded-full flex items-center justify-center text-lg font-bold border-2 ${isDarkMode ? 'bg-blue-900 text-blue-100 border-gray-600' : 'bg-gray-700 text-gray-100 border-gray-600'} transition-all duration-300`}>
                                     {user?.name ? user.name.charAt(0).toUpperCase() : 'U'}
                                 </div>
-                                <div className={`absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-green-500 rounded-full border-2 ${isDarkMode ? 'border-gray-800' : 'border-white'}`}></div>
+                                <div className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-green-500 rounded-full border-2 border-gray-800"></div>
                             </div>
                             <div className="flex-1 min-w-0">
-                                <p className={`${isDarkMode ? 'text-white' : 'text-gray-800'} font-medium text-sm truncate`}>{user?.name || 'Usuario'}</p>
-                                <p className={`${isDarkMode ? 'text-gray-400' : 'text-gray-500'} text-xs truncate`}>{user?.email || 'correo@ejemplo.com'}</p>
+                                <p className="text-white font-medium text-sm truncate">{user?.name || 'Usuario'}</p>
+                                <p className="text-gray-400 text-xs truncate">{user?.email || 'correo@ejemplo.com'}</p>
                             </div>
                             <button
                                 onClick={handleLogout}
-                                className={`p-1.5 rounded-lg transition-colors ${isDarkMode ? 'text-gray-400 hover:text-red-400 hover:bg-red-400/10' : 'text-gray-400 hover:text-red-600 hover:bg-red-100'}`}
-                                title="Cerrar Sessión"
+                                className="p-1.5 rounded-lg transition-colors text-gray-400 hover:text-red-400 hover:bg-red-400/10"
+                                title="Cerrar Sesión"
                             >
                                 <LogOut size={18} />
                             </button>
@@ -192,10 +192,10 @@ const Navbar = () => {
                     {!isSidebarOpen && (
                         <div className="flex justify-center">
                             <div className="relative">
-                                <div className={`w-10 h-10 rounded-full flex items-center justify-center text-lg font-bold border-2 ${isDarkMode ? 'bg-blue-900 text-blue-100 border-gray-600 hover:border-blue-500' : 'bg-blue-100 text-blue-600 border-gray-400 hover:border-blue-500'} transition-all duration-300 cursor-pointer`}>
+                                <div className={`w-10 h-10 rounded-full flex items-center justify-center text-lg font-bold border-2 ${isDarkMode ? 'bg-blue-900 text-blue-100 border-gray-600 hover:border-blue-500' : 'bg-gray-700 text-gray-100 border-gray-600 hover:border-gray-500'} transition-all duration-300 cursor-pointer`}>
                                     {user?.name ? user.name.charAt(0).toUpperCase() : 'U'}
                                 </div>
-                                <div className={`absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-green-500 rounded-full border-2 ${isDarkMode ? 'border-gray-800' : 'border-white'}`}></div>
+                                <div className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-green-500 rounded-full border-2 border-gray-800"></div>
                             </div>
                         </div>
                     )}

@@ -51,7 +51,7 @@ export default function LoginPage() {
 
 
 return showSuccessLoader ?
-    <Loader text="Iniciando sesión..." /> :
+    <Loader text="Iniciando sesión..." fullScreen={true} /> :
     (
     <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-blue-50 via-white to-blue-50">
       
