@@ -1,4 +1,4 @@
-import { Controller, Get, Res } from "@nestjs/common";
+import { Controller, Get, Res, Param } from "@nestjs/common";
 import type { Response } from "express";
 import { ExportService } from "./export.service";
 
@@ -23,5 +23,17 @@ export class ExportController {
         res.setHeader('Content-Disposition', 'attachment; filename="ventas.xlsx"');
         await workbook.xlsx.write(res);
         res.end();
+    }
+
+    @Get('ventaFacturaPDF/:id')
+    async exportVentaFacturaPDF(@Param('id') id: string, @Res() res: Response) {
+        try {
+            const pdfBuffer = await this.exportService.exportVentaFacturaPDF(+id);
+            res.setHeader('Content-Type', 'application/pdf');
+            res.setHeader('Content-Disposition', `attachment; filename="factura-${id}.pdf"`);
+            res.send(pdfBuffer);
+        } catch (error) {
+            res.status(404).json({ message: error.message });
+        }
     }
 }

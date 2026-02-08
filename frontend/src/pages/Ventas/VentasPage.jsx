@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import Loader from '../../components/Loader';
 import { getVentas } from '../../api/VentasApi';
 import { createDeudor } from '../../api/DeudoresApi';
-import { exportVentasToExcel } from '../../api/ExportApi';
+import { exportVentasToExcel, descargarFactura } from '../../api/ExportApi';
 import TablaConPaginacion from '../../components/TablaConPaginacion';
 import { useTheme } from '../../context/ThemeContext';
 import { useToast } from '../../context/ToastContext';
@@ -76,6 +76,27 @@ const VentasPage = () => {
         } catch (error) {
             console.error(error);
             showToast(error.response?.data?.message || "Error al registrar abono", "error");
+        }
+    };
+
+    const handleDescargarFactura = async (venta) => {
+        try {
+            const response = await descargarFactura(venta.idVenta);
+            const blob = new Blob([response.data], { type: 'application/pdf' });
+            const url = window.URL.createObjectURL(blob);
+            
+            // Abrir PDF en nueva pestaña para visualización
+            window.open(url, '_blank');
+            
+            // Limpiar URL después de un delay para permitir que se abra
+            setTimeout(() => {
+                window.URL.revokeObjectURL(url);
+            }, 100);
+            
+            showToast("Factura abierta en nueva pestaña", "success");
+        } catch (error) {
+            console.error(error);
+            showToast("Error al abrir factura", "error");
         }
     };
 
@@ -193,18 +214,23 @@ const VentasPage = () => {
                 
                 if (!tieneSaldoPendiente) {
                     return (
-                        <span
-                            className={`
-                                text-xs font-medium px-3 py-1 rounded-lg
-                                ${
-                                    isDarkMode
-                                        ? "text-gray-500 bg-gray-800"
-                                        : "text-gray-600 bg-gray-100"
-                                }
-                            `}
-                        >
-                            Venta pagada
-                        </span>
+                        <div className="flex items-center justify-center gap-2">
+                            
+                            <button
+                                onClick={() => handleDescargarFactura(row.ventaCompleta)}
+                                className={`
+                                    p-2 rounded-lg transition-all duration-200
+                                    ${
+                                        isDarkMode
+                                            ? "hover:bg-blue-600/20 text-blue-400 hover:text-blue-300"
+                                            : "hover:bg-blue-50 text-blue-600 hover:text-blue-700"
+                                    }
+                                `}
+                                title="Descargar factura"
+                            >
+                                <Download size={18} />
+                            </button>
+                        </div>
                     );
                 }
                 

@@ -18,7 +18,7 @@ import { RolesGuard } from '../auth/roles.guard';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 
 
-// @UseGuards(JwtAuthGuard, RolesGuard)
+@UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('cotizacion/detallecotizacion')
 export class DetallecotizacionController {
   constructor(private readonly detalleService: DetallecotizacionService) {}
@@ -69,7 +69,7 @@ export class DetallecotizacionController {
 
   // FIND ALL
   @Get()
-  // @Roles('ADMIN', 'USER')
+  @Roles('ADMIN', 'USER')
   async findAll() {
     const detalles = await this.detalleService.findAll();
 
@@ -82,7 +82,7 @@ export class DetallecotizacionController {
 
   // FIND ONE
   @Get(':id')
-  // @Roles('ADMIN', 'USER')
+  @Roles('ADMIN', 'USER')
   async findOne(@Param('id') id: string) {
     const detalle = await this.detalleService.findOne(+id);
 
@@ -95,7 +95,7 @@ export class DetallecotizacionController {
 
   // UPDATE
   @Patch(':id')
-  // @Roles('ADMIN')
+  @Roles('ADMIN')
   async update(
     @Param('id') id: string,
     @Body() dto: UpdateDetallecotizacionDto,
@@ -111,7 +111,7 @@ export class DetallecotizacionController {
 
   // DELETE
   @Delete(':id')
-  // @Roles('ADMIN')
+  @Roles('ADMIN')
   async remove(@Param('id') id: string) {
     const detalle = await this.detalleService.remove(+id);
 

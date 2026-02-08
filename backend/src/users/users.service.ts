@@ -12,6 +12,7 @@ export class UsersService {
                 name:true,  
                 email:true, 
                 password:false,
+                rol:true,
             }
         });
     }   

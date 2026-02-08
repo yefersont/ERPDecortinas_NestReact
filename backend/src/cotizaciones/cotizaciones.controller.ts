@@ -8,14 +8,14 @@ import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { RolesGuard } from '../auth/roles.guard';
 import { Roles } from '../auth/roles.decorator';
 
-// @UseGuards(JwtAuthGuard, RolesGuard)
+@UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('cotizaciones')
 export class CotizacionesController {
   constructor(private readonly cotizacionesService: CotizacionesService) {}
 
   // Crear cotización con detalles (TRANSACCIONAL)
   @Post('with-details')
-  // @Roles('ADMIN')
+  @Roles('ADMIN')
   async createWithDetails(@Body() createDto: CreateCotizacionWithDetailsDto) {
     const cotizacion = await this.cotizacionesService.createWithDetails(createDto);
     return {
@@ -26,7 +26,7 @@ export class CotizacionesController {
   }
 
   @Post()
-  // @Roles('ADMIN')
+  @Roles('ADMIN')
   async create(@Body() createCotizacioneDto: CreateCotizacioneDto) {
     const cotizacion = await this.cotizacionesService.create(createCotizacioneDto);
     return {
@@ -37,7 +37,7 @@ export class CotizacionesController {
   }
 
   @Get()
-  // @Roles('ADMIN', 'USER')
+  @Roles('ADMIN', 'USER')
   async findAll() {
     const cotizaciones = await this.cotizacionesService.findAll();
     return {
@@ -48,7 +48,7 @@ export class CotizacionesController {
   }
 
   @Get(':id')
-  // @Roles('ADMIN', 'USER')
+  @Roles('ADMIN', 'USER')
   async findOne(@Param('id') id: string) {
     const cotizacion = await this.cotizacionesService.findOne(+id);
     return {
@@ -59,7 +59,7 @@ export class CotizacionesController {
   }
 
   @Patch(':id')
-  // @Roles('ADMIN')
+  @Roles('ADMIN')
   async update(
     @Param('id') id: string,
     @Body() updateCotizacioneDto: UpdateCotizacioneDto
@@ -74,7 +74,7 @@ export class CotizacionesController {
 
   // Actualizar cotización con detalles (TRANSACCIONAL)
   @Patch('with-details/:id')
-  // @Roles('ADMIN')
+  @Roles('ADMIN')
   async updateWithDetails(
     @Param('id') id: string,
     @Body() updateDto: CreateCotizacionWithDetailsDto
@@ -88,7 +88,7 @@ export class CotizacionesController {
   }
 
   @Delete(':id')
-  // @Roles('ADMIN')
+  @Roles('ADMIN')
   async remove(@Param('id') id: string) {
     const cotizacion = await this.cotizacionesService.remove(+id);
     return {
