@@ -5,7 +5,7 @@ import { ExportService } from "./export.service";
 
 @Controller('exports')
 export class ExportController {
-    constructor(private readonly exportService: ExportService) {}
+    constructor(private readonly exportService: ExportService) { }
 
     @Get('cotizacionesToExcel')
     async exportCotizacionesToExcel(@Res() res: Response) {
@@ -25,6 +25,7 @@ export class ExportController {
         res.end();
     }
 
+
     @Get('ventaFacturaPDF/:id')
     async exportVentaFacturaPDF(@Param('id') id: string, @Res() res: Response) {
         try {
@@ -35,5 +36,14 @@ export class ExportController {
         } catch (error) {
             res.status(404).json({ message: error.message });
         }
+    }
+
+    @Get('clientesToExcel')
+    async exportClientesToExcel(@Res() res: Response) {
+        const workbook = await this.exportService.exportClientesToExcel();
+        res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        res.setHeader('Content-Disposition', 'attachment; filename="clientes.xlsx"');
+        await workbook.xlsx.write(res);
+        res.end();
     }
 }

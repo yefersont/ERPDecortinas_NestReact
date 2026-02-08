@@ -3,13 +3,14 @@ import { getClientes, createCliente, updateCliente, deleteCliente } from "../../
 import { createCotizacionWithDetails } from "../../api/CotizacionesApi";
 import TablaConPaginacion from "../../components/TablaConPaginacion";
 import { useTheme } from "../../context/ThemeContext";
-import { Users, UserPlus, Download, Upload, Edit2, Trash2, SquarePen, ChartLine, Activity  } from "lucide-react";
+import { Users, UserPlus, Download, Upload, Edit2, Trash2, SquarePen, ChartLine, Activity } from "lucide-react";
 import Loader from "../../components/Loader";
 import Modal from "../../components/Modal";
 import ClienteForm from "../../components/ClienteForm";
 import CotizacionForm from "../../components/CotizacionForm";
 import { useToast } from "../../context/ToastContext";
-import {useDialog} from "../../context/DialogContext";
+import { useDialog } from "../../context/DialogContext";
+import { expoetClientesToExcel } from "../../api/ExportApi";
 
 const ClientesPage = () => {
   const [clientes, setClientes] = useState([]);
@@ -20,7 +21,7 @@ const ClientesPage = () => {
   const [isOpenCotizacion, setIsOpenCotizacion] = useState(false);
   const { showToast } = useToast();
   const { showDialog } = useDialog();
-  
+
   const cargarClientes = async () => {
     try {
       setLoading(true);
@@ -29,7 +30,7 @@ const ClientesPage = () => {
     } catch (error) {
       console.error(error);
     } finally {
-      setLoading(false  );
+      setLoading(false);
     }
   };
 
@@ -89,14 +90,14 @@ const ClientesPage = () => {
 
   const handleSubmit = async (formData) => {
 
-    try{
+    try {
 
-      if (clienteSeleccionado){
-        
+      if (clienteSeleccionado) {
+
         const response = await updateCliente(clienteSeleccionado.idCliente, formData);
         console.log(response);
         showToast("Cliente actualizado exitosamente", "success");
-      }else{
+      } else {
         const response = await createCliente(formData);
         console.log(response);
         showToast("Cliente creado exitosamente", "success");
@@ -105,7 +106,21 @@ const ClientesPage = () => {
       setIsOpenNuevoCliente(false);
       await cargarClientes();
 
-    }catch(error){
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const handleExportClientesToExcel = async () => {
+    try {
+      const response = await expoetClientesToExcel();
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", "clientes.xlsx");
+      document.body.appendChild(link);
+      link.click();
+    } catch (error) {
       console.error(error);
     }
   };
@@ -114,65 +129,62 @@ const ClientesPage = () => {
     cargarClientes();
   }, []);
 
- const columns = [
-  { key: "cedula", label: "Cédula" },
-  { key: "nombre", label: "Nombre" },
-  { key: "apellidos", label: "Apellidos" },
-  { key: "telefono", label: "Teléfono" },
-  { key: "direccion", label: "Dirección" },
-  { 
-    key: "acciones", 
-    label: "Acciones",
-    render: (row) => (
-      <div className="flex items-center justify-center gap-2">
-        <button
-          onClick={() => handleOpenNuevaCotizacion(row)}
-          className={`
+  const columns = [
+    { key: "cedula", label: "Cédula" },
+    { key: "nombre", label: "Nombre" },
+    { key: "apellidos", label: "Apellidos" },
+    { key: "telefono", label: "Teléfono" },
+    { key: "direccion", label: "Dirección" },
+    {
+      key: "acciones",
+      label: "Acciones",
+      render: (row) => (
+        <div className="flex items-center justify-center gap-2">
+          <button
+            onClick={() => handleOpenNuevaCotizacion(row)}
+            className={`
             p-2 rounded-lg transition-all duration-200
-            ${
-              isDarkMode
+            ${isDarkMode
                 ? "hover:bg-green-600/20 text-green-400 hover:text-green-300"
                 : "hover:bg-green-50 text-green-600 hover:text-green-700"
-            }
+              }
           `}
-          title="Agregar cotizacion"
-        >
-          <SquarePen size={18} />
-        </button>
+            title="Agregar cotizacion"
+          >
+            <SquarePen size={18} />
+          </button>
 
-        <button
-          onClick={() => handleEditCliente(row)}
-          className={`
+          <button
+            onClick={() => handleEditCliente(row)}
+            className={`
             p-2 rounded-lg transition-all duration-200
-            ${
-              isDarkMode
+            ${isDarkMode
                 ? "hover:bg-yellow-600/20 text-yellow-400 hover:text-yellow-300"
                 : "hover:bg-yellow-50 text-yellow-600 hover:text-yellow-700"
-            }
+              }
           `}
-          title="Editar cliente"
-        >
-          <Edit2 size={18} />
-        </button>
-        
-        <button
-          onClick={() => handleDeleteCliente(row)}
-          className={`
+            title="Editar cliente"
+          >
+            <Edit2 size={18} />
+          </button>
+
+          <button
+            onClick={() => handleDeleteCliente(row)}
+            className={`
             p-2 rounded-lg transition-all duration-200
-            ${
-              isDarkMode
+            ${isDarkMode
                 ? "hover:bg-red-600/20 text-red-400 hover:text-red-300"
                 : "hover:bg-red-50 text-red-600 hover:text-red-700"
-            }
+              }
           `}
-          title="Eliminar cliente"
-        >
-          <Trash2 size={18} />
-        </button>
-      </div>
-    )
-  },
-];
+            title="Eliminar cliente"
+          >
+            <Trash2 size={18} />
+          </button>
+        </div>
+      )
+    },
+  ];
 
   return loading ? (
     <Loader text="Cargando clientes..." />
@@ -190,10 +202,9 @@ const ClientesPage = () => {
                   className={`
                     hidden sm:flex items-center justify-center
                     p-3 rounded-xl
-                    ${
-                      isDarkMode
-                        ? "bg-gray-800 text-white"
-                        : "bg-gray-100 text-gray-900"
+                    ${isDarkMode
+                      ? "bg-gray-800 text-white"
+                      : "bg-gray-100 text-gray-900"
                     }
                   `}
                 >
@@ -219,44 +230,27 @@ const ClientesPage = () => {
                   className={`
                     flex items-center gap-2 px-4 py-2.5 rounded-xl
                     text-sm font-medium transition-all duration-200
-                    ${
-                      isDarkMode
-                        ? "bg-gray-800 hover:bg-gray-700 text-gray-300 border border-gray-700"
-                        : "bg-white hover:bg-gray-50 text-gray-700 border border-gray-300 shadow-sm"
+                    ${isDarkMode
+                      ? "bg-gray-800 hover:bg-gray-700 text-gray-300 border border-gray-700"
+                      : "bg-white hover:bg-gray-50 text-gray-700 border border-gray-300 shadow-sm"
                     }
                   `}
+                  onClick={handleExportClientesToExcel}
                 >
                   <Download size={16} />
                   <span className="hidden sm:inline">Exportar</span>
                 </button>
-
-                <button
-                  className={`
-                    flex items-center gap-2 px-4 py-2.5 rounded-xl
-                    text-sm font-medium transition-all duration-200
-                    ${
-                      isDarkMode
-                        ? "bg-gray-800 hover:bg-gray-700 text-gray-300 border border-gray-700"
-                        : "bg-white hover:bg-gray-50 text-gray-700 border border-gray-300 shadow-sm"
-                    }
-                  `}
-                >
-                  <Upload size={16} />
-                  <span className="hidden sm:inline">Importar</span>
-                </button>
-
                 <button
                   className={`
                     flex items-center gap-2 px-5 py-2.5 rounded-xl
                     text-sm font-medium transition-all duration-200
-                    ${
-                      isDarkMode
-                        ? "bg-blue-600 hover:bg-blue-700 text-white"
-                        : "bg-blue-500 hover:bg-blue-600 text-white"
+                    ${isDarkMode
+                      ? "bg-blue-600 hover:bg-blue-700 text-white"
+                      : "bg-blue-500 hover:bg-blue-600 text-white"
                     }
                   `}
                   onClick={handleOpenNuevoCliente}
-                  
+
                 >
                   <UserPlus size={16} />
                   Nuevo Cliente
@@ -270,10 +264,9 @@ const ClientesPage = () => {
               <div
                 className={`
                   p-5 rounded-xl border
-                  ${
-                    isDarkMode
-                      ? "bg-gray-900 border-gray-800"
-                      : "bg-white border-gray-200"
+                  ${isDarkMode
+                    ? "bg-gray-900 border-gray-800"
+                    : "bg-white border-gray-200"
                   }
                 `}
                 style={{
@@ -319,10 +312,9 @@ const ClientesPage = () => {
               <div
                 className={`
                   p-5 rounded-xl border
-                  ${
-                    isDarkMode
-                      ? "bg-gray-900 border-gray-800"
-                      : "bg-white border-gray-200"
+                  ${isDarkMode
+                    ? "bg-gray-900 border-gray-800"
+                    : "bg-white border-gray-200"
                   }
                 `}
                 style={{
@@ -368,10 +360,9 @@ const ClientesPage = () => {
               <div
                 className={`
                   p-5 rounded-xl border
-                  ${
-                    isDarkMode
-                      ? "bg-gray-900 border-gray-800"
-                      : "bg-white border-gray-200"
+                  ${isDarkMode
+                    ? "bg-gray-900 border-gray-800"
+                    : "bg-white border-gray-200"
                   }
                 `}
                 style={{
@@ -414,10 +405,9 @@ const ClientesPage = () => {
               <div
                 className={`
                   p-5 rounded-xl border
-                  ${
-                    isDarkMode
-                      ? "bg-gray-900 border-gray-800"
-                      : "bg-white border-gray-200"
+                  ${isDarkMode
+                    ? "bg-gray-900 border-gray-800"
+                    : "bg-white border-gray-200"
                   }
                 `}
                 style={{
@@ -451,10 +441,10 @@ const ClientesPage = () => {
                       ${isDarkMode ? "bg-orange-600/20" : "bg-orange-500/10"}
                     `}
                   >
-                      <ChartLine 
+                    <ChartLine
                       size={20}
                       className={isDarkMode ? "text-orange-400" : "text-orange-600"}
-                      />
+                    />
                   </div>
                 </div>
               </div>
@@ -466,10 +456,9 @@ const ClientesPage = () => {
             <div
               className={`
                 flex items-center justify-center py-20 rounded-2xl border
-                ${
-                  isDarkMode
-                    ? "bg-gray-900 border-gray-800"
-                    : "bg-white border-gray-200"
+                ${isDarkMode
+                  ? "bg-gray-900 border-gray-800"
+                  : "bg-white border-gray-200"
                 }
               `}
             >
@@ -478,10 +467,9 @@ const ClientesPage = () => {
                   className={`
                     w-12 h-12 mx-auto rounded-full border-4 border-t-transparent
                     animate-spin
-                    ${
-                      isDarkMode
-                        ? "border-blue-600"
-                        : "border-blue-500"
+                    ${isDarkMode
+                      ? "border-blue-600"
+                      : "border-blue-500"
                     }
                   `}
                 />
@@ -514,21 +502,21 @@ const ClientesPage = () => {
           cliente={clienteSeleccionado}
           onSubmit={handleSubmit}
           onCancel={handleCancel}
-        /> 
+        />
       </Modal>
 
       {/* Modal para nueva cotizacion */}
-      <Modal 
-        isOpen={isOpenCotizacion} 
-        onClose={() => setIsOpenCotizacion(false)} 
+      <Modal
+        isOpen={isOpenCotizacion}
+        onClose={() => setIsOpenCotizacion(false)}
         title={"Nueva cotizacion " + clienteSeleccionado?.nombre + " " + clienteSeleccionado?.apellidos}
         size="xl"
-      > 
+      >
         <CotizacionForm
           cliente={clienteSeleccionado}
           onSubmit={handleSubmitCotizacion}
           onCancel={() => setIsOpenCotizacion(false)}
-        /> 
+        />
       </Modal>
 
     </>

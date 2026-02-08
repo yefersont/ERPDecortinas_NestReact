@@ -80,15 +80,14 @@ export const AuthProvider = ({ children }) => {
   const handleLogin = async (email, password) => {
     try {
       const data = await AuthApi.login(email, password);
-      
+
       // Ajuste para el ResponseInterceptor que envuelve la data
       const responseData = data.data || data;
 
       setAccessToken(responseData.accessToken);
       setUser(responseData.user);
-      
+
       startTokenRefresh();
-      // navigate('/'); // Eliminamos navegación automática para manejarla en el Login con Loader
       return { success: true };
     } catch (error) {
       console.error('Error en login:', error);
@@ -104,9 +103,10 @@ export const AuthProvider = ({ children }) => {
     try {
       setLoadingText('Cerrando sesión...');
       setLoading(true);
+
       // Simular espera para mostrar el loader
       await new Promise(resolve => setTimeout(resolve, 500));
-      
+
       await AuthApi.logout();
     } catch (error) {
       console.error('Error en logout:', error);
