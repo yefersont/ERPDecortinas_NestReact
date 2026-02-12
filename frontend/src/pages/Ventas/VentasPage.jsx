@@ -41,23 +41,23 @@ const VentasPage = () => {
 
     const handleExportVentasToExcel = async () => {
         try {
-          setLoading(true);
-          const response = await exportVentasToExcel();
-          const blob = new Blob([response.data], { type: response.headers["content-type"] });
-          const url = window.URL.createObjectURL(blob);
-          const link = document.createElement("a");
-          link.href = url;
-          link.download = "ventas.xlsx";
-          link.click();
-          window.URL.revokeObjectURL(url);
-          console.log("Descargando ventas");
+            setLoading(true);
+            const response = await exportVentasToExcel();
+            const blob = new Blob([response.data], { type: response.headers["content-type"] });
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.href = url;
+            link.download = "ventas.xlsx";
+            link.click();
+            window.URL.revokeObjectURL(url);
+            console.log("Descargando ventas");
         } catch (error) {
-          console.log(error);
-          showToast("Error al exportar ventas", "error");
+            console.log(error);
+            showToast("Error al exportar ventas", "error");
         } finally {
-          setLoading(false);
+            setLoading(false);
         }
-      };
+    };
 
     const handleSaveAbono = async (dataToSubmit) => {
         try {
@@ -66,7 +66,7 @@ const VentasPage = () => {
                 idVenta: ventaSeleccionada.idVenta,
                 ...dataToSubmit
             };
-            
+
             const response = await createDeudor(deudorData);
             console.log('Abono registrado:', response);
             showToast("Abono registrado exitosamente", "success");
@@ -84,15 +84,15 @@ const VentasPage = () => {
             const response = await descargarFactura(venta.idVenta);
             const blob = new Blob([response.data], { type: 'application/pdf' });
             const url = window.URL.createObjectURL(blob);
-            
+
             // Abrir PDF en nueva pestaña para visualización
             window.open(url, '_blank');
-            
+
             // Limpiar URL después de un delay para permitir que se abra
             setTimeout(() => {
                 window.URL.revokeObjectURL(url);
             }, 100);
-            
+
             showToast("Factura abierta en nueva pestaña", "success");
         } catch (error) {
             console.error(error);
@@ -125,10 +125,9 @@ const VentasPage = () => {
                 <span
                     className={`
                         inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium
-                        ${
-                            isDarkMode
-                                ? "bg-green-900/30 text-green-400"
-                                : "bg-green-100 text-green-700"
+                        ${isDarkMode
+                            ? "bg-green-900/30 text-green-400"
+                            : "bg-green-100 text-green-700"
                         }
                     `}
                 >
@@ -142,10 +141,9 @@ const VentasPage = () => {
             <span
                 className={`
                     inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium
-                    ${
-                        isDarkMode
-                            ? "bg-yellow-900/30 text-yellow-400"
-                            : "bg-yellow-100 text-yellow-700"
+                    ${isDarkMode
+                        ? "bg-yellow-900/30 text-yellow-400"
+                        : "bg-yellow-100 text-yellow-700"
                     }
                 `}
             >
@@ -166,7 +164,7 @@ const VentasPage = () => {
     const tableData = ventas.map((venta) => {
         const porcentajePagado = calcularPorcentajePagado(venta.total, venta.saldo_pendiente);
         const clienteNombre = `${venta.cotizacion.cliente.nombre} ${venta.cotizacion.cliente.apellidos}`;
-        
+
         return {
             fecha: formatFecha(venta.fecha_venta),
             cliente: clienteNombre,
@@ -178,11 +176,10 @@ const VentasPage = () => {
                 <div className="flex items-center gap-2">
                     <div className={`flex-1 h-2 rounded-full overflow-hidden ${isDarkMode ? 'bg-gray-700' : 'bg-gray-200'}`}>
                         <div
-                            className={`h-full transition-all duration-300 ${
-                                porcentajePagado === 100
+                            className={`h-full transition-all duration-300 ${porcentajePagado === 100
                                     ? 'bg-green-500'
                                     : 'bg-blue-500'
-                            }`}
+                                }`}
                             style={{ width: `${porcentajePagado}%` }}
                         />
                     </div>
@@ -211,19 +208,18 @@ const VentasPage = () => {
             label: "Acciones",
             render: (row) => {
                 const tieneSaldoPendiente = parseFloat(row.ventaCompleta.saldo_pendiente) > 0;
-                
+
                 if (!tieneSaldoPendiente) {
                     return (
                         <div className="flex items-center justify-center gap-2">
-                            
+
                             <button
                                 onClick={() => handleDescargarFactura(row.ventaCompleta)}
                                 className={`
                                     p-2 rounded-lg transition-all duration-200
-                                    ${
-                                        isDarkMode
-                                            ? "hover:bg-blue-600/20 text-blue-400 hover:text-blue-300"
-                                            : "hover:bg-blue-50 text-blue-600 hover:text-blue-700"
+                                    ${isDarkMode
+                                        ? "hover:bg-blue-600/20 text-blue-400 hover:text-blue-300"
+                                        : "hover:bg-blue-50 text-blue-600 hover:text-blue-700"
                                     }
                                 `}
                                 title="Descargar factura"
@@ -233,22 +229,34 @@ const VentasPage = () => {
                         </div>
                     );
                 }
-                
+
                 return (
                     <div className="flex items-center justify-center gap-2">
                         <button
                             onClick={() => handleAbonar(row.ventaCompleta)}
                             className={`
                                 p-2 rounded-lg transition-all duration-200
-                                ${
-                                    isDarkMode
-                                        ? "hover:bg-green-600/20 text-green-400 hover:text-green-300"
-                                        : "hover:bg-green-50 text-green-600 hover:text-green-700"
+                                ${isDarkMode
+                                    ? "hover:bg-green-600/20 text-green-400 hover:text-green-300"
+                                    : "hover:bg-green-50 text-green-600 hover:text-green-700"
                                 }
                             `}
                             title="Registrar abono"
                         >
                             <HandCoins size={18} />
+                        </button>
+                        <button
+                            onClick={() => handleDescargarFactura(row.ventaCompleta)}
+                            className={`
+                                    p-2 rounded-lg transition-all duration-200
+                                    ${isDarkMode
+                                    ? "hover:bg-blue-600/20 text-blue-400 hover:text-blue-300"
+                                    : "hover:bg-blue-50 text-blue-600 hover:text-blue-700"
+                                }
+                                `}
+                            title="Descargar factura"
+                        >
+                            <Download size={18} />
                         </button>
                     </div>
                 );
@@ -272,9 +280,8 @@ const VentasPage = () => {
         <Loader text="Cargando ventas..." />
     ) : (
         <div
-            className={`min-h-screen p-4 sm:p-6 lg:p-8 ${
-                isDarkMode ? "bg-gray-950" : "bg-gray-50"
-            }`}
+            className={`min-h-screen p-4 sm:p-6 lg:p-8 ${isDarkMode ? "bg-gray-950" : "bg-gray-50"
+                }`}
         >
             <div className="max-w-7xl mx-auto space-y-6">
                 {/* Header Section */}
@@ -287,10 +294,9 @@ const VentasPage = () => {
                                 className={`
                                     hidden sm:flex items-center justify-center
                                     p-3 rounded-xl
-                                    ${
-                                        isDarkMode
-                                            ? "bg-gray-800 text-white"
-                                            : "bg-gray-100 text-gray-900"
+                                    ${isDarkMode
+                                        ? "bg-gray-800 text-white"
+                                        : "bg-gray-100 text-gray-900"
                                     }
                                 `}
                             >
@@ -316,10 +322,9 @@ const VentasPage = () => {
                                 className={`
                                     flex items-center gap-2 px-4 py-2.5 rounded-xl
                                     text-sm font-medium transition-all duration-200
-                                    ${
-                                        isDarkMode
-                                            ? "bg-gray-800 hover:bg-gray-700 text-gray-300 border border-gray-700"
-                                            : "bg-white hover:bg-gray-50 text-gray-700 border border-gray-300 shadow-sm"
+                                    ${isDarkMode
+                                        ? "bg-gray-800 hover:bg-gray-700 text-gray-300 border border-gray-700"
+                                        : "bg-white hover:bg-gray-50 text-gray-700 border border-gray-300 shadow-sm"
                                     }
                                 `}
                                 onClick={handleExportVentasToExcel}
@@ -347,10 +352,9 @@ const VentasPage = () => {
                                 className={`
                                     flex items-center gap-2 px-5 py-2.5 rounded-xl
                                     text-sm font-medium transition-all duration-200
-                                    ${
-                                        isDarkMode
-                                            ? "bg-blue-600 hover:bg-blue-700 text-white"
-                                            : "bg-blue-500 hover:bg-blue-600 text-white"
+                                    ${isDarkMode
+                                        ? "bg-blue-600 hover:bg-blue-700 text-white"
+                                        : "bg-blue-500 hover:bg-blue-600 text-white"
                                     }
                                 `}
                             >
@@ -366,10 +370,9 @@ const VentasPage = () => {
                         <div
                             className={`
                                 p-5 rounded-xl border
-                                ${
-                                    isDarkMode
-                                        ? "bg-gray-900 border-gray-800"
-                                        : "bg-white border-gray-200"
+                                ${isDarkMode
+                                    ? "bg-gray-900 border-gray-800"
+                                    : "bg-white border-gray-200"
                                 }
                             `}
                             style={{
@@ -415,10 +418,9 @@ const VentasPage = () => {
                         <div
                             className={`
                                 p-5 rounded-xl border
-                                ${
-                                    isDarkMode
-                                        ? "bg-gray-900 border-gray-800"
-                                        : "bg-white border-gray-200"
+                                ${isDarkMode
+                                    ? "bg-gray-900 border-gray-800"
+                                    : "bg-white border-gray-200"
                                 }
                             `}
                             style={{
@@ -464,10 +466,9 @@ const VentasPage = () => {
                         <div
                             className={`
                                 p-5 rounded-xl border
-                                ${
-                                    isDarkMode
-                                        ? "bg-gray-900 border-gray-800"
-                                        : "bg-white border-gray-200"
+                                ${isDarkMode
+                                    ? "bg-gray-900 border-gray-800"
+                                    : "bg-white border-gray-200"
                                 }
                             `}
                             style={{
@@ -516,10 +517,9 @@ const VentasPage = () => {
                         <div
                             className={`
                                 p-5 rounded-xl border
-                                ${
-                                    isDarkMode
-                                        ? "bg-gray-900 border-gray-800"
-                                        : "bg-white border-gray-200"
+                                ${isDarkMode
+                                    ? "bg-gray-900 border-gray-800"
+                                    : "bg-white border-gray-200"
                                 }
                             `}
                             style={{

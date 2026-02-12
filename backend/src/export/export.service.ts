@@ -3,6 +3,8 @@ import * as ExcelJS from 'exceljs';
 import PDFDocument from 'pdfkit';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CryptoService, EncryptedData } from 'src/common/crypto/crypto.service';
+import * as fs from 'fs';
+import * as path from 'path';
 
 @Injectable()
 export class ExportService {
@@ -304,9 +306,9 @@ export class ExportService {
 
         return new Promise((resolve, reject) => {
             try {
-                const doc = new PDFDocument({ 
+                const doc = new PDFDocument({
                     size: 'LETTER',
-                    margins: { top: 50, bottom: 50, left: 50, right: 50 }
+                    margins: { top: 30, bottom: 30, left: 40, right: 40 }
                 });
 
                 const chunks: Buffer[] = [];
@@ -315,220 +317,298 @@ export class ExportService {
                 doc.on('end', () => resolve(Buffer.concat(chunks)));
                 doc.on('error', reject);
 
-                // Colores en blanco y negro
-                const primaryColor = '#000000';
-                const secondaryColor = '#000000';
-                const textColor = '#000000';
+                const pageWidth = 612;
+                const margin = 40;
+                const contentWidth = pageWidth - (margin * 2);
+                // =========================================
+                //  RUTA DEL LOGO
+                const logoPath = path.join(process.cwd(), 'src/assets/DecortinasImg.png');                // ============================================
+                // SECCIÓN SUPERIOR: LOGO (GRIS)
+                // ============================================
+                doc.rect(margin, 30, contentWidth, 70)
+                    .fillAndStroke('#f0f0f0', '#000000');
 
-                // ENCABEZADO DE LA EMPRESA
-                doc.fontSize(24)
-                   .fillColor(primaryColor)
-                   .text('DECORTINAS', { align: 'center' });
+                // Logo centrado - tamaño ajustado para no deformar
+                const logoWidth = 100;
+                const logoHeight = 50;
+                const logoX = margin + (contentWidth - logoWidth) / 2;
+                const logoY = 40;
 
-                doc.fontSize(10)
-                   .fillColor(secondaryColor)
-                   .text('ERP - Sistema de Gestión', { align: 'center' })
-                   .moveDown(0.5);
+                try {
+                    doc.image(logoPath, logoX, logoY, {
+                        width: logoWidth,
+                        height: logoHeight,
+                        fit: [logoWidth, logoHeight],
+                        align: 'center',
+                        valign: 'center'
+                    });
+                    console.log('✅ Logo cargado exitosamente');
 
-                // TÍTULO FACTURA
-                doc.fontSize(18)
-                   .fillColor(textColor)
-                   .text('FACTURA DE VENTA', { align: 'center' })
-                   .moveDown(1);
+                } catch (error) {
+                    console.error('❌ Error al cargar el logo:', error);
+                    // Si no encuentra el logo, muestra texto
+                    doc.fontSize(12)
+                        .fillColor('#000000')
+                        .text('DECORTINAS', margin, 55, {
+                            width: contentWidth,
+                            align: 'center'
+                        });
+                }
 
-                // INFORMACIÓN DE LA VENTA
-                const currentY = doc.y;
-                
-                // Columna izquierda - Info de factura
-                doc.fontSize(10)
-                   .fillColor(secondaryColor)
-                   .text('Factura No:', 50, currentY)
-                   .fillColor(textColor)
-                   .text(`#${venta.idVenta}`, 150, currentY);
+                // ============================================
+                // TÍTULO Y NÚMERO DE FACTURA
+                // ============================================
+                const topSectionY = 110;
 
-                doc.fillColor(secondaryColor)
-                   .text('Fecha:', 50, currentY + 15)
-                   .fillColor(textColor)
-                   .text(new Date(venta.fecha_venta).toLocaleDateString('es-ES'), 150, currentY + 15);
+                doc.fontSize(12)
+                    .fillColor('#000000')
+                    .text('FACTURA DE VENTA', margin + 10, topSectionY);
 
-                doc.fillColor(secondaryColor)
-                   .text('Cotización:', 50, currentY + 30)
-                   .fillColor(textColor)
-                   .text(`#${venta.idCotizacion}`, 150, currentY + 30);
+                doc.fontSize(16)
+                    .fillColor('#FF0000')
+                    .text(venta.idVenta.toString().padStart(4, '0'), margin + contentWidth / 2, topSectionY - 5, {
+                        width: contentWidth / 2 - 10,
+                        align: 'right'
+                    });
 
-                // Columna derecha - Info del cliente
+                // ============================================
+                // INFORMACIÓN DEL CLIENTE Y FECHAS
+                // ============================================
+                const infoY = topSectionY + 30;
+                const lineHeight = 18;
+
+                doc.rect(margin, infoY - 5, contentWidth, 80)
+                    .stroke('#000000');
+
                 const cliente = venta.cotizacion.cliente;
                 const clienteNombre = `${cliente.nombre} ${cliente.apellidos}`;
-                
-                doc.fillColor(secondaryColor)
-                   .text('Cliente:', 320, currentY)
-                   .fillColor(textColor)
-                   .text(clienteNombre, 380, currentY, { width: 170 });
 
-                // Desencriptar documento si existe
+                let documento = '';
                 if (this.cryptoService.isValidEncryptedData(cliente.cedula_enc)) {
-                    const documento = this.cryptoService.decrypt(cliente.cedula_enc);
-                    doc.fillColor(secondaryColor)
-                       .text('Documento:', 320, currentY + 15)
-                       .fillColor(textColor)
-                       .text(documento, 380, currentY + 15);
+                    documento = this.cryptoService.decrypt(cliente.cedula_enc);
                 }
 
-                // Desencriptar teléfono si existe
+                let telefono = '';
                 if (this.cryptoService.isValidEncryptedData(cliente.telefono_enc)) {
-                    const telefono = this.cryptoService.decrypt(cliente.telefono_enc);
-                    doc.fillColor(secondaryColor)
-                       .text('Teléfono:', 320, currentY + 30)
-                       .fillColor(textColor)
-                       .text(telefono, 380, currentY + 30);
+                    telefono = this.cryptoService.decrypt(cliente.telefono_enc);
                 }
 
-                doc.moveDown(3);
-
-                // LÍNEA SEPARADORA
-                doc.strokeColor('#000000')
-                   .lineWidth(2)
-                   .moveTo(50, doc.y)
-                   .lineTo(562, doc.y)
-                   .stroke();
-
-                doc.moveDown(1);
-
-                // TABLA DE PRODUCTOS
-                doc.fontSize(12)
-                   .fillColor(textColor)
-                   .text('Detalle de Productos', { underline: true })
-                   .moveDown(0.5);
-
-                // Encabezados de tabla
-                const tableTop = doc.y;
+                // Columna izquierda
                 doc.fontSize(9)
-                   .fillColor('#ffffff')
-                   .rect(50, tableTop, 512, 20)
-                   .fill('#000000');
+                    .fillColor('#000000')
+                    .text('Señor (es):', margin + 5, infoY)
+                    .text('Dirección:', margin + 5, infoY + lineHeight)
+                    .text('Teléfono:', margin + 5, infoY + lineHeight * 2)
+                    .text('NIT.', margin + 5, infoY + lineHeight * 3);
 
-                doc.fillColor('#ffffff')
-                   .text('Producto', 55, tableTop + 5, { width: 200 })
-                   .text('Ancho', 260, tableTop + 5, { width: 50 })
-                   .text('Alto', 315, tableTop + 5, { width: 50 })
-                   .text('Cant.', 370, tableTop + 5, { width: 40 })
-                   .text('Precio Unit.', 415, tableTop + 5, { width: 70 })
-                   .text('Subtotal', 490, tableTop + 5, { width: 70, align: 'right' });
+                doc.text(clienteNombre, margin + 60, infoY)
+                    .text('', margin + 60, infoY + lineHeight)
+                    .text(telefono, margin + 60, infoY + lineHeight * 2)
+                    .text(documento, margin + 60, infoY + lineHeight * 3);
 
-                let yPosition = tableTop + 25;
+                // Línea vertical
+                const middleX = margin + contentWidth * 0.65;
+                doc.moveTo(middleX, infoY - 5)
+                    .lineTo(middleX, infoY + 75)
+                    .stroke();
+
+                // Columna derecha - Fechas
+                const fechaBoxX = middleX + 10;
+                const fechaBoxWidth = contentWidth - (fechaBoxX - margin) - 10;
+                const fechaBoxHeight = 18;
+
+                doc.rect(fechaBoxX, infoY, fechaBoxWidth, fechaBoxHeight)
+                    .stroke('#000000');
+                doc.fontSize(8)
+                    .text('FECHA FACTURA:', fechaBoxX + 3, infoY + 5);
+
+                doc.rect(fechaBoxX, infoY + fechaBoxHeight + 5, fechaBoxWidth, fechaBoxHeight)
+                    .stroke('#000000');
+                doc.text('FECHA VENCIMIENTO:', fechaBoxX + 3, infoY + fechaBoxHeight + 10);
+
+                doc.fontSize(9)
+                    .text(new Date(venta.fecha_venta).toLocaleDateString('es-ES'), fechaBoxX + 3, infoY + 13);
+
+                const ordenPagoY = infoY + (fechaBoxHeight + 5) * 2 + 5;
+                doc.fontSize(7)
+                    .rect(fechaBoxX, ordenPagoY, fechaBoxWidth, 15)
+                    .stroke('#000000');
+                doc.text(`Cotización #${venta.idCotizacion}`, fechaBoxX + 3, ordenPagoY + 3);
+
+                // ============================================
+                // TABLA DE PRODUCTOS
+                // ============================================
+                const tableY = infoY + 90;
+                const tableHeight = 200;
+
+                doc.rect(margin, tableY, contentWidth, tableHeight)
+                    .stroke('#000000');
+
+                const col1X = margin + 5;
+                const col2X = margin + 60;
+                const col3X = margin + contentWidth - 80;
+
+                doc.fontSize(8)
+                    .fillColor('#000000')
+                    .text('CANTIDAD', col1X, tableY + 5)
+                    .text('DESCRIPCION', col2X, tableY + 5)
+                    .text('VALOR', col3X, tableY + 5, { align: 'right', width: 70 });
+
+                doc.moveTo(margin, tableY + 18)
+                    .lineTo(margin + contentWidth, tableY + 18)
+                    .stroke();
+
+                doc.moveTo(col2X - 5, tableY)
+                    .lineTo(col2X - 5, tableY + tableHeight)
+                    .stroke();
+
+                doc.moveTo(col3X - 10, tableY)
+                    .lineTo(col3X - 10, tableY + tableHeight)
+                    .stroke();
+
+                let productY = tableY + 25;
                 const detalles = venta.cotizacion.detalles;
 
-                detalles.forEach((detalle, index) => {
-                    const bgColor = '#ffffff';
-                    
-                    doc.rect(50, yPosition - 2, 512, 20)
-                       .fill(bgColor);
+                detalles.forEach((detalle) => {
+                    const descripcion = `${detalle.tipoProducto.nombre_tp} (${detalle.ancho}m x ${detalle.alto}m)`;
 
-                    doc.fillColor(textColor)
-                       .text(detalle.tipoProducto.nombre_tp, 55, yPosition, { width: 200 })
-                       .text(`${detalle.ancho}m`, 260, yPosition, { width: 50 })
-                       .text(`${detalle.alto}m`, 315, yPosition, { width: 50 })
-                       .text('1', 370, yPosition, { width: 40 })
-                       .text(
-                           new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0 }).format(Number(detalle.precio)),
-                           415,
-                           yPosition,
-                           { width: 70 }
-                       )
-                       .text(
-                           new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0 }).format(Number(detalle.precio)),
-                           490,
-                           yPosition,
-                           { width: 70, align: 'right' }
-                       );
-
-                    yPosition += 20;
+                    doc.fontSize(9)
+                        .text('1', col1X + 10, productY, { width: 40, align: 'center' })
+                        .text(descripcion, col2X, productY, { width: col3X - col2X - 20 })
+                        .text(
+                            new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0 }).format(Number(detalle.precio)),
+                            col3X,
+                            productY,
+                            { align: 'right', width: 70 }
+                        );
+                    productY += 20;
                 });
 
-                doc.moveDown(2);
-                yPosition = doc.y;
+                // Texto rotado lateral
+                doc.save();
+                doc.translate(margin + 10, tableY + tableHeight / 2);
+                doc.rotate(-90);
+                doc.fontSize(6)
+                    .fillColor('#000000')
+                    .text('RESOLUCIÓN DIAN', 0, 0, { width: tableHeight - 20, align: 'center' });
+                doc.restore();
 
-                // RESUMEN DE PAGO
-                doc.strokeColor('#000000')
-                   .lineWidth(1)
-                   .moveTo(350, yPosition)
-                   .lineTo(562, yPosition)
-                   .stroke();
+                // ============================================
+                // SECCIÓN SON
+                // ============================================
+                const sonY = tableY + tableHeight + 8;
+                const sonHeight = 30;
 
-                yPosition += 10;
+                doc.rect(margin, sonY, contentWidth, sonHeight)
+                    .stroke('#000000');
 
-                doc.fontSize(11)
-                   .fillColor(secondaryColor)
-                   .text('Total:', 370, yPosition)
-                   .fillColor(textColor)
-                   .text(
-                       new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0 }).format(Number(venta.total)),
-                       490,
-                       yPosition,
-                       { width: 70, align: 'right' }
-                   );
+                doc.fontSize(8)
+                    .fillColor('#000000')
+                    .text('SON:', margin + 5, sonY + 5);
+
+                // ============================================
+                // FIRMAS
+                // ============================================
+                const firmasY = sonY + sonHeight + 8;
+                const firmasHeight = 50;
+                const firmaWidth = (contentWidth - 10) / 2;
+
+                doc.rect(margin, firmasY, firmaWidth, firmasHeight)
+                    .stroke('#000000');
+
+                doc.fontSize(8)
+                    .text('Firma y Sello Envío', margin + 5, firmasY + 5);
+
+                doc.fontSize(7)
+                    .text('Nombre:', margin + 5, firmasY + firmasHeight - 25)
+                    .text('CC:', margin + firmaWidth / 2, firmasY + firmasHeight - 25);
+
+                doc.rect(margin + firmaWidth + 10, firmasY, firmaWidth, firmasHeight)
+                    .stroke('#000000');
+
+                doc.fontSize(8)
+                    .text('Firma Recibido', margin + firmaWidth + 15, firmasY + 5);
+
+                doc.fontSize(7)
+                    .text('Nombre:', margin + firmaWidth + 15, firmasY + firmasHeight - 25)
+                    .text('CC:', margin + firmaWidth + 15 + firmaWidth / 2, firmasY + firmasHeight - 25);
+
+                // ============================================
+                // RESUMEN FINANCIERO
+                // ============================================
+                const resumenY = firmasY + firmasHeight + 8;
+                const resumenWidth = 150;
+                const resumenX = margin + contentWidth - resumenWidth;
+                const resumenLineHeight = 18;
 
                 const totalPagado = Number(venta.total) - Number(venta.saldo_pendiente);
-                yPosition += 20;
 
+                // TOTAL
+                doc.rect(resumenX, resumenY, resumenWidth, resumenLineHeight)
+                    .stroke('#000000');
+
+                doc.fontSize(9)
+                    .fillColor('#000000')
+                    .text('TOTAL:', resumenX + 5, resumenY + 5)
+                    .text(
+                        new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0 }).format(Number(venta.total)),
+                        resumenX + 75,
+                        resumenY + 5,
+                        { align: 'right', width: 70 }
+                    );
+
+                // PAGADO
+                doc.rect(resumenX, resumenY + resumenLineHeight, resumenWidth, resumenLineHeight)
+                    .stroke('#000000');
+
+                doc.text('PAGADO:', resumenX + 5, resumenY + resumenLineHeight + 5)
+                    .text(
+                        new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0 }).format(totalPagado),
+                        resumenX + 75,
+                        resumenY + resumenLineHeight + 5,
+                        { align: 'right', width: 70 }
+                    );
+
+                // SALDO PENDIENTE (fondo negro)
+                doc.rect(resumenX, resumenY + resumenLineHeight * 2, resumenWidth, resumenLineHeight)
+                    .fillAndStroke('#000000', '#000000');
+
+                doc.fillColor('#FFFFFF')
+                    .text('SALDO:', resumenX + 5, resumenY + resumenLineHeight * 2 + 5)
+                    .text(
+                        new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0 }).format(Number(venta.saldo_pendiente)),
+                        resumenX + 75,
+                        resumenY + resumenLineHeight * 2 + 5,
+                        { align: 'right', width: 70 }
+                    );
+
+                // Estado
                 doc.fillColor('#000000')
-                   .text('Pagado:', 370, yPosition)
-                   .fillColor('#000000')
-                   .text(
-                       new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0 }).format(totalPagado),
-                       490,
-                       yPosition,
-                       { width: 70, align: 'right' }
-                   );
+                    .fontSize(8)
+                    .text(`Estado: ${venta.estado_pago}`, resumenX, resumenY + resumenLineHeight * 3 + 10, {
+                        width: resumenWidth,
+                        align: 'center'
+                    });
 
-                yPosition += 20;
-
-                doc.fillColor('#000000')
-                   .text('Saldo Pendiente:', 370, yPosition)
-                   .fillColor('#000000')
-                   .text(
-                       new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0 }).format(Number(venta.saldo_pendiente)),
-                       490,
-                       yPosition,
-                       { width: 70, align: 'right' }
-                   );
-
-                // ESTADO DE PAGO
-                yPosition += 30;
-                doc.fontSize(10)
-                   .fillColor('#000000')
-                   .text(`Estado: ${venta.estado_pago}`, 370, yPosition, { align: 'right' });
-
-                // HISTORIAL DE ABONOS si existen
+                // HISTORIAL DE ABONOS
                 if (venta.abonos.length > 0) {
-                    doc.moveDown(3);
-                    
-                    doc.fontSize(12)
-                       .fillColor(textColor)
-                       .text('Historial de Abonos', 50, doc.y, { underline: true })
-                       .moveDown(0.5);
+                    const abonosY = resumenY + resumenLineHeight * 3 + 15;
 
-                    venta.abonos.forEach((abono, index) => {
-                        doc.fontSize(9)
-                           .fillColor('#000000')
-                           .text(
-                               `${new Date(abono.fecha_abono).toLocaleDateString('es-ES')} - ${new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0 }).format(Number(abono.abono))}`,
-                               60,
-                               doc.y
-                           );
-                        if (index < venta.abonos.length - 1) doc.moveDown(0.3);
+                    doc.fontSize(8)
+                        .fillColor('#000000')
+                        .text('Historial de Abonos:', margin, abonosY, { underline: true });
+
+                    let abonoY = abonosY + 12;
+                    venta.abonos.forEach((abono) => {
+                        doc.fontSize(7)
+                            .text(
+                                `${new Date(abono.fecha_abono).toLocaleDateString('es-ES')} - ${new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0 }).format(Number(abono.abono))}`,
+                                margin + 10,
+                                abonoY
+                            );
+                        abonoY += 10;
                     });
                 }
-
-                // FOOTER
-                doc.fontSize(8)
-                   .fillColor('#000000')
-                   .text(
-                       'Gracias por su compra - Decortinas ERP',
-                       50,
-                       700,
-                       { align: 'center', width: 512 }
-                   );
 
                 doc.end();
 
