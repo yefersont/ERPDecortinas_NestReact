@@ -5,6 +5,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { CryptoService, EncryptedData } from 'src/common/crypto/crypto.service';
 import * as fs from 'fs';
 import * as path from 'path';
+import { numeroALetras } from 'src/common/utils/numero-letras.util';
 
 @Injectable()
 export class ExportService {
@@ -305,6 +306,8 @@ export class ExportService {
         }
 
         return new Promise((resolve, reject) => {
+            let errorMsg = '';
+
             try {
                 const doc = new PDFDocument({
                     size: 'LETTER',
@@ -322,17 +325,17 @@ export class ExportService {
                 const contentWidth = pageWidth - (margin * 2);
                 // =========================================
                 //  RUTA DEL LOGO
-                const logoPath = path.join(process.cwd(), 'src/assets/DecortinasImg.png');                // ============================================
-                // SECCIÓN SUPERIOR: LOGO (GRIS)
+                const logoPath = path.join(process.cwd(), 'src/assets/images/DecortinasImg.png');
+                // SECCIÓN SUPERIOR: LOGO (BLANCA)
                 // ============================================
                 doc.rect(margin, 30, contentWidth, 70)
-                    .fillAndStroke('#f0f0f0', '#000000');
+                    .fillAndStroke('#ffffff', '#cccccc'); // Borde gris
 
-                // Logo centrado - tamaño ajustado para no deformar
-                const logoWidth = 100;
-                const logoHeight = 50;
-                const logoX = margin + (contentWidth - logoWidth) / 2;
-                const logoY = 40;
+                // Logo a la izquierda - tamaño ajustado para no deformar
+                const logoWidth = 170;
+                const logoHeight = 85;
+                const logoX = margin + 10; // Logo alineado a la izquierda
+                const logoY = 25;
 
                 try {
                     doc.image(logoPath, logoX, logoY, {
@@ -342,43 +345,59 @@ export class ExportService {
                         align: 'center',
                         valign: 'center'
                     });
-                    console.log('✅ Logo cargado exitosamente');
 
                 } catch (error) {
-                    console.error('❌ Error al cargar el logo:', error);
                     // Si no encuentra el logo, muestra texto
                     doc.fontSize(12)
                         .fillColor('#000000')
-                        .text('DECORTINAS', margin, 55, {
+                        .text('DECORTINAS Y PERSIANAS', margin, 55, {
                             width: contentWidth,
                             align: 'center'
                         });
                 }
 
                 // ============================================
-                // TÍTULO Y NÚMERO DE FACTURA
+                // TÍTULO Y NÚMERO DE FACTURA (dentro del header)
                 // ============================================
-                const topSectionY = 110;
+                const headerTextY = 42; // Posición vertical dentro del header
 
-                doc.fontSize(12)
+                doc.fontSize(9)
                     .fillColor('#000000')
-                    .text('FACTURA DE VENTA', margin + 10, topSectionY);
+                    .text('Factura de venta', margin + contentWidth / 2, headerTextY, {
+                        width: contentWidth / 2 - 10,
+                        align: 'right'
+                    });
 
-                doc.fontSize(16)
+                doc.fontSize(9)
                     .fillColor('#FF0000')
-                    .text(venta.idVenta.toString().padStart(4, '0'), margin + contentWidth / 2, topSectionY - 5, {
+                    .text(`No ${venta.idVenta.toString().padStart(4, '0')}`, margin + contentWidth / 2, headerTextY + 15, {
+                        width: contentWidth / 2 - 10,
+                        align: 'right'
+                    });
+
+                // Fechas en el header
+                doc.fontSize(9)
+                    .fillColor('#000000')
+                    .text(`Fecha: ${new Date(venta.fecha_venta).toLocaleDateString('es-ES')}`, margin + contentWidth / 2, headerTextY + 30, {
+                        width: contentWidth / 2 - 10,
+                        align: 'right'
+                    });
+
+                doc.fontSize(9)
+                    .fillColor('#000000')
+                    .text(`Cotización #${venta.idCotizacion}`, margin + contentWidth / 2, headerTextY + 45, {
                         width: contentWidth / 2 - 10,
                         align: 'right'
                     });
 
                 // ============================================
-                // INFORMACIÓN DEL CLIENTE Y FECHAS
+                // INFORMACIÓN DEL CLIENTE
                 // ============================================
-                const infoY = topSectionY + 30;
+                const infoY = 110; // Comienza después del header
                 const lineHeight = 18;
 
                 doc.rect(margin, infoY - 5, contentWidth, 80)
-                    .stroke('#000000');
+                    .stroke('#cccccc'); // Borde gris
 
                 const cliente = venta.cotizacion.cliente;
                 const clienteNombre = `${cliente.nombre} ${cliente.apellidos}`;
@@ -393,47 +412,22 @@ export class ExportService {
                     telefono = this.cryptoService.decrypt(cliente.telefono_enc);
                 }
 
-                // Columna izquierda
+                const direccionCliente = this.cryptoService.isValidEncryptedData(cliente.direccion_enc)
+                    ? this.cryptoService.decrypt(cliente.direccion_enc)
+                    : '';
+
+                // Datos del cliente - ahora ocupa todo el ancho
                 doc.fontSize(9)
                     .fillColor('#000000')
-                    .text('Señor (es):', margin + 5, infoY)
+                    .text('Cliente:', margin + 5, infoY)
                     .text('Dirección:', margin + 5, infoY + lineHeight)
                     .text('Teléfono:', margin + 5, infoY + lineHeight * 2)
                     .text('NIT.', margin + 5, infoY + lineHeight * 3);
 
                 doc.text(clienteNombre, margin + 60, infoY)
-                    .text('', margin + 60, infoY + lineHeight)
+                    .text(direccionCliente, margin + 60, infoY + lineHeight)
                     .text(telefono, margin + 60, infoY + lineHeight * 2)
                     .text(documento, margin + 60, infoY + lineHeight * 3);
-
-                // Línea vertical
-                const middleX = margin + contentWidth * 0.65;
-                doc.moveTo(middleX, infoY - 5)
-                    .lineTo(middleX, infoY + 75)
-                    .stroke();
-
-                // Columna derecha - Fechas
-                const fechaBoxX = middleX + 10;
-                const fechaBoxWidth = contentWidth - (fechaBoxX - margin) - 10;
-                const fechaBoxHeight = 18;
-
-                doc.rect(fechaBoxX, infoY, fechaBoxWidth, fechaBoxHeight)
-                    .stroke('#000000');
-                doc.fontSize(8)
-                    .text('FECHA FACTURA:', fechaBoxX + 3, infoY + 5);
-
-                doc.rect(fechaBoxX, infoY + fechaBoxHeight + 5, fechaBoxWidth, fechaBoxHeight)
-                    .stroke('#000000');
-                doc.text('FECHA VENCIMIENTO:', fechaBoxX + 3, infoY + fechaBoxHeight + 10);
-
-                doc.fontSize(9)
-                    .text(new Date(venta.fecha_venta).toLocaleDateString('es-ES'), fechaBoxX + 3, infoY + 13);
-
-                const ordenPagoY = infoY + (fechaBoxHeight + 5) * 2 + 5;
-                doc.fontSize(7)
-                    .rect(fechaBoxX, ordenPagoY, fechaBoxWidth, 15)
-                    .stroke('#000000');
-                doc.text(`Cotización #${venta.idCotizacion}`, fechaBoxX + 3, ordenPagoY + 3);
 
                 // ============================================
                 // TABLA DE PRODUCTOS
@@ -442,7 +436,7 @@ export class ExportService {
                 const tableHeight = 200;
 
                 doc.rect(margin, tableY, contentWidth, tableHeight)
-                    .stroke('#000000');
+                    .stroke('#cccccc'); // Borde gris
 
                 const col1X = margin + 5;
                 const col2X = margin + 60;
@@ -456,15 +450,15 @@ export class ExportService {
 
                 doc.moveTo(margin, tableY + 18)
                     .lineTo(margin + contentWidth, tableY + 18)
-                    .stroke();
+                    .stroke('#cccccc'); // Línea gris
 
                 doc.moveTo(col2X - 5, tableY)
                     .lineTo(col2X - 5, tableY + tableHeight)
-                    .stroke();
+                    .stroke('#cccccc'); // Línea gris
 
                 doc.moveTo(col3X - 10, tableY)
                     .lineTo(col3X - 10, tableY + tableHeight)
-                    .stroke();
+                    .stroke('#cccccc'); // Línea gris
 
                 let productY = tableY + 25;
                 const detalles = venta.cotizacion.detalles;
@@ -484,15 +478,6 @@ export class ExportService {
                     productY += 20;
                 });
 
-                // Texto rotado lateral
-                doc.save();
-                doc.translate(margin + 10, tableY + tableHeight / 2);
-                doc.rotate(-90);
-                doc.fontSize(6)
-                    .fillColor('#000000')
-                    .text('RESOLUCIÓN DIAN', 0, 0, { width: tableHeight - 20, align: 'center' });
-                doc.restore();
-
                 // ============================================
                 // SECCIÓN SON
                 // ============================================
@@ -500,11 +485,16 @@ export class ExportService {
                 const sonHeight = 30;
 
                 doc.rect(margin, sonY, contentWidth, sonHeight)
-                    .stroke('#000000');
+                    .stroke('#cccccc'); // Borde gris
+
+                const totalEnLetras = numeroALetras(Number(venta.total));
 
                 doc.fontSize(8)
                     .fillColor('#000000')
-                    .text('SON:', margin + 5, sonY + 5);
+                    .text('SON:', margin + 5, sonY + 5)
+                    .text(totalEnLetras, margin + 35, sonY + 5, {
+                        width: contentWidth - 40
+                    });
 
                 // ============================================
                 // FIRMAS
@@ -514,17 +504,17 @@ export class ExportService {
                 const firmaWidth = (contentWidth - 10) / 2;
 
                 doc.rect(margin, firmasY, firmaWidth, firmasHeight)
-                    .stroke('#000000');
+                    .stroke('#cccccc'); // Borde gris
 
                 doc.fontSize(8)
-                    .text('Firma y Sello Envío', margin + 5, firmasY + 5);
+                    .text('Firma Envío', margin + 5, firmasY + 5);
 
                 doc.fontSize(7)
                     .text('Nombre:', margin + 5, firmasY + firmasHeight - 25)
                     .text('CC:', margin + firmaWidth / 2, firmasY + firmasHeight - 25);
 
                 doc.rect(margin + firmaWidth + 10, firmasY, firmaWidth, firmasHeight)
-                    .stroke('#000000');
+                    .stroke('#cccccc'); // Borde gris
 
                 doc.fontSize(8)
                     .text('Firma Recibido', margin + firmaWidth + 15, firmasY + 5);
@@ -545,7 +535,7 @@ export class ExportService {
 
                 // TOTAL
                 doc.rect(resumenX, resumenY, resumenWidth, resumenLineHeight)
-                    .stroke('#000000');
+                    .stroke('#cccccc'); // Borde gris
 
                 doc.fontSize(9)
                     .fillColor('#000000')
@@ -559,7 +549,7 @@ export class ExportService {
 
                 // PAGADO
                 doc.rect(resumenX, resumenY + resumenLineHeight, resumenWidth, resumenLineHeight)
-                    .stroke('#000000');
+                    .stroke('#cccccc'); // Borde gris
 
                 doc.text('PAGADO:', resumenX + 5, resumenY + resumenLineHeight + 5)
                     .text(
@@ -611,6 +601,7 @@ export class ExportService {
                 }
 
                 doc.end();
+
 
             } catch (error) {
                 reject(error);
