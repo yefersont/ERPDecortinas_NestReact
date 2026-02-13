@@ -52,10 +52,9 @@ const DeudoresPage = () => {
                 <span
                     className={`
                         inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium
-                        ${
-                            isDarkMode
-                                ? "bg-green-900/30 text-green-400"
-                                : "bg-green-100 text-green-700"
+                        ${isDarkMode
+                            ? "bg-green-900/30 text-green-400"
+                            : "bg-green-100 text-green-700"
                         }
                     `}
                 >
@@ -69,10 +68,9 @@ const DeudoresPage = () => {
             <span
                 className={`
                     inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium
-                    ${
-                        isDarkMode
-                            ? "bg-yellow-900/30 text-yellow-400"
-                            : "bg-yellow-100 text-yellow-700"
+                    ${isDarkMode
+                        ? "bg-yellow-900/30 text-yellow-400"
+                        : "bg-yellow-100 text-yellow-700"
                     }
                 `}
             >
@@ -85,7 +83,7 @@ const DeudoresPage = () => {
     // Preparar datos para la tabla
     const tableData = deudores.map((deudor) => {
         const clienteNombre = `${deudor.venta.cotizacion.cliente.nombre} ${deudor.venta.cotizacion.cliente.apellidos}`;
-        
+
         return {
             id: deudor.idDeudor,
             fecha: formatFecha(deudor.fecha_abono),
@@ -137,9 +135,8 @@ const DeudoresPage = () => {
         <Loader text="Cargando abonos..." />
     ) : (
         <div
-            className={`min-h-screen p-4 sm:p-6 lg:p-8 ${
-                isDarkMode ? "bg-gray-950" : "bg-gray-50"
-            }`}
+            className={`min-h-screen p-4 sm:p-6 lg:p-8 ${isDarkMode ? "bg-gray-950" : "bg-gray-50"
+                }`}
         >
             <div className="max-w-7xl mx-auto space-y-6">
                 {/* Header Section */}
@@ -152,10 +149,9 @@ const DeudoresPage = () => {
                                 className={`
                                     hidden sm:flex items-center justify-center
                                     p-3 rounded-xl
-                                    ${
-                                        isDarkMode
-                                            ? "bg-gray-800 text-white"
-                                            : "bg-gray-100 text-gray-900"
+                                    ${isDarkMode
+                                        ? "bg-gray-800 text-white"
+                                        : "bg-gray-100 text-gray-900"
                                     }
                                 `}
                             >
@@ -181,10 +177,9 @@ const DeudoresPage = () => {
                                 className={`
                                     flex items-center gap-2 px-4 py-2.5 rounded-xl
                                     text-sm font-medium transition-all duration-200
-                                    ${
-                                        isDarkMode
-                                            ? "bg-gray-800 hover:bg-gray-700 text-gray-300 border border-gray-700"
-                                            : "bg-white hover:bg-gray-50 text-gray-700 border border-gray-300 shadow-sm"
+                                    ${isDarkMode
+                                        ? "bg-gray-800 hover:bg-gray-700 text-gray-300 border border-gray-700"
+                                        : "bg-white hover:bg-gray-50 text-gray-700 border border-gray-300 shadow-sm"
                                     }
                                 `}
                             >
@@ -194,27 +189,11 @@ const DeudoresPage = () => {
 
                             <button
                                 className={`
-                                    flex items-center gap-2 px-4 py-2.5 rounded-xl
-                                    text-sm font-medium transition-all duration-200
-                                    ${
-                                        isDarkMode
-                                            ? "bg-gray-800 hover:bg-gray-700 text-gray-300 border border-gray-700"
-                                            : "bg-white hover:bg-gray-50 text-gray-700 border border-gray-300 shadow-sm"
-                                    }
-                                `}
-                            >
-                                <Upload size={16} />
-                                <span className="hidden sm:inline">Importar</span>
-                            </button>
-
-                            <button
-                                className={`
                                     flex items-center gap-2 px-5 py-2.5 rounded-xl
                                     text-sm font-medium transition-all duration-200
-                                    ${
-                                        isDarkMode
-                                            ? "bg-blue-600 hover:bg-blue-700 text-white"
-                                            : "bg-blue-500 hover:bg-blue-600 text-white"
+                                    ${isDarkMode
+                                        ? "bg-blue-600 hover:bg-blue-700 text-white"
+                                        : "bg-blue-500 hover:bg-blue-600 text-white"
                                     }
                                 `}
                             >
@@ -230,10 +209,9 @@ const DeudoresPage = () => {
                         <div
                             className={`
                                 p-5 rounded-xl border
-                                ${
-                                    isDarkMode
-                                        ? "bg-gray-900 border-gray-800"
-                                        : "bg-white border-gray-200"
+                                ${isDarkMode
+                                    ? "bg-gray-900 border-gray-800"
+                                    : "bg-white border-gray-200"
                                 }
                             `}
                             style={{
@@ -282,10 +260,9 @@ const DeudoresPage = () => {
                         <div
                             className={`
                                 p-5 rounded-xl border
-                                ${
-                                    isDarkMode
-                                        ? "bg-gray-900 border-gray-800"
-                                        : "bg-white border-gray-200"
+                                ${isDarkMode
+                                    ? "bg-gray-900 border-gray-800"
+                                    : "bg-white border-gray-200"
                                 }
                             `}
                             style={{
@@ -331,10 +308,9 @@ const DeudoresPage = () => {
                         <div
                             className={`
                                 p-5 rounded-xl border
-                                ${
-                                    isDarkMode
-                                        ? "bg-gray-900 border-gray-800"
-                                        : "bg-white border-gray-200"
+                                ${isDarkMode
+                                    ? "bg-gray-900 border-gray-800"
+                                    : "bg-white border-gray-200"
                                 }
                             `}
                             style={{
@@ -383,10 +359,9 @@ const DeudoresPage = () => {
                         <div
                             className={`
                                 p-5 rounded-xl border
-                                ${
-                                    isDarkMode
-                                        ? "bg-gray-900 border-gray-800"
-                                        : "bg-white border-gray-200"
+                                ${isDarkMode
+                                    ? "bg-gray-900 border-gray-800"
+                                    : "bg-white border-gray-200"
                                 }
                             `}
                             style={{
