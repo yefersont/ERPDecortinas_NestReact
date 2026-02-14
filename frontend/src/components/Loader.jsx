@@ -13,7 +13,7 @@ const Loader = ({ text, fullScreen = false }) => {
     return (
         <div className={`${positionClass} flex items-center justify-center ${isDarkMode ? 'bg-gray-900' : 'bg-gray-50'}`}>
             <div className="text-center">
-                <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-500 mx-auto mb-4"></div>
+                <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-black mx-auto mb-4"></div>
                 <p className={`${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>{text}</p>
             </div>
         </div>
