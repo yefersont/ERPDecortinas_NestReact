@@ -422,7 +422,7 @@ export class ExportService {
                     .text('Cliente:', margin + 5, infoY)
                     .text('Dirección:', margin + 5, infoY + lineHeight)
                     .text('Teléfono:', margin + 5, infoY + lineHeight * 2)
-                    .text('NIT.', margin + 5, infoY + lineHeight * 3);
+                    .text('C.C/NIT:', margin + 5, infoY + lineHeight * 3);
 
                 doc.text(clienteNombre, margin + 60, infoY)
                     .text(direccionCliente, margin + 60, infoY + lineHeight)
@@ -561,10 +561,9 @@ export class ExportService {
 
                 // SALDO PENDIENTE (fondo negro)
                 doc.rect(resumenX, resumenY + resumenLineHeight * 2, resumenWidth, resumenLineHeight)
-                    .fillAndStroke('#000000', '#000000');
+                    .stroke('#CCCCCC');
 
-                doc.fillColor('#FFFFFF')
-                    .text('SALDO:', resumenX + 5, resumenY + resumenLineHeight * 2 + 5)
+                doc.text('SALDO:', resumenX + 5, resumenY + resumenLineHeight * 2 + 5)
                     .text(
                         new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0 }).format(Number(venta.saldo_pendiente)),
                         resumenX + 75,
