@@ -47,11 +47,15 @@ const CotizacionesForm = ({ cliente, cotizacion, onCancel, onSubmit }) => {
         valor: formatCurrency(detalle.precio.toString())
       }));
 
+      const productosFinales = productosFormateados.length > 0
+        ? productosFormateados
+        : [{ alto: '', ancho: '', tipoProducto: '', valor: '' }];
+
       setFormData({
         cedulaCliente: cliente?.cedula || '',
         fechaCotizacion: cotizacion.fecha ? new Date(cotizacion.fecha).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
-        numeroProductos: productosFormateados.length,
-        productos: productosFormateados
+        numeroProductos: Math.max(productosFinales.length, 1),
+        productos: productosFinales
       });
     }
   }, [cotizacion]);
@@ -266,13 +270,16 @@ const CotizacionesForm = ({ cliente, cotizacion, onCancel, onSubmit }) => {
                   #productos
                 </label>
                 <input
-                  type="number"
+                  type="text"
+                  inputMode="numeric"
                   id="numeroProductos"
                   name="numeroProductos"
                   value={formData.numeroProductos}
                   onChange={handleNumeroProductosChange}
-                  min="1"
-                  max={MAX_PRODUCTS}
+                  onFocus={(e) => e.target.select()}
+                  onKeyDown={(e) => {
+                    if (/^\d$/.test(e.key)) e.target.select();
+                  }}
                   className={`
                     w-full px-3 py-2 rounded-lg text-sm
                     transition-all duration-200
