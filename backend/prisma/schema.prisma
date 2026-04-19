@@ -44,6 +44,18 @@ model Tipo_producto {
   cotizaciones    DetalleCotizacion[] @relation("TipoProductoDetalles")
 }
 
+model CostoTipoProducto {
+  idCosto         Int      @id @default(autoincrement())
+  idTipo_producto Int
+  costo_base      Decimal
+  fecha_inicio    DateTime @default(now())
+  fecha_fin       DateTime?
+
+  tipoProducto Tipo_producto @relation(fields: [idTipo_producto], references: [idTipo_producto])
+
+  @@index([idTipo_producto, fecha_inicio, fecha_fin])
+}
+
 model Cotizaciones {
   idCotizacion Int      @id @default(autoincrement())
   idCliente    Int
@@ -62,6 +74,7 @@ model DetalleCotizacion {
   ancho           Decimal
   alto            Decimal
   precio          Decimal
+  costo_calculado Decimal
 
   cotizacion   Cotizaciones  @relation("CotizacionDetalles", fields: [idCotizacion], references: [idCotizacion])
   tipoProducto Tipo_producto @relation("TipoProductoDetalles", fields: [idTipo_producto], references: [idTipo_producto])
