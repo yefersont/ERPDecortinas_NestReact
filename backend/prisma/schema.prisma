@@ -42,6 +42,7 @@ model Tipo_producto {
   idTipo_producto Int                 @id @default(autoincrement())
   nombre_tp       String
   cotizaciones    DetalleCotizacion[] @relation("TipoProductoDetalles")
+  costos          CostoTipoProducto[]
 }
 
 model CostoTipoProducto {
