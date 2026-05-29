@@ -75,7 +75,7 @@ model DetalleCotizacion {
   ancho           Decimal
   alto            Decimal
   precio          Decimal
-  costo_calculado Decimal
+  costo_calculado Decimal?
 
   cotizacion   Cotizaciones  @relation("CotizacionDetalles", fields: [idCotizacion], references: [idCotizacion])
   tipoProducto Tipo_producto @relation("TipoProductoDetalles", fields: [idTipo_producto], references: [idTipo_producto])
