@@ -21,51 +21,19 @@ import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('cotizacion/detallecotizacion')
 export class DetallecotizacionController {
-  constructor(private readonly detalleService: DetallecotizacionService) {}
+  constructor(private readonly detalleService: DetallecotizacionService) { }
 
-  // CREATE (un solo detalle)
-  // @Post('single')
-  //   async create(@Body() dto: CreateMultipleDetallecotizacionDto) {
-  //     if (dto.detalles.length !== 1) {
-  //       throw new Error('El endpoint single solo acepta un detalle');
-  //     }
-
-  //     const detalleCreado = await this.detalleService.create(dto);
-
-  //     const cotizacionActualizada =
-  //       await this.detalleService.actualizarValorTotalCotizacion(
-  //         dto.detalles[0].idCotizacion,
-  //       );
-
-  //     return {
-  //       status: HttpStatus.CREATED,
-  //       message: 'Detalle de cotización creado exitosamente',
-  //       data: {
-  //         detalle: detalleCreado.data,
-  //         valor_total: cotizacionActualizada.valor_total,
-  //       },
-  //     };
-  //   }
-
-  // CREATE (varios detalles)
   @Post()
-    async createMultiple(@Body() dto: CreateMultipleDetallecotizacionDto) {
-      const detallesCreados = await this.detalleService.createMultiple(dto);
+  @Roles('ADMIN', 'USER')
+  async createMultiple(@Body() dto: CreateMultipleDetallecotizacionDto) {
+    const detallesCreados = await this.detalleService.createMultiple(dto);
 
-      const cotizacionActualizada =
-        await this.detalleService.actualizarValorTotalCotizacion(
-          dto.detalles[0].idCotizacion,
-        );
-
-      return {
-        status: HttpStatus.CREATED,
-        message: 'Detalles de cotización creados exitosamente',
-        data: {
-          detalles: detallesCreados.data,
-          valor_total: cotizacionActualizada.valor_total,
-        },
-      };
-    }
+    return {
+      status: HttpStatus.CREATED,
+      message: 'Detalles de cotización creados exitosamente',
+      data: detallesCreados.data,
+    };
+  }
 
   // FIND ALL
   @Get()

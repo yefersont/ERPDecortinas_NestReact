@@ -7,11 +7,16 @@ import {
   Delete,
   HttpStatus,
   Patch,
+  UseGuards,
 } from '@nestjs/common';
 import { CostotipoproductoService } from './costotipoproducto.service';
 import { CreateCostotipoproductoDto } from './dto/create-costotipoproducto.dto';
 import { UpdateCostotipoproductoDto } from './dto/update-costotipoproducto.dto';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { RolesGuard } from '../auth/roles.guard';
+import { Roles } from '../auth/roles.decorator';
 
+@UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('costotipoproducto')
 export class CostotipoproductoController {
   constructor(
@@ -19,6 +24,7 @@ export class CostotipoproductoController {
   ) { }
 
   @Get()
+  @Roles('ADMIN', 'USER')
   async findAll() {
     const costos = await this.costotipoproductoService.findAll();
 
@@ -30,6 +36,7 @@ export class CostotipoproductoController {
   }
 
   @Get(':id')
+  @Roles('ADMIN', 'USER')
   async findOne(@Param('id') id: string) {
     const costo = await this.costotipoproductoService.findOne(+id);
 
@@ -41,6 +48,7 @@ export class CostotipoproductoController {
   }
 
   @Post()
+  @Roles('ADMIN')
   async create(
     @Body() createCostotipoproductoDto: CreateCostotipoproductoDto,
   ) {
@@ -56,6 +64,7 @@ export class CostotipoproductoController {
   }
 
   @Patch(':id')
+  @Roles('ADMIN')
   async update(
     @Param('id') id: string,
     @Body() updateCostotipoproductoDto: UpdateCostotipoproductoDto,
@@ -66,13 +75,14 @@ export class CostotipoproductoController {
     );
 
     return {
-      status: 200,
+      status: HttpStatus.OK,
       message: 'Costo actualizado exitosamente',
       data: costo,
     };
   }
 
   @Delete(':id')
+  @Roles('ADMIN')
   async remove(@Param('id') id: string) {
     const costo = await this.costotipoproductoService.remove(+id);
 

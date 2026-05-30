@@ -6,11 +6,12 @@ import { EstadoPago } from '@prisma/client';
 
 @Injectable()
 export class VentasService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) { }
 
   // CREATE
   async create(data: CreateVentaDto) {
     return await this.prisma.$transaction(async (tx) => {
+
       const cotizacion = await tx.cotizaciones.findUnique({
         where: { idCotizacion: data.idCotizacion },
         include: { detalles: true },
@@ -22,14 +23,30 @@ export class VentasService {
         );
       }
 
+      const ventaExistente = await tx.ventas.findFirst({
+        where: {
+          idCotizacion: data.idCotizacion,
+        },
+      });
+
+      if (ventaExistente) {
+        throw new BadRequestException(
+          `La cotización con ID ${data.idCotizacion} ya tiene una venta registrada`,
+        );
+      }
+
       if (cotizacion.detalles.length === 0) {
-        throw new Error(
+        throw new BadRequestException(
           'No se puede registrar la venta porque la cotización no tiene detalles',
         );
       }
 
       const total = Number(cotizacion.valor_total);
-      const abono = Number(data.abono_inicial);
+
+      const abono =
+        data.abono_inicial !== undefined && data.abono_inicial !== null
+          ? Number(data.abono_inicial)
+          : total * 0.5;
 
       // 🔎 Validaciones de negocio
       if (isNaN(abono) || abono <= 0) {
@@ -73,8 +90,6 @@ export class VentasService {
     });
   }
 
-
-  
   // FIND ALL
   async findAll() {
     const ventas = await this.prisma.ventas.findMany({
@@ -127,13 +142,19 @@ export class VentasService {
       throw new NotFoundException(`La venta con ID ${id} no existe`);
     }
 
+    const updateData: any = {};
+
+    if (data.fecha_venta) {
+      updateData.fecha_venta = new Date(data.fecha_venta);
+    }
+
+    // Si en el futuro agregas campos editables, van aquí
+    // ejemplo:
+    // if (data.observacion) updateData.observacion = data.observacion;
+
     const updated = await this.prisma.ventas.update({
       where: { idVenta: id },
-      data: {
-        fecha_venta: data.fecha_venta
-          ? new Date(data.fecha_venta)
-          : undefined,
-      },
+      data: updateData,
     });
 
     return {
@@ -141,7 +162,6 @@ export class VentasService {
       data: updated,
     };
   }
-
   // DELETE
   async remove(id: number) {
     const venta = await this.prisma.ventas.findUnique({
