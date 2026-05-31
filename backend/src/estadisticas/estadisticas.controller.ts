@@ -7,47 +7,21 @@ import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('estadisticas')
 export class EstadisticasController {
-  constructor(private readonly estadisticasService: EstadisticasService) {}
-
-  // @Post()
-  // create(@Body() createEstadisticaDto: CreateEstadisticaDto) {
-  //   return this.estadisticasService.create(createEstadisticaDto);
-  // }
-
-  // @Get()
-  // findAll() {
-  //   return this.estadisticasService.findAll();
-  // }
-
-  // @Get(':id')
-  // findOne(@Param('id') id: string) {
-  //   return this.estadisticasService.findOne(+id);
-  // }
-
-  // @Patch(':id')
-  // update(@Param('id') id: string, @Body() updateEstadisticaDto: UpdateEstadisticaDto) {
-  //   return this.estadisticasService.update(+id, updateEstadisticaDto);
-  // }
-
-  // @Delete(':id')
-  // remove(@Param('id') id: string) {
-  //   return this.estadisticasService.remove(+id);
-  // }
+  constructor(private readonly estadisticasService: EstadisticasService) { }
 
   @Get('resumen')
   @Roles('ADMIN', 'USER')
   async resumen() {
-    return{ 
+    return {
       message: 'Resumen de estadisticas',
       data: await this.estadisticasService.resumen()
     }
   }
 
-
   @Get('ventasPorMes')
   @Roles('ADMIN', 'USER')
   async ventasPorMes() {
-    return{
+    return {
       message: 'Ventas por mes',
       data: await this.estadisticasService.ventasPorMes()
     }
@@ -56,7 +30,7 @@ export class EstadisticasController {
   @Get('productosMasVendidos')
   @Roles('ADMIN', 'USER')
   async productosMasVendidos() {
-    return{
+    return {
       message: 'Productos mas vendidos',
       data: await this.estadisticasService.productosMasVendidos()
     }
@@ -65,7 +39,7 @@ export class EstadisticasController {
   @Get('clientesConMayorDeuda')
   @Roles('ADMIN', 'USER')
   async clientesConMayorDeuda() {
-    return{
+    return {
       message: 'Clientes con mayor deuda',
       data: await this.estadisticasService.clientesConMayorDeuda()
     }
@@ -74,7 +48,7 @@ export class EstadisticasController {
   @Get('clientesConMasCompras')
   @Roles('ADMIN', 'USER')
   async clientesConMasCompras() {
-    return{
+    return {
       message: 'Clientes con mas compras',
       data: await this.estadisticasService.clientesConMasCompras()
     }
@@ -83,12 +57,12 @@ export class EstadisticasController {
   @Get('tiempoPromedioCierre')
   @Roles('ADMIN', 'USER')
   async tiempoPromedioCierre() {
-    return{
+    return {
       message: 'Tiempo promedio',
       data: await this.estadisticasService.tiempoPromedioCierre()
     }
   }
-  
+
 }
 
 

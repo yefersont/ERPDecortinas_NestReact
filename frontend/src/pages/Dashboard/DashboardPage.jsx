@@ -1,36 +1,37 @@
 import React, { useEffect, useState } from "react";
-import { 
-    getEstadisticasResumen, 
-    getEstadisticasVentasPorMes, 
+import {
+    getEstadisticasResumen,
+    getEstadisticasVentasPorMes,
     getEstadisticasProductosMasVendidos,
     getEstadisticasClientesConMayorDeuda,
-    getEstadisticasClientesConMasCompras 
+    getEstadisticasClientesConMasCompras
 } from "../../api/DashboardApi";
 import {
-  BarChart,
-  Bar,
-  LineChart,
-  Line,
-  PieChart,
-  Pie,
-  Cell,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-  ResponsiveContainer
+    BarChart,
+    Bar,
+    LineChart,
+    Line,
+    PieChart,
+    Pie,
+    Cell,
+    XAxis,
+    YAxis,
+    CartesianGrid,
+    Tooltip,
+    Legend,
+    ResponsiveContainer
 } from 'recharts';
 import {
-  TrendingUp,
-  TrendingDown,
-  DollarSign,
-  FileText,
-  ShoppingCart,
-  AlertCircle,
-  Users,
-  Package,
-  LayoutDashboard
+    TrendingUp,
+    TrendingDown,
+    DollarSign,
+    FileText,
+    ShoppingCart,
+    AlertCircle,
+    Users,
+    Package,
+    LayoutDashboard,
+    CircleDollarSign
 } from 'lucide-react';
 import { useTheme } from '../../context/ThemeContext';
 import Loader from '../../components/Loader';
@@ -47,7 +48,7 @@ const DashboardPage = () => {
     const cargarDatos = async () => {
         try {
             setLoading(true);
-            
+
             const [resumenRes, ventasRes, productosRes, deudaRes, comprasRes] = await Promise.all([
                 getEstadisticasResumen(),
                 getEstadisticasVentasPorMes(),
@@ -57,7 +58,7 @@ const DashboardPage = () => {
             ]);
 
             setEstadisticas(resumenRes.data || null);
-            
+
             // Asegurar que sean arrays
             setVentasPorMes(Array.isArray(ventasRes.data.data) ? ventasRes.data.data : []);
             setProductosMasVendidos(Array.isArray(productosRes.data.data) ? productosRes.data.data : []);
@@ -71,10 +72,9 @@ const DashboardPage = () => {
                 clientesConMayorDeuda: deudaRes.data.data,
                 clientesConMasCompras: comprasRes.data.data
             });
-            
+
         } catch (error) {
             console.error("Error cargando estadísticas:", error);
-            // Establecer valores por defecto en caso de error
             setEstadisticas(null);
             setVentasPorMes([]);
             setProductosMasVendidos([]);
@@ -106,7 +106,7 @@ const DashboardPage = () => {
                     <p className={`text-sm font-medium ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
                         {title}
                     </p>
-                    <h3 className={`text-3xl font-bold mt-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                    <h3 className={`text-xl md:text-2xl font-bold mt-2 ${isDarkMode ? 'text-white' : 'text-gray-900'} break-all`}>
                         {value}
                     </h3>
                     {subtitle && (
@@ -137,10 +137,6 @@ const DashboardPage = () => {
         </div>
     );
 
-
-    // Error state - si no hay datos
-
-
     return loading ? (
         <Loader text="Cargando estadísticas..." />
     ) : (
@@ -153,23 +149,31 @@ const DashboardPage = () => {
                     </div>
                     <div>
                         <h1 className={`text-3xl font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                            Dashboard
+                            Estadisticas
                         </h1>
                         <p className={`mt-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                            Resumen general del sistema
+                            Resumen de ventas, ingresos y cotizaciones
                         </p>
                     </div>
                 </div>
 
                 {/* Stats Cards */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
+
                     <StatCard
                         icon={DollarSign}
                         title="Ingresos Totales"
                         value={formatCurrency(estadisticas.data.ingresosTotales || 0)}
-                        trend={estadisticas.data.trend || 0}
                         colorClass="bg-gradient-to-br from-emerald-500 to-emerald-600"
                     />
+
+                    <StatCard
+                        icon={CircleDollarSign}
+                        title="Utilidad Neta"
+                        value={formatCurrency(estadisticas.data.utilidadTotal || 0)}
+                        colorClass="bg-gradient-to-br from-amber-500 to-yellow-600"
+                    />
+
                     <StatCard
                         icon={ShoppingCart}
                         title="Total Ventas"
@@ -205,12 +209,12 @@ const DashboardPage = () => {
                                 <ResponsiveContainer width="100%" height={300}>
                                     <LineChart data={ventasPorMes}>
                                         <CartesianGrid strokeDasharray="3 3" stroke={isDarkMode ? '#374151' : '#e5e7eb'} />
-                                        <XAxis 
-                                            dataKey="mes" 
+                                        <XAxis
+                                            dataKey="mes"
                                             stroke={isDarkMode ? '#9ca3af' : '#6b7280'}
                                             tick={{ fill: isDarkMode ? '#9ca3af' : '#6b7280', fontSize: 12 }}
                                         />
-                                        <YAxis 
+                                        <YAxis
                                             stroke={isDarkMode ? '#9ca3af' : '#6b7280'}
                                             tick={{ fill: isDarkMode ? '#9ca3af' : '#6b7280', fontSize: 12 }}
                                             tickFormatter={(value) => `$${value / 1000}k`}
@@ -225,10 +229,10 @@ const DashboardPage = () => {
                                             }}
                                             formatter={(value) => formatCurrency(value)}
                                         />
-                                        <Line 
-                                            type="monotone" 
-                                            dataKey="total" 
-                                            stroke="#3b82f6" 
+                                        <Line
+                                            type="monotone"
+                                            dataKey="total"
+                                            stroke="#3b82f6"
                                             strokeWidth={3}
                                             dot={{ fill: '#3b82f6', r: 5 }}
                                             activeDot={{ r: 7 }}
@@ -302,11 +306,10 @@ const DashboardPage = () => {
                                 {clientesConMayorDeuda.map((cliente, index) => (
                                     <div key={index} className="flex items-center justify-between">
                                         <div className="flex items-center gap-3">
-                                            <div className={`w-10 h-10 rounded-full bg-gradient-to-br ${
-                                                index === 0 ? 'from-rose-500 to-rose-600' : 
-                                                index === 1 ? 'from-orange-500 to-orange-600' : 
-                                                'from-amber-500 to-amber-600'
-                                            } flex items-center justify-center`}>
+                                            <div className={`w-10 h-10 rounded-full bg-gradient-to-br ${index === 0 ? 'from-rose-500 to-rose-600' :
+                                                index === 1 ? 'from-orange-500 to-orange-600' :
+                                                    'from-amber-500 to-amber-600'
+                                                } flex items-center justify-center`}>
                                                 <Users className="w-5 h-5 text-white" />
                                             </div>
                                             <span className={`font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
@@ -340,15 +343,15 @@ const DashboardPage = () => {
                             <ResponsiveContainer width="100%" height={200}>
                                 <BarChart data={clientesConMasCompras} layout="vertical">
                                     <CartesianGrid strokeDasharray="3 3" stroke={isDarkMode ? '#374151' : '#e5e7eb'} />
-                                    <XAxis 
-                                        type="number" 
+                                    <XAxis
+                                        type="number"
                                         stroke={isDarkMode ? '#9ca3af' : '#6b7280'}
                                         tick={{ fill: isDarkMode ? '#9ca3af' : '#6b7280', fontSize: 11 }}
                                         tickFormatter={(value) => `$${value / 1000}k`}
                                     />
-                                    <YAxis 
-                                        type="category" 
-                                        dataKey="cliente" 
+                                    <YAxis
+                                        type="category"
+                                        dataKey="cliente"
                                         stroke={isDarkMode ? '#9ca3af' : '#6b7280'}
                                         tick={{ fill: isDarkMode ? '#9ca3af' : '#6b7280', fontSize: 11 }}
                                         width={120}
@@ -377,7 +380,7 @@ const DashboardPage = () => {
             </div>
         </div>
     );
-    
+
 };
 
-export default DashboardPage;   
+export default DashboardPage;

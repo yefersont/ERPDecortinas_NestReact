@@ -14,6 +14,7 @@ import { ThrottlerModule } from '@nestjs/throttler';
 import { ConfigModule } from '@nestjs/config';
 import { TipoProductoModule } from './tipo-producto/tipo-producto.module';
 import { ExportModule } from './export/export.module';
+import { CostotipoproductoModule } from './costotipoproducto/costotipoproducto.module';
 
 @Module({
   imports: [
@@ -39,6 +40,7 @@ import { ExportModule } from './export/export.module';
     }),
     TipoProductoModule,
     ExportModule,
+    CostotipoproductoModule,
   ],
   controllers: [AppController],
   providers: [AppService],

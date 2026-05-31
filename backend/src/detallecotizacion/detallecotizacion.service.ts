@@ -7,22 +7,42 @@ import { UpdateDetallecotizacionDto } from './dto/update-detallecotizacion.dto';
 
 @Injectable()
 export class DetallecotizacionService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) { }
 
   // create para varios detalles
   async createMultiple(dto: CreateMultipleDetallecotizacionDto) {
     const created = await Promise.all(
-      dto.detalles.map((detalle) =>
-        this.prisma.detalleCotizacion.create({
+      dto.detalles.map(async (detalle) => {
+
+        const costo = await this.prisma.costoTipoProducto.findFirst({
+          where: {
+            idTipo_producto: detalle.idTipo_producto,
+            fecha_fin: null,
+          },
+        });
+
+        if (!costo) {
+          throw new NotFoundException(
+            `No existe un costo vigente para el tipo de producto ${detalle.idTipo_producto}`,
+          );
+        }
+
+        const costoCalculado = Math.round(
+          Number(detalle.ancho) *
+          Number(detalle.alto) *
+          Number(costo.costo_base));
+
+        return this.prisma.detalleCotizacion.create({
           data: {
             idCotizacion: detalle.idCotizacion,
             idTipo_producto: detalle.idTipo_producto,
             ancho: detalle.ancho,
             alto: detalle.alto,
             precio: detalle.precio,
+            costo_calculado: costoCalculado,
           },
-        }),
-      ),
+        });
+      }),
     );
 
     // Asumiendo que todos los detalles pertenecen a la misma cotización
@@ -37,33 +57,6 @@ export class DetallecotizacionService {
     };
   }
 
-  // // create para un solo detalle
-  // async create(dto: CreateMultipleDetallecotizacionDto) {
-  //   if (!dto.detalles || dto.detalles.length !== 1) {
-  //     throw new Error('Debe enviar exactamente un detalle');
-  //   }
-
-  //   const detalle = dto.detalles[0];
-
-  //   const created = await this.prisma.detalleCotizacion.create({
-  //     data: {
-  //       idCotizacion: detalle.idCotizacion,
-  //       idTipo_producto: detalle.idTipo_producto,
-  //       ancho: detalle.ancho,
-  //       alto: detalle.alto,
-  //       precio: detalle.precio,
-  //     },
-  //   });
-
-  //   await this.actualizarValorTotalCotizacion(detalle.idCotizacion);
-
-  //   return {
-  //     message: 'Detalle creado correctamente',
-  //     data: created,
-  //   };
-  // }
-
-  // nuevo método en el mismo service
   async actualizarValorTotalCotizacion(idCotizacion: number) {
     const detalles = await this.prisma.detalleCotizacion.findMany({
       where: { idCotizacion },
@@ -77,8 +70,6 @@ export class DetallecotizacionService {
     });
   }
 
-
-  // FIND ALL
   async findAll() {
     const detalles = await this.prisma.detalleCotizacion.findMany({
       include: {
@@ -86,13 +77,16 @@ export class DetallecotizacionService {
       },
     });
 
-    return {
-      message: 'Listado de detalles de cotización',
-      data: detalles,
-    };
+    const detallesConUtilidad = detalles.map((detalle) => ({
+      ...detalle,
+      utilidad:
+        Number(detalle.precio) -
+        Number(detalle.costo_calculado ?? 0),
+    }));
+
+    return detallesConUtilidad;
   }
 
-  // FIND ONE
   async findOne(id: number) {
     const detalle = await this.prisma.detalleCotizacion.findUnique({
       where: { idDetalle: id },
@@ -111,28 +105,58 @@ export class DetallecotizacionService {
     };
   }
 
-  // UPDATE
-  async update(id: number, data: UpdateDetallecotizacionDto) {
+  async update(
+    id: number,
+    data: UpdateDetallecotizacionDto,
+  ) {
     const exists = await this.prisma.detalleCotizacion.findUnique({
       where: { idDetalle: id },
     });
 
     if (!exists) {
-      throw new NotFoundException(`DetalleCotización con ID ${id} no existe`);
+      throw new NotFoundException(
+        `DetalleCotización con ID ${id} no existe`,
+      );
     }
 
-    const updated = await this.prisma.detalleCotizacion.update({
-      where: { idDetalle: id },
-      data: { ...data },
+    // Tomar los valores nuevos o los actuales
+    const ancho = data.ancho ?? Number(exists.ancho);
+    const alto = data.alto ?? Number(exists.alto);
+    const idTipoProducto =
+      data.idTipo_producto ?? exists.idTipo_producto;
+
+    // Buscar costo vigente del tipo de producto
+    const costo = await this.prisma.costoTipoProducto.findFirst({
+      where: {
+        idTipo_producto: idTipoProducto,
+        fecha_fin: null,
+      },
+      orderBy: {
+        fecha_inicio: 'desc',
+      },
     });
 
-    return {
-      message: 'Detalle de cotización actualizado correctamente',
-      data: updated,
-    };
+    if (!costo) {
+      throw new NotFoundException(
+        `No existe un costo vigente para el tipo de producto ${idTipoProducto}`,
+      );
+    }
+
+    // Recalcular costo
+    const costoCalculado = Math.round(
+      ancho * alto * Number(costo.costo_base),
+    );
+
+    // Actualizar detalle
+    return await this.prisma.detalleCotizacion.update({
+      where: { idDetalle: id },
+      data: {
+        ...data,
+        costo_calculado: costoCalculado,
+      },
+    });
   }
 
-  // DELETE
   async remove(id: number) {
     const exists = await this.prisma.detalleCotizacion.findUnique({
       where: { idDetalle: id },
@@ -151,4 +175,4 @@ export class DetallecotizacionService {
       data: deleted,
     };
   }
-}
+} 1

@@ -36,6 +36,7 @@ const VentasPage = () => {
     // Handler para abonar
     const handleAbonar = (venta) => {
         setVentaSeleccionada(venta);
+        console.log(venta);
         setIsOpenAbonar(true);
     };
 
@@ -103,6 +104,7 @@ const VentasPage = () => {
     // Formatear fecha
     const formatFecha = (fecha) => {
         return new Date(fecha).toLocaleDateString("es-ES", {
+            timeZone: "UTC",
             year: "numeric",
             month: "short",
             day: "numeric",
@@ -177,8 +179,8 @@ const VentasPage = () => {
                     <div className={`flex-1 h-2 rounded-full overflow-hidden ${isDarkMode ? 'bg-gray-700' : 'bg-gray-200'}`}>
                         <div
                             className={`h-full transition-all duration-300 ${porcentajePagado === 100
-                                    ? 'bg-green-500'
-                                    : 'bg-blue-500'
+                                ? 'bg-green-500'
+                                : 'bg-blue-500'
                                 }`}
                             style={{ width: `${porcentajePagado}%` }}
                         />

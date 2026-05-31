@@ -5,60 +5,66 @@ import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
 export class EstadisticasService {
-  constructor(private prisma: PrismaService) {}
-
-  // create(createEstadisticaDto: CreateEstadisticaDto) {
-  //   return 'This action adds a new estadistica';
-  // }
-
-  // findAll() {
-  //   return `This action returns all estadisticas`;
-  // }
-
-  // findOne(id: number) {
-  //   return `This action returns a #${id} estadistica`;
-  // }
-
-  // update(id: number, updateEstadisticaDto: UpdateEstadisticaDto) {
-  //   return `This action updates a #${id} estadistica`;
-  // }
-
-  // remove(id: number) {
-  //   return `This action removes a #${id} estadistica`;
-  // }
-
-
+  constructor(private prisma: PrismaService) { }
 
   async resumen() {
-
     const totalCotizaciones = await this.prisma.cotizaciones.count();
 
     const totalVentas = await this.prisma.ventas.count();
 
     const ingresosTotales = await this.prisma.ventas.aggregate({
-      _sum: {
-        total: true,
+      _sum: { total: true },
+    });
+
+    const totalAbonos = await this.prisma.deudores.aggregate({
+      _sum: { abono: true },
+    });
+
+    const ventas = await this.prisma.ventas.findMany({
+      select: {
+        saldo_pendiente: true,
       },
     });
 
-    const deudaTotal = await this.prisma.deudores.aggregate({
-      _sum: {
-        abono: true,
-      },
-    });
+    const deudaTotal = ventas.reduce(
+      (acc, v) => acc + Number(v.saldo_pendiente),
+      0,
+    );
 
-    const cotizacionesConVenta = await this.prisma.ventas.findMany({
-      select: {  
+    // SOLO COTIZACIONES QUE YA SE CONVIRTIERON EN VENTA
+    const ventasRealizadas = await this.prisma.ventas.findMany({
+      select: {
         idCotizacion: true,
-      }
+      },
     });
 
-    const idVentas = cotizacionesConVenta.map(v => v.idCotizacion);
+    const idsCotizacionesVendidas = ventasRealizadas.map(
+      (v) => v.idCotizacion,
+    );
+
+    const detallesVendidos = await this.prisma.detalleCotizacion.findMany({
+      where: {
+        idCotizacion: {
+          in: idsCotizacionesVendidas,
+        },
+      },
+      select: {
+        precio: true,
+        costo_calculado: true,
+      },
+    });
+
+    const utilidadTotal = detallesVendidos.reduce((acc, d) => {
+      const precio = Number(d.precio);
+      const costo = Number(d.costo_calculado ?? 0);
+
+      return acc + (precio - costo);
+    }, 0);
 
     const cotizacionesPendientes = await this.prisma.cotizaciones.count({
       where: {
         idCotizacion: {
-          notIn: idVentas,
+          notIn: idsCotizacionesVendidas,
         },
       },
     });
@@ -67,10 +73,11 @@ export class EstadisticasService {
       totalCotizaciones,
       totalVentas,
       ingresosTotales: ingresosTotales._sum.total ?? 0,
-      deudaTotal: deudaTotal._sum.abono ?? 0,
-      cotizacionesPendientes
+      totalAbonos: totalAbonos._sum.abono ?? 0,
+      deudaTotal,
+      utilidadTotal,
+      cotizacionesPendientes,
     };
-
   }
 
   async ventasPorMes() {
@@ -78,17 +85,17 @@ export class EstadisticasService {
     const year = new Date().getFullYear();
 
     const ventas = await this.prisma.ventas.groupBy({
-    by: ['fecha_venta'],
-    _sum: {
-      total: true,
-    },
-    where: {
-      fecha_venta: {
-        gte: new Date(`${year}-01-01`),
-        lte: new Date(`${year}-12-31`),
+      by: ['fecha_venta'],
+      _sum: {
+        total: true,
       },
-    },
-  });
+      where: {
+        fecha_venta: {
+          gte: new Date(`${year}-01-01`),
+          lte: new Date(`${year}-12-31`),
+        },
+      },
+    });
 
     const resumen = Array(12).fill(0);
 
@@ -97,76 +104,76 @@ export class EstadisticasService {
       resumen[mes] += Number(v._sum.total);
     });
 
-      const meses = [
-        'Enero', 'Febrero', 'Marzo', 'Abril',
-        'Mayo', 'Junio', 'Julio', 'Agosto',
-        'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
-      ];
+    const meses = [
+      'Enero', 'Febrero', 'Marzo', 'Abril',
+      'Mayo', 'Junio', 'Julio', 'Agosto',
+      'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
+    ];
 
-      return meses.map((mes, index) => ({
-        mes,
-        total: resumen[index],
-      }));
-    }
+    return meses.map((mes, index) => ({
+      mes,
+      total: resumen[index],
+    }));
+  }
 
   async productosMasVendidos(limit = 5) {
 
-  // 1️⃣ Obtener cotizaciones que sí se convirtieron en ventas
-  const ventas = await this.prisma.ventas.findMany({
-    select: {
-      idCotizacion: true,
-    },
-  });
-
-  const cotizacionesVendidas = ventas.map(v => v.idCotizacion);
-
-  if (cotizacionesVendidas.length === 0) {
-    return [];
-  }
-
-  const productos = await this.prisma.detalleCotizacion.groupBy({
-    by: ['idTipo_producto'],
-    _count: {
-      idTipo_producto: true,
-    },
-    where: {
-      idCotizacion: {
-        in: cotizacionesVendidas,
+    // 1️⃣ Obtener cotizaciones que sí se convirtieron en ventas
+    const ventas = await this.prisma.ventas.findMany({
+      select: {
+        idCotizacion: true,
       },
-    },
-    orderBy: {
+    });
+
+    const cotizacionesVendidas = ventas.map(v => v.idCotizacion);
+
+    if (cotizacionesVendidas.length === 0) {
+      return [];
+    }
+
+    const productos = await this.prisma.detalleCotizacion.groupBy({
+      by: ['idTipo_producto'],
       _count: {
-        idTipo_producto: 'desc',
+        idTipo_producto: true,
       },
-    },
-    take: limit,
-  });
-
-  const idsProductos = productos.map(p => p.idTipo_producto);
-
-  const tiposProductos = await this.prisma.tipo_producto.findMany({
-    where: {
-      idTipo_producto: {
-        in: idsProductos,
+      where: {
+        idCotizacion: {
+          in: cotizacionesVendidas,
+        },
       },
-    },
-    select: {
-      idTipo_producto: true,
-      nombre_tp: true,
-    },
-  });
+      orderBy: {
+        _count: {
+          idTipo_producto: 'desc',
+        },
+      },
+      take: limit,
+    });
 
-  // 4️⃣ Crear mapa id → nombre
-  const mapaProductos = Object.fromEntries(
-    tiposProductos.map(p => [p.idTipo_producto, p.nombre_tp])
-  );
+    const idsProductos = productos.map(p => p.idTipo_producto);
 
-  // 5️⃣ Formatear respuesta final
-  return productos.map(p => ({
-    producto: mapaProductos[p.idTipo_producto] ?? 'Desconocido',
-    vendidos: p._count.idTipo_producto,
-  }));
-}
+    const tiposProductos = await this.prisma.tipo_producto.findMany({
+      where: {
+        idTipo_producto: {
+          in: idsProductos,
+        },
+      },
+      select: {
+        idTipo_producto: true,
+        nombre_tp: true,
+      },
+    });
+
+    // 4️⃣ Crear mapa id → nombre
+    const mapaProductos = Object.fromEntries(
+      tiposProductos.map(p => [p.idTipo_producto, p.nombre_tp])
+    );
+
+    // 5️⃣ Formatear respuesta final
+    return productos.map(p => ({
+      producto: mapaProductos[p.idTipo_producto] ?? 'Desconocido',
+      vendidos: p._count.idTipo_producto,
+    }));
+  }
 
   async clientesConMayorDeuda(limit = 5) {
 
@@ -218,7 +225,6 @@ export class EstadisticasService {
       .slice(0, limit);
   }
 
-
   async clientesConMasCompras(limit = 5) {
 
     const ventas = await this.prisma.ventas.findMany({
@@ -267,7 +273,6 @@ export class EstadisticasService {
       .slice(0, limit);
   }
 
-
   async tiempoPromedioCierre() {
 
     const ventas = await this.prisma.ventas.findMany({
@@ -282,23 +287,23 @@ export class EstadisticasService {
     });
 
     if (ventas.length === 0) return 0;
-    
-  let totalDias = 0;
-  let contador = 0;
 
-  ventas.forEach(v => {
-    const dias = (new Date(v.fecha_venta).getTime() -
-                  new Date(v.cotizacion.fecha).getTime()) 
-                  / (1000 * 60 * 60 * 24);
+    let totalDias = 0;
+    let contador = 0;
 
-    if (dias >= 0 && dias <= 180) {
-      totalDias += dias;
-      contador++;
-    }
-  });
+    ventas.forEach(v => {
+      const dias = (new Date(v.fecha_venta).getTime() -
+        new Date(v.cotizacion.fecha).getTime())
+        / (1000 * 60 * 60 * 24);
 
-  return contador === 0 ? 0 : Math.round(totalDias / contador);
-    
+      if (dias >= 0 && dias <= 180) {
+        totalDias += dias;
+        contador++;
+      }
+    });
+
+    return contador === 0 ? 0 : Math.round(totalDias / contador);
+
   }
 
 }

@@ -11,7 +11,7 @@ import { Roles } from '../auth/roles.decorator';
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('cotizaciones')
 export class CotizacionesController {
-  constructor(private readonly cotizacionesService: CotizacionesService) {}
+  constructor(private readonly cotizacionesService: CotizacionesService) { }
 
   // Crear cotización con detalles (TRANSACCIONAL)
   @Post('with-details')
