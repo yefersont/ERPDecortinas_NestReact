@@ -31,28 +31,41 @@ export class EstadisticasService {
       0,
     );
 
-    const detalles = await this.prisma.detalleCotizacion.findMany({
+    // SOLO COTIZACIONES QUE YA SE CONVIRTIERON EN VENTA
+    const ventasRealizadas = await this.prisma.ventas.findMany({
+      select: {
+        idCotizacion: true,
+      },
+    });
+
+    const idsCotizacionesVendidas = ventasRealizadas.map(
+      (v) => v.idCotizacion,
+    );
+
+    const detallesVendidos = await this.prisma.detalleCotizacion.findMany({
+      where: {
+        idCotizacion: {
+          in: idsCotizacionesVendidas,
+        },
+      },
       select: {
         precio: true,
         costo_calculado: true,
       },
     });
 
-    const utilidadTotal = detalles.reduce((acc, d) => {
+    const utilidadTotal = detallesVendidos.reduce((acc, d) => {
       const precio = Number(d.precio);
       const costo = Number(d.costo_calculado ?? 0);
+
       return acc + (precio - costo);
     }, 0);
 
-    const cotizacionesConVenta = await this.prisma.ventas.findMany({
-      select: { idCotizacion: true },
-    });
-
-    const idVentas = cotizacionesConVenta.map(v => v.idCotizacion);
-
     const cotizacionesPendientes = await this.prisma.cotizaciones.count({
       where: {
-        idCotizacion: { notIn: idVentas },
+        idCotizacion: {
+          notIn: idsCotizacionesVendidas,
+        },
       },
     });
 
