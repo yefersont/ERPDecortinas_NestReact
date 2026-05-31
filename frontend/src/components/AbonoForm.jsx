@@ -3,7 +3,9 @@ import { Calendar, DollarSign, Save, X, AlertCircle } from 'lucide-react';
 
 const AbonoForm = ({ abono = null, venta = null, onSubmit, onCancel, isDarkMode = false, showToast }) => {
   const [formData, setFormData] = useState({
-    abono: abono?.abono ? formatCurrency(abono.abono.toString()) : '',
+    abono: abono?.abono 
+      ? formatCurrency(abono.abono.toString()) 
+      : (venta?.saldo_pendiente ? formatCurrency(Math.round(parseFloat(venta.saldo_pendiente)).toString()) : ''),
     fecha_abono: abono?.fecha_abono?.split('T')[0] || new Date().toISOString().split('T')[0],
   });
 
@@ -79,19 +81,19 @@ const AbonoForm = ({ abono = null, venta = null, onSubmit, onCancel, isDarkMode 
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!validate()) {
       return;
     }
-    
+
     setIsSubmitting(true);
-    
+
     try {
       const dataToSubmit = {
         abono: Number(formData.abono.replace(/[^0-9]/g, '')),
         fecha_abono: `${formData.fecha_abono}T18:00:00.000Z`
       };
-      
+
       await onSubmit(dataToSubmit);
     } catch (error) {
       console.error('Error al guardar abono:', error);
@@ -105,7 +107,7 @@ const AbonoForm = ({ abono = null, venta = null, onSubmit, onCancel, isDarkMode 
       <div className={`w-full ${isDarkMode ? 'bg-gray-900' : 'bg-white'}`}>
         <div className="p-6">
           <div className="space-y-6">
-            
+
             {/* Información de la venta */}
             {/* {venta && (
               <div
@@ -174,12 +176,11 @@ const AbonoForm = ({ abono = null, venta = null, onSubmit, onCancel, isDarkMode 
                     w-full px-4 py-2.5 rounded-lg text-sm
                     transition-all duration-200
                     focus:outline-none focus:ring-2
-                    ${
-                      errors.fecha_abono
-                        ? isDarkMode
-                          ? 'bg-red-900/20 border-2 border-red-500 text-red-400'
-                          : 'bg-red-50 border-2 border-red-500 text-red-900'
-                        : isDarkMode
+                    ${errors.fecha_abono
+                      ? isDarkMode
+                        ? 'bg-red-900/20 border-2 border-red-500 text-red-400'
+                        : 'bg-red-50 border-2 border-red-500 text-red-900'
+                      : isDarkMode
                         ? 'bg-gray-800 border border-gray-700 text-gray-200 focus:ring-blue-500/50 focus:border-blue-500'
                         : 'bg-gray-50 border border-gray-300 text-gray-900 focus:ring-blue-500/50 focus:border-blue-500'
                     }
@@ -216,12 +217,11 @@ const AbonoForm = ({ abono = null, venta = null, onSubmit, onCancel, isDarkMode 
                     w-full px-4 py-2.5 rounded-lg text-sm
                     transition-all duration-200
                     focus:outline-none focus:ring-2
-                    ${
-                      errors.abono
-                        ? isDarkMode
-                          ? 'bg-red-900/20 border-2 border-red-500 text-red-400'
-                          : 'bg-red-50 border-2 border-red-500 text-red-900'
-                        : isDarkMode
+                    ${errors.abono
+                      ? isDarkMode
+                        ? 'bg-red-900/20 border-2 border-red-500 text-red-400'
+                        : 'bg-red-50 border-2 border-red-500 text-red-900'
+                      : isDarkMode
                         ? 'bg-gray-800 border border-gray-700 text-gray-200 focus:ring-blue-500/50 focus:border-blue-500'
                         : 'bg-gray-50 border border-gray-300 text-gray-900 focus:ring-blue-500/50 focus:border-blue-500'
                     }
@@ -239,10 +239,9 @@ const AbonoForm = ({ abono = null, venta = null, onSubmit, onCancel, isDarkMode 
             <div
               className={`
                 p-4 rounded-lg border-l-4
-                ${
-                  isDarkMode
-                    ? 'bg-blue-900/20 border-blue-500 text-blue-400'
-                    : 'bg-blue-50 border-blue-500 text-blue-700'
+                ${isDarkMode
+                  ? 'bg-blue-900/20 border-blue-500 text-blue-400'
+                  : 'bg-blue-50 border-blue-500 text-blue-700'
                 }
               `}
             >
@@ -265,10 +264,9 @@ const AbonoForm = ({ abono = null, venta = null, onSubmit, onCancel, isDarkMode 
               flex items-center gap-2 px-5 py-2.5 rounded-lg
               text-sm font-medium transition-all duration-200
               disabled:opacity-50 disabled:cursor-not-allowed
-              ${
-                isDarkMode
-                  ? 'bg-gray-800 hover:bg-gray-700 text-gray-300 border border-gray-700'
-                  : 'bg-gray-200 hover:bg-gray-300 text-gray-700 border border-gray-300'
+              ${isDarkMode
+                ? 'bg-gray-800 hover:bg-gray-700 text-gray-300 border border-gray-700'
+                : 'bg-gray-200 hover:bg-gray-300 text-gray-700 border border-gray-300'
               }
             `}
           >
@@ -284,10 +282,9 @@ const AbonoForm = ({ abono = null, venta = null, onSubmit, onCancel, isDarkMode 
               flex items-center gap-2 px-5 py-2.5 rounded-lg
               text-sm font-medium transition-all duration-200
               disabled:opacity-50 disabled:cursor-not-allowed
-              ${
-                isDarkMode
-                  ? 'bg-blue-600 hover:bg-blue-700 text-white shadow-lg shadow-blue-600/30'
-                  : 'bg-blue-500 hover:bg-blue-600 text-white shadow-lg shadow-blue-500/30'
+              ${isDarkMode
+                ? 'bg-blue-600 hover:bg-blue-700 text-white shadow-lg shadow-blue-600/30'
+                : 'bg-blue-500 hover:bg-blue-600 text-white shadow-lg shadow-blue-500/30'
               }
             `}
           >

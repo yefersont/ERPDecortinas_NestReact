@@ -75,7 +75,6 @@ const DashboardPage = () => {
 
         } catch (error) {
             console.error("Error cargando estadísticas:", error);
-            // Establecer valores por defecto en caso de error
             setEstadisticas(null);
             setVentasPorMes([]);
             setProductosMasVendidos([]);
@@ -107,7 +106,7 @@ const DashboardPage = () => {
                     <p className={`text-sm font-medium ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
                         {title}
                     </p>
-                    <h3 className={`text-3xl font-bold mt-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                    <h3 className={`text-xl md:text-2xl font-bold mt-2 ${isDarkMode ? 'text-white' : 'text-gray-900'} break-all`}>
                         {value}
                     </h3>
                     {subtitle && (
@@ -150,10 +149,10 @@ const DashboardPage = () => {
                     </div>
                     <div>
                         <h1 className={`text-3xl font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                            Dashboard
+                            Estadisticas
                         </h1>
                         <p className={`mt-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                            Resumen general del sistema
+                            Resumen de ventas, ingresos y cotizaciones
                         </p>
                     </div>
                 </div>
@@ -165,7 +164,6 @@ const DashboardPage = () => {
                         icon={DollarSign}
                         title="Ingresos Totales"
                         value={formatCurrency(estadisticas.data.ingresosTotales || 0)}
-                        trend={estadisticas.data.trend || 0}
                         colorClass="bg-gradient-to-br from-emerald-500 to-emerald-600"
                     />
 
@@ -173,7 +171,6 @@ const DashboardPage = () => {
                         icon={CircleDollarSign}
                         title="Utilidad Neta"
                         value={formatCurrency(estadisticas.data.utilidadTotal || 0)}
-                        trend={estadisticas.data.trend || 0}
                         colorClass="bg-gradient-to-br from-amber-500 to-yellow-600"
                     />
 
@@ -386,4 +383,4 @@ const DashboardPage = () => {
 
 };
 
-export default DashboardPage;   
+export default DashboardPage;

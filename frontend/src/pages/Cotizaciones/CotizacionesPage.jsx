@@ -123,12 +123,12 @@ const CotizacionesPage = () => {
   // Formatear fecha
   const formatFecha = (fecha) => {
     return new Date(fecha).toLocaleDateString("es-ES", {
+      timeZone: "UTC",
       year: "numeric",
       month: "short",
       day: "numeric",
     });
   };
-
   // Formatear moneda
   const formatMoneda = (valor) => {
     return new Intl.NumberFormat("es-CO", {
