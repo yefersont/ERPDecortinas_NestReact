@@ -15,6 +15,7 @@ import { ConfigModule } from '@nestjs/config';
 import { TipoProductoModule } from './tipo-producto/tipo-producto.module';
 import { ExportModule } from './export/export.module';
 import { CostotipoproductoModule } from './costotipoproducto/costotipoproducto.module';
+import { NotificacionesModule } from './notificaciones/notificaciones.module';
 
 @Module({
   imports: [
@@ -28,7 +29,7 @@ import { CostotipoproductoModule } from './costotipoproducto/costotipoproducto.m
     DeudoresModule,
     EstadisticasModule,
     ThrottlerModule.forRoot({
-      throttlers:[
+      throttlers: [
         {
           ttl: 60,
           limit: 10,
@@ -41,8 +42,9 @@ import { CostotipoproductoModule } from './costotipoproducto/costotipoproducto.m
     TipoProductoModule,
     ExportModule,
     CostotipoproductoModule,
+    NotificacionesModule,
   ],
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {}
+export class AppModule { }
