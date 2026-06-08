@@ -13,7 +13,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
     <BrowserRouter>
       <ThemeProvider>
         <ToastProvider>
-          <DialogProvider>  
+          <DialogProvider>
             <AuthProvider>
               <App />
             </AuthProvider>
