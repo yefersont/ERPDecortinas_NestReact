@@ -4,7 +4,7 @@ import { Roles } from '../auth/roles.decorator';
 import { RolesGuard } from '../auth/roles.guard';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 
-// @UseGuards(JwtAuthGuard, RolesGuard)
+@UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('notificaciones')
 export class NotificacionesController {
   constructor(
@@ -12,7 +12,7 @@ export class NotificacionesController {
   ) { }
 
   @Get()
-  // @Roles('ADMIN', 'USER')
+  @Roles('ADMIN', 'USER')
   async obtenerNotificaciones() {
     return {
       message: "Clientes con mora superior a 30 días",
