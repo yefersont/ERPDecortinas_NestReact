@@ -125,7 +125,7 @@ export default function LoginPage() {
             </p>
           </motion.div>
 
-          <div className="space-y-6">
+          <form onSubmit={handleSubmit} className="space-y-6">
             {error && (
               <motion.div
                 className="p-3 rounded-lg text-sm border bg-red-50 border-red-100 text-red-600"
@@ -191,7 +191,7 @@ export default function LoginPage() {
             </motion.div>
 
             <motion.button
-              onClick={handleSubmit}
+              type="submit"
               disabled={loading}
               className={`
               w-full py-3.5 rounded-xl font-semibold shadow-lg transition-all duration-300
@@ -214,7 +214,7 @@ export default function LoginPage() {
               )}
             </motion.button>
 
-          </div>
+          </form>
 
           <motion.div
             className="mt-6 text-center text-sm text-gray-600"
