@@ -65,14 +65,6 @@ const DashboardPage = () => {
             setClientesConMayorDeuda(Array.isArray(deudaRes.data.data) ? deudaRes.data.data : []);
             setClientesConMasCompras(Array.isArray(comprasRes.data.data) ? comprasRes.data.data : []);
 
-            console.log('Datos cargados:', {
-                estadisticas: resumenRes.data,
-                ventasPorMes: ventasRes.data.data,
-                productosMasVendidos: productosRes.data.data,
-                clientesConMayorDeuda: deudaRes.data.data,
-                clientesConMasCompras: comprasRes.data.data
-            });
-
         } catch (error) {
             console.error("Error cargando estadísticas:", error);
             setEstadisticas(null);
@@ -106,7 +98,7 @@ const DashboardPage = () => {
                     <p className={`text-sm font-medium ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
                         {title}
                     </p>
-                    <h3 className={`text-xl md:text-2xl font-bold mt-2 ${isDarkMode ? 'text-white' : 'text-gray-900'} break-all`}>
+                    <h3 className={`text-xl md:text-xl font-bold mt-2 ${isDarkMode ? 'text-white' : 'text-gray-900'} break-all`}>
                         {value}
                     </h3>
                     {subtitle && (
@@ -144,9 +136,6 @@ const DashboardPage = () => {
             <div className="max-w-7xl mx-auto">
                 {/* Header */}
                 <div className="mb-8 flex items-center gap-4">
-                    <div className={`p-3 rounded-xl ${isDarkMode ? 'bg-gray-800 text-white' : 'bg-gray-100 text-gray-900'}`}>
-                        <LayoutDashboard size={32} />
-                    </div>
                     <div>
                         <h1 className={`text-3xl font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
                             Estadisticas

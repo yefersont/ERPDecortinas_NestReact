@@ -1,4 +1,4 @@
-import React from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import {
     FileText,
@@ -8,19 +8,23 @@ import {
     Moon,
     Sun,
     LayoutDashboard,
-    ChevronRight,
     LogOut,
+    Bell,
+    ChevronRight,
+    ChevronDown,
 } from 'lucide-react';
-
 import { useAuth } from '../context/AuthContext';
 import { useDialog } from '../context/DialogContext';
 import { useTheme } from '../context/ThemeContext';
+import NotificationsDropdown from "./Dropdown";
+import { getNotificacionesDeudores } from '../api/Notificaciones.js';
 
 const Navbar = () => {
     const location = useLocation();
     const { isDarkMode, toggleDarkMode } = useTheme();
     const { user, logout } = useAuth();
     const { showDialog } = useDialog();
+    const [notificaciones, setNotificaciones] = useState([]);
 
     const handleLogout = async () => {
         const confirmed = await showDialog({
@@ -37,6 +41,15 @@ const Navbar = () => {
         }
     };
 
+    const getNotificaciones = async () => {
+        try {
+            const response = await getNotificacionesDeudores();
+            setNotificaciones(response.data.data);
+        } catch (error) {
+            console.error('Error al obtener notificaciones:', error);
+        }
+    }
+
     const navItems = [
         { to: '/dashboard', icon: LayoutDashboard, label: 'Estadisticas' },
         { to: '/cotizaciones', icon: FileText, label: 'Cotizaciones' },
@@ -44,6 +57,10 @@ const Navbar = () => {
         { to: '/clientes', icon: Users, label: 'Clientes' },
         { to: '/deudores', icon: AlertCircle, label: 'Deudores' },
     ];
+
+    useEffect(() => {
+        getNotificaciones();
+    }, []);
 
     return (
         <aside
@@ -102,6 +119,11 @@ const Navbar = () => {
 
             {/* Bottom Section */}
             <div className={`p-4 space-y-4 ${isDarkMode ? 'border-gray-700' : 'border-gray-700'} border-t`}>
+
+                <NotificationsDropdown
+                    notificaciones={notificaciones}
+                />
+
                 {/* Dark Mode Toggle */}
                 <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-zinc-900 border border-zinc-800">
                     <div className="flex items-center gap-3 flex-1">
@@ -151,6 +173,9 @@ const Navbar = () => {
                     </button>
                 </div>
             </div>
+
+
+
         </aside>
     );
 };

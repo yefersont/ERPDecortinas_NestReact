@@ -10,7 +10,7 @@ export const useToast = () => {
   const showToast = (message, type = 'success', duration = 4000) => {
     const id = Date.now();
     setToasts(prev => [...prev, { id, message, type, duration }]);
-    
+
     if (duration > 0) {
       setTimeout(() => {
         removeToast(id);
@@ -142,10 +142,9 @@ const ToastItem = ({ toast, onRemove }) => {
         onClick={handleClose}
         className={`
           absolute top-3 right-3 p-1 rounded-lg transition-all duration-200
-          ${
-            isDarkMode
-              ? 'hover:bg-white/10 text-gray-400 hover:text-white'
-              : 'hover:bg-black/10 text-gray-500 hover:text-gray-700'
+          ${isDarkMode
+            ? 'hover:bg-white/10 text-gray-400 hover:text-white'
+            : 'hover:bg-black/10 text-gray-500 hover:text-gray-700'
           }
         `}
       >
@@ -185,7 +184,7 @@ const ToastContainer = ({ toasts, onRemove }) => {
         ))}
       </div>
 
-      <style jsx>{`
+      <style>{`
         @keyframes slideIn {
           from {
             transform: translateX(400px);

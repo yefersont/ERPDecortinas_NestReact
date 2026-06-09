@@ -144,30 +144,15 @@ const DeudoresPage = () => {
                     {/* Título y Stats */}
                     <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
                         <div className="flex items-center gap-4">
-                            {/* Icono decorativo */}
-                            <div
-                                className={`
-                                    hidden sm:flex items-center justify-center
-                                    p-3 rounded-xl
-                                    ${isDarkMode
-                                        ? "bg-gray-800 text-white"
-                                        : "bg-gray-100 text-gray-900"
-                                    }
-                                `}
-                            >
-                                <Wallet size={32} />
-                            </div>
 
                             {/* Título y descripción */}
                             <div>
-                                <h1
-                                    className={`
-                                        text-3xl lg:text-4xl font-bold tracking-tight
-                                        ${isDarkMode ? "text-white" : "text-gray-900"}
-                                    `}
-                                >
+                                <h1 className={`text-3xl font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
                                     Abonos
                                 </h1>
+                                <p className={`mt-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                                    Control de deudores, abonos y saldos pendientes de clientes
+                                </p>
                             </div>
                         </div>
 
