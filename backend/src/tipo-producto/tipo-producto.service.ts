@@ -1,53 +1,146 @@
-import { Injectable } from '@nestjs/common';
-import { PrismaClient } from '@prisma/client';
+import {
+  Injectable,
+  BadRequestException,
+  NotFoundException,
+} from '@nestjs/common';
+import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateTipoProductoDto } from './dto/create-tipo-producto.dto';
 import { UpdateTipoProductoDto } from './dto/update-tipo-producto.dto';
-
-const prisma = new PrismaClient();
+import { CreateTipoProductoCompletoDto } from './dto/create-tipo-producto-completo.dto';
 
 @Injectable()
 export class TipoProductoService {
+  constructor(private prisma: PrismaService) { }
 
-  // Buscar todos los tipos de producto
-  findAll() {
-    return prisma.tipo_producto.findMany({
+  // Obtener todos los tipos de producto
+  async findAll() {
+    return this.prisma.tipo_producto.findMany({
       include: {
-        cotizaciones: true,
+        costos: {
+          where: {
+            fecha_fin: null,
+          },
+          orderBy: {
+            fecha_inicio: 'desc',
+          },
+        },
+      },
+      orderBy: {
+        nombre_tp: 'asc',
       },
     });
   }
 
-  // Buscar un tipo de producto por ID
-  findOne(id: number) {
-    return prisma.tipo_producto.findUnique({
-      where: { idTipo_producto: id },
+  async findOne(id: number) {
+    const producto = await this.prisma.tipo_producto.findUnique({
+      where: {
+        idTipo_producto: id,
+      },
       include: {
-        cotizaciones: true,
+        costos: {
+          where: {
+            fecha_fin: null,
+          },
+        },
       },
     });
+
+    if (!producto) {
+      throw new NotFoundException(
+        'Tipo de producto no encontrado',
+      );
+    }
+
+    return producto;
   }
 
-  // Crear tipo de producto
-  create(data: CreateTipoProductoDto) {
-    return prisma.tipo_producto.create({
+  async create(data: CreateTipoProductoDto) {
+    const existe = await this.prisma.tipo_producto.findFirst({
+      where: {
+        nombre_tp: data.nombre_tp.trim(),
+      },
+    });
+
+    if (existe) {
+      throw new BadRequestException(
+        'Ya existe un tipo de producto con ese nombre',
+      );
+    }
+
+    return this.prisma.tipo_producto.create({
       data: {
-        nombre_tp: data.nombre_tp,
+        nombre_tp: data.nombre_tp.trim(),
       },
     });
   }
 
-  // Actualizar tipo de producto
-  update(id: number, data: UpdateTipoProductoDto) {
-    return prisma.tipo_producto.update({
-      where: { idTipo_producto: id },
-      data,
+  async createCompleto(dto: CreateTipoProductoCompletoDto) {
+
+    return await this.prisma.$transaction(async (tx) => {
+
+      const producto = await tx.tipo_producto.create({
+        data: {
+          nombre_tp: dto.nombre_tp,
+        },
+      });
+
+      const costo = await tx.costoTipoProducto.create({
+        data: {
+          idTipo_producto: producto.idTipo_producto,
+          costo_base: dto.costo_base,
+        },
+      });
+
+      return {
+        producto,
+        costo,
+      };
     });
   }
 
-  // Eliminar tipo de producto
-  remove(id: number) {
-    return prisma.tipo_producto.delete({
-      where: { idTipo_producto: id },
+  async update(
+    id: number,
+    data: UpdateTipoProductoDto,
+  ) {
+    const producto = await this.prisma.tipo_producto.findUnique({
+      where: {
+        idTipo_producto: id,
+      },
+    });
+
+    if (!producto) {
+      throw new NotFoundException(
+        'Tipo de producto no encontrado',
+      );
+    }
+
+    if (data.nombre_tp) {
+      const duplicado =
+        await this.prisma.tipo_producto.findFirst({
+          where: {
+            nombre_tp: data.nombre_tp.trim(),
+            NOT: {
+              idTipo_producto: id,
+            },
+          },
+        });
+
+      if (duplicado) {
+        throw new BadRequestException(
+          'Ya existe un tipo de producto con ese nombre',
+        );
+      }
+    }
+
+    return this.prisma.tipo_producto.update({
+      where: {
+        idTipo_producto: id,
+      },
+      data: {
+        ...data,
+        nombre_tp: data.nombre_tp?.trim(),
+      },
     });
   }
+
 }

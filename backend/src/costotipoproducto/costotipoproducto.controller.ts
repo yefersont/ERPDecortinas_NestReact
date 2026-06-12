@@ -16,7 +16,7 @@ import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { RolesGuard } from '../auth/roles.guard';
 import { Roles } from '../auth/roles.decorator';
 
-@UseGuards(JwtAuthGuard, RolesGuard)
+// @UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('costotipoproducto')
 export class CostotipoproductoController {
   constructor(
@@ -48,7 +48,7 @@ export class CostotipoproductoController {
   }
 
   @Post()
-  @Roles('ADMIN')
+  // @Roles('ADMIN')
   async create(
     @Body() createCostotipoproductoDto: CreateCostotipoproductoDto,
   ) {
@@ -63,23 +63,7 @@ export class CostotipoproductoController {
     };
   }
 
-  @Patch(':id')
-  @Roles('ADMIN')
-  async update(
-    @Param('id') id: string,
-    @Body() updateCostotipoproductoDto: UpdateCostotipoproductoDto,
-  ) {
-    const costo = await this.costotipoproductoService.update(
-      +id,
-      updateCostotipoproductoDto,
-    );
 
-    return {
-      status: HttpStatus.OK,
-      message: 'Costo actualizado exitosamente',
-      data: costo,
-    };
-  }
 
   @Delete(':id')
   @Roles('ADMIN')
