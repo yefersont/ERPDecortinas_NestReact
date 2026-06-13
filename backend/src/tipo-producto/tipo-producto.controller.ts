@@ -16,7 +16,7 @@ import { RolesGuard } from '../auth/roles.guard';
 import { Roles } from '../auth/roles.decorator';
 import { CreateTipoProductoCompletoDto } from './dto/create-tipo-producto-completo.dto';
 
-// @UseGuards(JwtAuthGuard, RolesGuard)
+@UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('tipo-producto')
 export class TipoProductoController {
   constructor(
@@ -24,7 +24,7 @@ export class TipoProductoController {
   ) { }
 
   @Get('obtener')
-  // @Roles('ADMIN', 'USER')
+  @Roles('ADMIN', 'USER')
   async obtener() {
     return {
       message: 'Tipos de producto obtenidos correctamente',
@@ -33,7 +33,7 @@ export class TipoProductoController {
   }
 
   @Get('obtener/:id')
-  // @Roles('ADMIN', 'USER')
+  @Roles('ADMIN', 'USER')
   async obtenerPorId(@Param('id') id: string) {
     return {
       message: 'Tipo de producto obtenido correctamente',
@@ -42,7 +42,7 @@ export class TipoProductoController {
   }
 
   @Post('crear')
-  // @Roles('ADMIN')
+  @Roles('ADMIN')
   async crear(
     @Body() createTipoProductoDto: CreateTipoProductoDto,
   ) {
@@ -71,7 +71,7 @@ export class TipoProductoController {
   }
 
   @Patch('actualizar/:id')
-  // @Roles('ADMIN')
+  @Roles('ADMIN')
   async actualizar(
     @Param('id') id: string,
     @Body() updateTipoProductoDto: UpdateTipoProductoDto,

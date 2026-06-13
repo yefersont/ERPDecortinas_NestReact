@@ -58,8 +58,6 @@ export class CostotipoproductoService {
     });
   }
 
-
-
   async findAll() {
     return await this.prisma.costoTipoProducto.findMany({
       where: {
