@@ -3,12 +3,15 @@ import { AppModule } from './app.module';
 import { ResponseInterceptor } from './common/interceptors/response.interceptor';
 import { ValidationPipe } from '@nestjs/common';
 import cookieParser from 'cookie-parser';
+import helmet from 'helmet';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   app.enableCors({
-    origin: ['http://localhost:3000', 'http://localhost:5173'],
+    origin: [
+      'http://localhost:3000',
+      'http://localhost:5173'],
     credentials: true,
     allowedHeaders: ['Content-Type', 'Authorization'],
 
@@ -20,6 +23,10 @@ async function bootstrap() {
   }));
   app.useGlobalInterceptors(new ResponseInterceptor());
   app.use(cookieParser());
+  app.use(helmet({
+    crossOriginEmbedderPolicy: { policy: "require-corp" },
+
+  }));
   await app.listen(process.env.PORT ?? 3000);
 }
 bootstrap();

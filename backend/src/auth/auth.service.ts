@@ -7,7 +7,7 @@ const prisma = new PrismaClient();
 
 @Injectable()
 export class AuthService {
-  constructor(private jwtService: JwtService) {}
+  constructor(private jwtService: JwtService) { }
 
   async login(email: string, password: string) {
     const user = await prisma.user.findUnique({
