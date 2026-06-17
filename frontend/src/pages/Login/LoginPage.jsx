@@ -216,7 +216,7 @@ export default function LoginPage() {
 
           </form>
 
-          <motion.div
+          {/* <motion.div
             className="mt-6 text-center text-sm text-gray-600"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -226,7 +226,7 @@ export default function LoginPage() {
             <a href="#" className="font-medium text-black hover:text-gray-700 hover:underline transition-colors">
               Recuperar acceso
             </a>
-          </motion.div>
+          </motion.div> */}
         </motion.div>
       </div>
     );
