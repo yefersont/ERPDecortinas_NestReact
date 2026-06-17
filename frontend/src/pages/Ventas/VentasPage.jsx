@@ -320,21 +320,6 @@ const VentasPage = () => {
                                 <span className="hidden sm:inline">Exportar a Excel</span>
                             </button>
 
-                            {/* <button
-                                className={`
-                                    flex items-center gap-2 px-4 py-2.5 rounded-xl
-                                    text-sm font-medium transition-all duration-200
-                                    ${
-                                        isDarkMode
-                                            ? "bg-gray-800 hover:bg-gray-700 text-gray-300 border border-gray-700"
-                                            : "bg-white hover:bg-gray-50 text-gray-700 border border-gray-300 shadow-sm"
-                                    }
-                                `}
-                            >
-                                <Upload size={16} />
-                                <span className="hidden sm:inline">Importar</span>
-                            </button> */}
-
                             <button
                                 className={`
                                     flex items-center gap-2 px-5 py-2.5 rounded-xl
@@ -557,7 +542,7 @@ const VentasPage = () => {
                 <TablaConPaginacion
                     columns={columns}
                     data={tableData}
-                    pageSize={4}
+                    pageSize={6}
                     isDarkMode={isDarkMode}
                 />
             </div>
