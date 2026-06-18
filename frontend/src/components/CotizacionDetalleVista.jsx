@@ -13,10 +13,10 @@ const CotizacionDetalleView = ({ cotizacion, isDarkMode = false }) => {
   const formatDate = (dateString) =>
     dateString
       ? new Date(dateString).toLocaleDateString('es-CO', {
-          day: 'numeric',
-          month: 'short',
-          year: 'numeric'
-        })
+        day: 'numeric',
+        month: 'short',
+        year: 'numeric'
+      })
       : '—';
 
   const venta = cotizacion?.ventas?.[0] || null;
@@ -24,124 +24,180 @@ const CotizacionDetalleView = ({ cotizacion, isDarkMode = false }) => {
 
   return (
     <div className="w-full">
-      <div className="max-w-5xl mx-auto px-4 py-2 space-y-4">
+      <div className="max-w-5xl mx-auto px-4 py-4">
 
-        {/* Cliente */}
-        <div className={`rounded-2xl p-5 shadow border
-          ${isDarkMode ? 'bg-gray-900 border-gray-800' : 'bg-white border-gray-100'}`}>
-          
-          <div className="flex items-center gap-4">
-            <div className={`w-11 h-11 rounded-xl flex items-center justify-center
-              ${isDarkMode ? 'bg-blue-600/30' : 'bg-blue-100'}`}>
-              <User className="text-blue-600" size={22} />
-            </div>
+        <div
+          className={`rounded-2xl border overflow-hidden
+        ${isDarkMode
+              ? 'bg-gray-900 border-gray-800'
+              : 'bg-white border-gray-200'
+            }`}
+        >
 
-            <div className="flex-1">
-              <p className="text-xs font-semibold text-gray-500 uppercase">
-                Cliente
-              </p>
-              <p className={`text-lg font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                {cotizacion?.cliente?.nombre ?? ''} {cotizacion?.cliente?.apellidos ?? ''}
-              </p>
-            </div>
+          {/* Header */}
+          <div className="p-6">
+            <div className="flex justify-between items-start">
+              <div>
+                <p className="text-xs uppercase tracking-wider text-gray-500">
+                  Cliente
+                </p>
 
-            <div className="text-right">
-              <p className="text-xs font-semibold text-gray-500 uppercase">
-                Fecha
-              </p>
-              <p className={`text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                {formatDate(cotizacion?.fecha)}
-              </p>
+                <h1
+                  className={`mt-1 text-2xl font-semibold
+                ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+                >
+                  {cotizacion?.cliente?.nombre ?? ''}{' '}
+                  {cotizacion?.cliente?.apellidos ?? ''}
+                </h1>
+              </div>
+
+              <div className="text-right">
+                <p className="text-xs uppercase tracking-wider text-gray-500">
+                  Fecha
+                </p>
+
+                <p
+                  className={`mt-1 text-sm
+                ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}
+                >
+                  {formatDate(cotizacion?.fecha)}
+                </p>
+              </div>
             </div>
           </div>
-        </div>
 
-        {/* Productos */}
-        <div className={`rounded-2xl p-5 shadow border
-          ${isDarkMode ? 'bg-gray-900 border-gray-800' : 'bg-white border-gray-100'}`}>
+          {/* Separador */}
+          <div
+            className={`border-t
+          ${isDarkMode ? 'border-gray-800' : 'border-gray-200'}`}
+          />
 
-          <p className="text-xs font-semibold text-gray-500 uppercase mb-3">
-            Detalle de productos
-          </p>
+          {/* Productos */}
+          <div className="p-6">
+            <h3
+              className={`text-sm font-semibold mb-4
+            ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+            >
+              Productos
+            </h3>
 
-          <div className="space-y-2">
+            <div
+              className={`grid grid-cols-12 gap-4 pb-3 text-xs uppercase tracking-wider
+            ${isDarkMode
+                  ? 'text-gray-400'
+                  : 'text-gray-500'
+                }`}
+            >
+              <div className="col-span-5">Producto</div>
+              <div className="col-span-3">Medidas</div>
+              <div className="col-span-2">Área</div>
+              <div className="col-span-2 text-right">Precio</div>
+            </div>
+
             {cotizacion?.detalles?.map((d, i) => (
-              <div key={d.idDetalle || i}
-                className={`flex items-center gap-4 p-3 rounded-xl
-                ${isDarkMode ? 'bg-gray-800/50' : 'bg-gray-50'}`}>
-                
-                <div className="w-9 h-9 rounded-lg bg-blue-100 text-blue-600 font-bold flex items-center justify-center">
-                  {i + 1}
+              <div
+                key={d.idDetalle || i}
+                className={`grid grid-cols-12 gap-4 py-4
+              ${isDarkMode
+                    ? 'border-t border-gray-800'
+                    : 'border-t border-gray-100'
+                  }`}
+              >
+                <div
+                  className={`col-span-5 font-medium
+                ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+                >
+                  {d?.tipoProducto?.nombre_tp}
                 </div>
 
-                <div className="flex-1">
-                  <p className={`font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                    {d?.tipoProducto?.nombre_tp ?? 'Producto'}
-                  </p>
-
-                  <p className="text-xs text-gray-500">
-                    {d?.ancho} × {d?.alto} m — {(Number(d?.ancho) * Number(d?.alto) || 0).toFixed(2)} m²
-                  </p>
+                <div
+                  className={`col-span-3
+                ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}
+                >
+                  {d?.ancho} Ancho × {d?.alto} Alto
                 </div>
 
-                <p className="text-lg font-bold text-blue-600">
+                <div
+                  className={`col-span-2
+                ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}
+                >
+                  {(Number(d?.ancho) * Number(d?.alto) || 0).toFixed(2)} m²
+                </div>
+
+                <div
+                  className={`col-span-2 text-right font-semibold
+                ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+                >
                   {formatCurrency(d?.precio)}
-                </p>
+                </div>
               </div>
             ))}
           </div>
 
+          {/* Estado */}
+          {venta && (
+            <>
+              <div
+                className={`border-t
+              ${isDarkMode ? 'border-gray-800' : 'border-gray-200'}`}
+              />
+
+              <div className="p-6 flex justify-between items-center">
+                <div>
+                  <p className="text-xs uppercase tracking-wider text-gray-500">
+                    Estado de Pago
+                  </p>
+
+                  <span
+                    className={`inline-flex mt-2 px-3 py-1 rounded-full text-xs font-medium
+                  ${isPagado
+                        ? 'bg-emerald-100 text-emerald-700'
+                        : 'bg-amber-100 text-amber-700'
+                      }`}
+                  >
+                    {isPagado ? 'Pagado' : 'Pendiente'}
+                  </span>
+                </div>
+
+                {!isPagado && (
+                  <div className="text-right">
+                    <p className="text-xs uppercase tracking-wider text-gray-500">
+                      Saldo pendiente
+                    </p>
+
+                    <p
+                      className={`text-xl font-semibold mt-1
+                    ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+                    >
+                      {formatCurrency(venta?.saldo_pendiente)}
+                    </p>
+                  </div>
+                )}
+              </div>
+            </>
+          )}
+
           {/* Total */}
-          <div className="mt-4 pt-3 border-t border-gray-200 flex justify-between">
-            <span className="font-bold text-gray-700">Total General</span>
-            <span className="text-2xl font-bold text-blue-600">
+          <div
+            className={`border-t px-6 py-5 flex justify-between items-center
+          ${isDarkMode
+                ? 'border-gray-800 bg-gray-800/40'
+                : 'border-gray-200 bg-gray-50'
+              }`}
+          >
+            <span
+              className={`font-semibold
+            ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+            >
+              Total General
+            </span>
+
+            <span className="text-3xl font-bold">
               {formatCurrency(cotizacion?.valor_total)}
             </span>
           </div>
+
         </div>
-
-        {/* Estado de Venta */}
-        {venta && (
-          <div className={`rounded-2xl p-5 shadow border
-            ${isPagado
-              ? 'bg-emerald-50 border-emerald-200'
-              : 'bg-amber-50 border-amber-200'
-            }`}>
-
-            <div className="flex items-center gap-4">
-              <div className={`w-11 h-11 rounded-xl flex items-center justify-center
-                ${isPagado ? 'bg-emerald-500' : 'bg-amber-500'}`}>
-                {isPagado ? <CheckCircle className="text-white" /> : <Clock className="text-white" />}
-              </div>
-
-              <div className="flex-1">
-                <p className="text-xs font-semibold uppercase text-gray-600">
-                  Estado de Pago
-                </p>
-
-                <p className={`text-lg font-bold
-                  ${isPagado ? 'text-emerald-700' : 'text-amber-700'}`}>
-                  {isPagado ? 'Pago Completado' : 'Pago Pendiente'}
-                </p>
-
-                <p className="text-xs text-gray-500">
-                  {formatDate(venta?.fecha_venta)}
-                </p>
-              </div>
-
-              {!isPagado && (
-                <div className="text-right">
-                  <p className="text-xs font-semibold uppercase text-amber-600">
-                    Saldo pendiente
-                  </p>
-                  <p className="text-xl font-bold text-amber-700">
-                    {formatCurrency(venta?.saldo_pendiente)}
-                  </p>
-                </div>
-              )}
-            </div>
-          </div>
-        )}
       </div>
     </div>
   );

@@ -11,7 +11,7 @@ import {
     LogOut,
     Bell,
     ChevronRight,
-    ChevronDown,
+    Cog,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useDialog } from '../context/DialogContext';
@@ -22,7 +22,7 @@ import { getNotificacionesDeudores } from '../api/Notificaciones.js';
 const Navbar = () => {
     const location = useLocation();
     const { isDarkMode, toggleDarkMode } = useTheme();
-    const { user, logout } = useAuth();
+    const { user, logout, accessToken } = useAuth();
     const { showDialog } = useDialog();
     const [notificaciones, setNotificaciones] = useState([]);
 
@@ -59,8 +59,10 @@ const Navbar = () => {
     ];
 
     useEffect(() => {
-        getNotificaciones();
-    }, []);
+        if (accessToken) {
+            getNotificaciones();
+        }
+    }, [accessToken]);
 
     return (
         <aside
@@ -120,9 +122,28 @@ const Navbar = () => {
             {/* Bottom Section */}
             <div className={`p-4 space-y-4 ${isDarkMode ? 'border-gray-700' : 'border-gray-700'} border-t`}>
 
-                <NotificationsDropdown
-                    notificaciones={notificaciones}
-                />
+                {/* Configuraciones */}
+                <Link
+                    to="/configuraciones"
+                    className={`
+                        w-full flex items-center gap-3 px-4 py-3 rounded-xl
+                        transition-all duration-300
+                        ${
+                            location.pathname === '/configuraciones'
+                                ? 'bg-white text-gray-900 shadow-md'
+                                : 'text-gray-400 hover:bg-gray-800 hover:text-white'
+                        }
+                        group
+                    `}
+                >
+                    <Cog
+                        size={20}
+                        className={`${
+                            location.pathname === '/configuraciones' ? 'text-gray-900' : 'text-gray-400'
+                        } group-hover:scale-110 transition-transform duration-300`}
+                    />
+                    <span className="font-medium flex-1 text-left text-sm">Configuraciones</span>
+                </Link>
 
                 {/* Dark Mode Toggle */}
                 <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-zinc-900 border border-zinc-800">
@@ -151,6 +172,10 @@ const Navbar = () => {
                         `} />
                     </button>
                 </div>
+
+                <NotificationsDropdown
+                    notificaciones={notificaciones}
+                />
 
                 {/* User Profile */}
                 <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-zinc-900 border border-zinc-800 transition-all duration-300 group">

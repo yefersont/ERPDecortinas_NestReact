@@ -700,7 +700,7 @@ const CotizacionesPage = () => {
           <TablaConPaginacion
             columns={columns}
             data={tableData}
-            pageSize={5}
+            pageSize={7}
             isDarkMode={isDarkMode}
             onRowClick={handleVerDetalles}
           />

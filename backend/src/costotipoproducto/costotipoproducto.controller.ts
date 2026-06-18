@@ -63,24 +63,6 @@ export class CostotipoproductoController {
     };
   }
 
-  @Patch(':id')
-  @Roles('ADMIN')
-  async update(
-    @Param('id') id: string,
-    @Body() updateCostotipoproductoDto: UpdateCostotipoproductoDto,
-  ) {
-    const costo = await this.costotipoproductoService.update(
-      +id,
-      updateCostotipoproductoDto,
-    );
-
-    return {
-      status: HttpStatus.OK,
-      message: 'Costo actualizado exitosamente',
-      data: costo,
-    };
-  }
-
   @Delete(':id')
   @Roles('ADMIN')
   async remove(@Param('id') id: string) {

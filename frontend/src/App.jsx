@@ -1,8 +1,8 @@
 import React from 'react';
-import { Routes, Route, Navigate, Outlet } from 'react-router-dom'; 
+import { Routes, Route, Navigate, Outlet } from 'react-router-dom';
 import { useTheme } from './context/ThemeContext';
 // Componentes
-import Navbar from './components/Navbar'; 
+import Navbar from './components/Navbar';
 import PrivateRoute from './components/PrivateRoute';
 
 // Páginas
@@ -12,12 +12,13 @@ import VentasPage from './pages/Ventas/VentasPage';
 import CotizacionesPage from './pages/Cotizaciones/CotizacionesPage';
 import DashboardPage from './pages/Dashboard/DashboardPage';
 import DeudoresPage from './pages/deudores/DeudoresPage';
+import ConfPage from './pages/configuraciones/ConfPage';
 
 function App() {
   return (
     <Routes>
       <Route path="/login" element={<LoginPage />} />
-      
+
       {/* Rutas Protegidas y con Layout */}
       <Route element={<ProtectedLayout />}>
         <Route element={<PrivateRoute />}>
@@ -27,6 +28,8 @@ function App() {
           <Route path="/ventas" element={<VentasPage />} />
           <Route path="/cotizaciones" element={<CotizacionesPage />} />
           <Route path="/deudores" element={<DeudoresPage />} />
+          <Route path="/configuraciones" element={<ConfPage />} />
+
           <Route path="*" element={<NotFound />} />
         </Route>
       </Route>
@@ -39,15 +42,15 @@ function ProtectedLayout() {
 
   return (
     <div className={`flex h-screen overflow-hidden ${isDarkMode ? 'bg-gray-900' : 'bg-gray-50'}`}>
-      
+
       {/* Navbar se mantiene montado siempre */}
       <Navbar />
 
       <main className={`flex-1 overflow-auto transition-colors duration-300 ${isDarkMode ? 'bg-gray-900' : 'bg-gray-50'}`}>
         {/* Aquí se renderizan las rutas hijas */}
         <Outlet />
-      </main> 
-      
+      </main>
+
     </div>
   );
 }

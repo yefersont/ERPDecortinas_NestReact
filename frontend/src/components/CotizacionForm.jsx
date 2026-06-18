@@ -344,7 +344,7 @@ const CotizacionesForm = ({ cliente, cotizacion, onCancel, onSubmit }) => {
                   />
                 </div>
 
-                <div>
+                <div className="col-span-2">
                   <label className={`block text-xs font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>Producto</label>
                   <select
                     value={formData.productos[0]?.tipoProducto || ''}
@@ -463,7 +463,7 @@ const CotizacionesForm = ({ cliente, cotizacion, onCancel, onSubmit }) => {
                     />
                   </div>
 
-                  <div>
+                  <div className="col-span-2">
                     <select
                       value={producto.tipoProducto}
                       onChange={(e) => handleProductoChange(index + 1, 'tipoProducto', e.target.value)}
